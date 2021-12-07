@@ -5,5 +5,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Tentacles"
-include("Tentacles-API", "Tentacles-Server")
+rootProject.name = "Graphene"
+include("Graphene-API", "Graphene-Server")
