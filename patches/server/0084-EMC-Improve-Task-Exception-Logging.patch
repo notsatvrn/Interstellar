@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Aikar <aikar@aikar.co>
+Date: Wed, 23 Dec 2015 05:28:12 -0500
+Subject: [PATCH] Improve Task Exception Logging
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index cdefb2025eedea7e204d70d568adaf1c1ec4c03c..db3e11a34d05c44cc53abfeb0625fad37dfe091e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -491,7 +491,7 @@ public class CraftScheduler implements BukkitScheduler {
+                         net.minecraft.server.MinecraftServer.LOGGER.error(msg, throwable);
+                     } else {
+                         task.getOwner().getLogger().log(
+-                            Level.WARNING,
++                            Level.SEVERE, // EMC
+                             msg,
+                             throwable);
+                     }

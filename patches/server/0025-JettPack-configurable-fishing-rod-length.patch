@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Simon Gardling <titaniumtown@gmail.com>
+Date: Wed, 10 Nov 2021 20:18:43 -0500
+Subject: [PATCH] configurable fishing rod length
+
+
+diff --git a/src/main/java/me/titaniumtown/JettPackConfig.java b/src/main/java/me/titaniumtown/JettPackConfig.java
+index 2217bc4a378866eaf224731685b759a27268b655..56e9e776750ad569de0d69a3f96994fc4e64d555 100644
+--- a/src/main/java/me/titaniumtown/JettPackConfig.java
++++ b/src/main/java/me/titaniumtown/JettPackConfig.java
+@@ -116,7 +116,9 @@ public class JettPackConfig {
+     }
+
+     public static boolean logPlayerLoginLoc = true;
++    public static double fishingRodLength = 1024.0D;
+     private static void general() {
+         logPlayerLoginLoc = getBoolean("settings.log-player-login-location", logPlayerLoginLoc);
++        fishingRodLength = getDouble("settings.fishing-rod-length", fishingRodLength);
+     }
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java b/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java
+index 5c16566f5..074bf2718 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java
+@@ -144,7 +144,7 @@ public class FishingHook extends Projectile {
+
+     @Override
+     public boolean shouldRenderAtSqrDistance(double distance) {
+-        double d1 = 64.0D;
++        // double d1 = 64.0D; // Jettpack
+
+         return distance < 4096.0D;
+     }
+@@ -249,7 +249,7 @@ public class FishingHook extends Projectile {
+                 this.setDeltaMovement(Vec3.ZERO);
+             }
+
+-            double d1 = 0.92D;
++            // double d1 = 0.92D; // Jettpack
+
+             this.setDeltaMovement(this.getDeltaMovement().scale(0.92D));
+             this.reapplyPosition();
+@@ -267,7 +267,7 @@ public class FishingHook extends Projectile {
+         boolean flag = itemstack.is(Items.FISHING_ROD);
+         boolean flag1 = itemstack1.is(Items.FISHING_ROD);
+
+-        if (!player.isRemoved() && player.isAlive() && (flag || flag1) && this.distanceToSqr(player) <= 1024.0D) {
++        if (!player.isRemoved() && player.isAlive() && (flag || flag1) && this.distanceToSqr((Entity) player) <= me.titaniumtown.JettPackConfig.fishingRodLength) { // Jettpack
+             return false;
+         } else {
+             this.discard();
