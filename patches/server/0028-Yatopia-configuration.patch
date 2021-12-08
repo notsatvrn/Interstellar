@@ -6,24 +6,24 @@ Subject: [PATCH] Yatopia configuration
 also some basic settings that dont deserve a patch
 
 diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
-index 2706b8e85..c6caad597 100644
+index eace71a4b..61a2aa1ee 100644
 --- a/src/main/java/co/aikar/timings/TimingsExport.java
 +++ b/src/main/java/co/aikar/timings/TimingsExport.java
-@@ -230,7 +230,8 @@ public class TimingsExport extends Thread {
-             pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
-             pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)),
-             pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)), // Pufferfish
--            pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)) // Airplane
-+            pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)), // Airplane
+@@ -234,7 +234,8 @@ public class TimingsExport extends Thread {
+             pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)), // Airplane
+             pair("purpur", mapAsJSON(Bukkit.spigot().getPurpurConfig(), null)), // Pufferfish
+             // Purpur end
+-            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)) // Pufferfish
++            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)), // Pufferfish
 +            pair("yatopia", mapAsJSON(Bukkit.spigot().getYatopiaConfig(), null)) // Yatopia
          ));
 
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index e23544352..39d84e2ec 100644
+index da59bbf5f..73babdccc 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -249,6 +249,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -267,6 +267,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          }
          // JettPack end
 
@@ -40,10 +40,10 @@ index e23544352..39d84e2ec 100644
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 76ba79dc6..82bfe99a3 100644
+index 4baca0d41..d2117c471 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -392,21 +392,23 @@ public abstract class LivingEntity extends Entity {
+@@ -398,22 +398,24 @@ public abstract class LivingEntity extends Entity {
          this.level.getProfiler().push("livingEntityBaseTick");
          boolean flag = this instanceof net.minecraft.world.entity.player.Player;
 
@@ -57,6 +57,7 @@ index 76ba79dc6..82bfe99a3 100644
 -                    double d1 = this.level.getWorldBorder().getDamagePerBlock();
 -
 -                    if (d1 > 0.0D) {
+-                        if (level.purpurConfig.teleportIfOutsideBorder && this instanceof ServerPlayer) { ((ServerPlayer) this).teleport(MCUtil.toLocation(level, ((ServerLevel) level).getSharedSpawnPos())); return; } // Purpur
 -                        this.hurt(DamageSource.IN_WALL, (float) Math.max(1, Mth.floor(-d0 * d1)));
 +        if (!org.yatopiamc.yatopia.server.YatopiaConfig.disableEntityStuckChecks) { // Yatopia
 +            if (this.isAlive()) {
@@ -69,6 +70,7 @@ index 76ba79dc6..82bfe99a3 100644
 +                        double d1 = this.level.getWorldBorder().getDamagePerBlock();
 +
 +                        if (d1 > 0.0D) {
++                            if (level.purpurConfig.teleportIfOutsideBorder && this instanceof ServerPlayer) { ((ServerPlayer) this).teleport(MCUtil.toLocation(level, ((ServerLevel) level).getSharedSpawnPos())); return; } // Purpur
 +                            this.hurt(DamageSource.IN_WALL, (float) Math.max(1, Mth.floor(-d0 * d1)));
 +                        }
                      }

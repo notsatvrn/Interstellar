@@ -83,17 +83,17 @@ index 8944f3ed83e2b9b083374992fb9bf63c1b9e648b..6d8782ff3b6da2a50ba8670b3b8ab1ee
      public static <S extends MinecraftServer> S spin(Function<Thread, S> serverFactory) {
          AtomicReference<S> atomicreference = new AtomicReference();
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index ab6e496d6d2aa11caca82b52c7e92715988455db..d0a46e50ab79d3bae1635d02d0d608c9065c7028 100644
+index 1cac03015..7c4ab5580 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -353,6 +353,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-                 DedicatedServer.LOGGER.info("JMX monitoring enabled");
+@@ -398,6 +398,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
              }
 
+             net.pl3x.purpur.task.BossBarTask.startAll(); // Purpur
 +            if (gg.pufferfish.pufferfish.PufferfishConfig.enableAsyncMobSpawning) mobSpawnExecutor.start(); // Pufferfish
+
              return true;
          }
-     }
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 index 5116b1f90c0f27ce1d3cee6632563f32356a1eb6..e70136688a03b24bffbfbf1855efbedd00326980 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java

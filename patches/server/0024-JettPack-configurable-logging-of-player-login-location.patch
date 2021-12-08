@@ -20,12 +20,12 @@ index d81564ed381cff61b978adfa0ab661ac22415a07..2217bc4a378866eaf224731685b759a2
  }
 \ No newline at end of file
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 40d55cade76d0e8f39f91a322bc8a821877efa2c..302e356c035ad0fac1854dae114e0c3edb6f2262 100644
+index e3dadb8ad..631b5f5dd 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -483,7 +483,13 @@ public abstract class PlayerList {
-         }
+@@ -485,7 +485,13 @@ public abstract class PlayerList {
          // Paper end
+         net.pl3x.purpur.task.BossBarTask.addToAll(player); // Purpur
          // CraftBukkit - Moved from above, added world
 -        PlayerList.LOGGER.info("{}[{}] logged in with entity id {} at ([{}]{}, {}, {})", player.getName().getString(), s1, player.getId(), worldserver1.serverLevelData.getLevelName(), player.getX(), player.getY(), player.getZ());
 +        // JettPack start -  configurable logging of player login location
@@ -36,5 +36,5 @@ index 40d55cade76d0e8f39f91a322bc8a821877efa2c..302e356c035ad0fac1854dae114e0c3e
 +        }
 +        // JettPack end
      }
- 
+
      public void updateEntireScoreboard(ServerScoreboard scoreboard, ServerPlayer player) {

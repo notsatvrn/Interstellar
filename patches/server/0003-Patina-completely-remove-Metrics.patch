@@ -6,10 +6,10 @@ Subject: [PATCH] completely remove Metrics
 
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
 deleted file mode 100644
-index 218f5bafeed8551b55b91c7fccaf6935c8b631ca..0000000000000000000000000000000000000000
+index 05f1b6d10..000000000
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ /dev/null
-@@ -1,675 +0,0 @@
+@@ -1,674 +0,0 @@
 -package com.destroystokyo.paper;
 -
 -import net.minecraft.server.MinecraftServer;
@@ -605,8 +605,7 @@ index 218f5bafeed8551b55b91c7fccaf6935c8b631ca..00000000000000000000000000000000
 -            boolean logFailedRequests = config.getBoolean("logFailedRequests", false);
 -            // Only start Metrics, if it's enabled in the config
 -            if (config.getBoolean("enabled", true)) {
--                Metrics metrics = new Metrics("Paper", serverUUID, logFailedRequests, Bukkit.getLogger());
--
+-                Metrics metrics = new Metrics("Purpur", serverUUID, logFailedRequests, Bukkit.getLogger()); // Airplane // Purpur
 -                metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
 -                    String minecraftVersion = Bukkit.getVersion();
 -                    minecraftVersion = minecraftVersion.substring(minecraftVersion.indexOf("MC: ") + 4, minecraftVersion.length() - 1);
@@ -614,8 +613,8 @@ index 218f5bafeed8551b55b91c7fccaf6935c8b631ca..00000000000000000000000000000000
 -                }));
 -
 -                metrics.addCustomChart(new Metrics.SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
--                metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : "offline"));
--                metrics.addCustomChart(new Metrics.SimplePie("paper_version", () -> (Metrics.class.getPackage().getImplementationVersion() != null) ? Metrics.class.getPackage().getImplementationVersion() : "unknown"));
+-                metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : (PaperConfig.isProxyOnlineMode() ? "bungee" : "offline"))); // Purpur
+-                metrics.addCustomChart(new Metrics.SimplePie("purpur_version", () -> (Metrics.class.getPackage().getImplementationVersion() != null) ? Metrics.class.getPackage().getImplementationVersion() : "unknown")); // Airplane // Purpur
 -
 -                metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
 -                    Map<String, Map<String, Integer>> map = new HashMap<>();
@@ -686,7 +685,7 @@ index 218f5bafeed8551b55b91c7fccaf6935c8b631ca..00000000000000000000000000000000
 -    }
 -}
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index 17e91fb9303e98e4a216f773340e4f551436bf54..e12948591648adcc6f57ec2fc7d1d7c03fa2a7c5 100644
+index f5ec3cd38..a3a1f8e93 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -51,7 +51,7 @@ public class PaperConfig {
@@ -695,13 +694,13 @@ index 17e91fb9303e98e4a216f773340e4f551436bf54..e12948591648adcc6f57ec2fc7d1d7c0
      /*========================================================================*/
 -    private static boolean metricsStarted;
 +    //private static boolean metricsStarted; // Patina
- 
+
      public static void init(File configFile) {
          CONFIG_FILE = configFile;
 @@ -96,10 +96,12 @@ public class PaperConfig {
              MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "Paper", entry.getValue());
          }
- 
+
 +        /* // Patina
          if (!metricsStarted) {
              Metrics.PaperMetrics.startMetrics();
@@ -709,7 +708,7 @@ index 17e91fb9303e98e4a216f773340e4f551436bf54..e12948591648adcc6f57ec2fc7d1d7c0
          }
 +        */
      }
- 
+
      static void readConfig(Class<?> clazz, Object instance) {
 diff --git a/src/main/java/org/spigotmc/Metrics.java b/src/main/java/org/spigotmc/Metrics.java
 deleted file mode 100644

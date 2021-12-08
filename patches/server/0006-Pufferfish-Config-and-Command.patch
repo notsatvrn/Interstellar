@@ -5,18 +5,19 @@ Subject: [PATCH] Pufferfish Config and Command
 
 
 diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
-index e29b0a900..8bcd4d588 100644
+index c5803537b..eace71a4b 100644
 --- a/src/main/java/co/aikar/timings/TimingsExport.java
 +++ b/src/main/java/co/aikar/timings/TimingsExport.java
-@@ -228,7 +228,8 @@ public class TimingsExport extends Thread {
-         parent.put("config", createObject(
+@@ -232,8 +232,9 @@ public class TimingsExport extends Thread {
              pair("spigot", mapAsJSON(Bukkit.spigot().getSpigotConfig(), null)),
-             pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
--            pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null))
-+            pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)),
+             pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Airplane
+             pair("airplane", mapAsJSON(gg.airplane.AirplaneConfig.getConfigCopy(), null)), // Airplane
+-            pair("purpur", mapAsJSON(Bukkit.spigot().getPurpurConfig(), null))
++            pair("purpur", mapAsJSON(Bukkit.spigot().getPurpurConfig(), null)), // Pufferfish
+             // Purpur end
 +            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)) // Pufferfish
          ));
- 
+
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishCommand.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishCommand.java
 new file mode 100644
@@ -48,7 +49,7 @@ index 0000000000000000000000000000000000000000..020368da69b9a492155f6de6297f7473
 +        this.usageMessage = "/pufferfish [reload | version]";
 +        this.setPermission("bukkit.command.pufferfish");
 +    }
-+    
++
 +    public static void init() {
 +        MinecraftServer.getServer().server.getCommandMap().register("pufferfish", "Pufferfish", new PufferfishCommand());
 +    }

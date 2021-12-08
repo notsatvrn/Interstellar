@@ -129,10 +129,10 @@ index 0000000000000000000000000000000000000000..d81564ed381cff61b978adfa0ab661ac
 +}
 \ No newline at end of file
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 36b611636..58e5c51d0 100644
+index 7c4ab5580..7f8b3aa3c 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -240,6 +240,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -258,6 +258,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          gg.pufferfish.pufferfish.PufferfishConfig.load(); // Pufferfish
          gg.pufferfish.pufferfish.PufferfishCommand.init(); // Pufferfish
 
@@ -149,13 +149,13 @@ index 36b611636..58e5c51d0 100644
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index a292e67bd..8c15ebb31 100644
+index 8fadbe3eb..f1c4e1050 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -924,6 +924,7 @@ public final class CraftServer implements Server {
-
-         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+@@ -926,6 +926,7 @@ public final class CraftServer implements Server {
          com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
+         net.pl3x.purpur.PurpurConfig.init((File) console.options.valueOf("purpur-settings")); // Purpur
+         tk.galaxiamc.graphene.GrapheneConfig.init((File) console.options.valueOf("graphene-settings")); // Graphene
 +        me.titaniumtown.JettPackConfig.init((File) console.options.valueOf("jettpack-settings")); // JettPack
          for (ServerLevel world : this.console.getAllLevels()) {
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty

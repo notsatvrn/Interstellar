@@ -4,16 +4,24 @@ Date: Mon, 28 Jun 2021 11:44:27 +0000
 Subject: [PATCH] hardcode 1.17.1-R0.1-SNAPSHOT
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index a9f823a8e..f3d02fc44 100644
+index 070b95c38..e9971f5f7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-@@ -9,21 +9,6 @@ import org.bukkit.Bukkit;
- 
+@@ -1,29 +1,7 @@
+ package org.bukkit.craftbukkit.util;
+
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.util.Properties;
+-import java.util.logging.Level;
+-import java.util.logging.Logger;
+-import org.bukkit.Bukkit;
+-
  public final class Versioning {
      public static String getBukkitVersion() {
 -        String result = "Unknown-Version";
 -
--        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/tk.galaxiamc.interstellar/interstellar-api/pom.properties"); // Interstellar
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/tk.galaxiamc.graphene/graphene-api/pom.properties"); // Airplane // Purpur // Graphene
 -        Properties properties = new Properties();
 -
 -        if (stream != null) {
@@ -30,4 +38,3 @@ index a9f823a8e..f3d02fc44 100644
 +        return "1.17.1-R0.1-SNAPSHOT"; // Patina
      }
  }
-

@@ -52,7 +52,7 @@ manifest.mf
 run/
 
 build-data/
-Tentacles-API
-Tentacles-MojangAPI
-Tentacles-Server
+Graphene-API
+Graphene-MojangAPI
+Graphene-Server
 *.jar

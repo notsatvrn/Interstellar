@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Encode42 <me@encode42.dev>
 Date: Thu, 16 Sep 2021 20:32:04 -0400
-Subject: [PATCH] Tentacles config files
+Subject: [PATCH] Graphene config files
 
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
@@ -12,12 +12,12 @@ index ccfb8a8dcd51bf998c79298a22e38cebb2be6d39..b12c575310d19547cf8f9c3d9ca043ee
          }
          // Purpur end
  
-+        // Tentacles start
++        // Graphene start
 +        @NotNull
-+        public org.bukkit.configuration.file.YamlConfiguration getTentaclesConfig() {
++        public org.bukkit.configuration.file.YamlConfiguration getGrapheneConfig() {
 +            throw new UnsupportedOperationException("Not supported yet.");
 +        }
-+        // Tentacles end
++        // Graphene end
 +
          /**
           * Sends the component to the player

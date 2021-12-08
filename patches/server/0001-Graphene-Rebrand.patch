@@ -13,7 +13,7 @@ index 7168672c9d38f0f30ee8a683df7f60d686bada23..513863fc61cdd6137d7727247a051117
  
  dependencies {
 -    implementation(project(":Purpur-API")) // Airplane // Purpur
-+    implementation(project(":Tentacles-API")) // Airplane // Purpur // Tentacles
++    implementation(project(":Graphene-API")) // Airplane // Purpur // Graphene
      implementation("io.papermc.paper:paper-mojangapi:1.17.1-R0.1-SNAPSHOT") // Airplane
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.21.0")
@@ -22,34 +22,10 @@ index 7168672c9d38f0f30ee8a683df7f60d686bada23..513863fc61cdd6137d7727247a051117
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
 -            "Implementation-Version" to "git-Purpur-$implementationVersion", // Airplane // Purpur
-+            "Implementation-Version" to "git-Tentacles-$implementationVersion", // Airplane // Purpur // Tentacles
++            "Implementation-Version" to "git-Graphene-$implementationVersion", // Airplane // Purpur // Graphene
              "Implementation-Vendor" to date, // Paper
              "Specification-Title" to "Bukkit",
              "Specification-Version" to project.version,
-diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index aadd6550a5892e403f7b0bbef008461c1566a1bb..9620609a19fe22681b0640ca3a0069f3d8212788 100644
---- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-+++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-@@ -31,8 +31,8 @@ public class PaperVersionFetcher implements VersionFetcher {
-     @Nonnull
-     @Override
-     public Component getVersionMessage(@Nonnull String serverVersion) {
--        String[] parts = serverVersion.substring("git-Purpur-".length()).split("[-\\s]"); // Airplane // Purpur
--        final Component updateMessage = getUpdateStatusMessage("pl3xgaming/Purpur", "ver/" + getMinecraftVersion(), parts[0]); // Airplane // Purpur
-+        String[] parts = serverVersion.substring("git-Tentacles-".length()).split("[-\\s]"); // Airplane // Purpur // Tentacles
-+        final Component updateMessage = getUpdateStatusMessage("pl3xgaming/Tentacles", "ver/" + getMinecraftVersion(), parts[0]); // Airplane // Purpur // Tentacles
-         final Component history = getHistory();
- 
-         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
-@@ -85,7 +85,7 @@ public class PaperVersionFetcher implements VersionFetcher {
-         if (siteApiVersion == null) { return -1; }
-         try {
-             try (BufferedReader reader = Resources.asCharSource(
--                new URL("https://api.pl3x.net/v2/purpur/" + siteApiVersion), // Purpur
-+                new URL("https://api.pl3x.net/v2/tentacles/" + siteApiVersion), // Purpur // Tentacles
-                 Charsets.UTF_8
-             ).openBufferedStream()) {
-                 JsonObject json = new Gson().fromJson(reader, JsonObject.class);
 diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
 index 8c3c68465197fafc14849dc38a572e309931e2a2..b479de592dfeb83250f6ed081f2e5a9d2be4c4c9 100644
 --- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
@@ -59,7 +35,7 @@ index 8c3c68465197fafc14849dc38a572e309931e2a2..b479de592dfeb83250f6ed081f2e5a9d
      protected LineReader buildReader(LineReaderBuilder builder) {
          builder
 -                .appName("Purpur") // Purpur
-+                .appName("Tentacles") // Purpur // Tentacles
++                .appName("Graphene") // Purpur // Graphene
                  .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
                  .completer(new ConsoleCommandCompleter(this.server))
                  .option(LineReader.Option.COMPLETE_IN_WORD, true);
@@ -72,7 +48,7 @@ index 7e36bcda5b8caee9fb604d26f7b9b22a7b1fea98..74d8af6d6f536e0477fed56b1ef254ce
      }
  
 -    public static String serverModName = "Purpur";
-+    public static String serverModName = "Tentacles"; // Tentacles
++    public static String serverModName = "Graphene"; // Graphene
      private static void serverModName() {
          serverModName = getString("settings.server-mod-name", serverModName);
      }
@@ -85,7 +61,7 @@ index 171207e4ba1a21143ea1db8b1d3646df50256484..bd0b958bab82acd0b630beb55cf38901
  
  public final class CraftServer implements Server {
 -    private final String serverName = "Purpur"; // Paper // Airplane // Purpur
-+    private final String serverName = "Tentacles"; // Paper // Airplane // Purpur // Tentacles
++    private final String serverName = "Graphene"; // Paper // Airplane // Purpur // Graphene
      private final String serverVersion;
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
@@ -98,7 +74,7 @@ index e7d740e191c5ac408ba1fa493e9367dd52900a02..26e23327f37b585343eccca0ed410598
          String result = "Unknown-Version";
  
 -        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/net.pl3x.purpur/purpur-api/pom.properties"); // Airplane // Purpur
-+        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/net.pl3x.tentacles/tentacles-api/pom.properties"); // Airplane // Purpur // Tentacles
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/tk.galaxiamc.graphene/graphene-api/pom.properties"); // Airplane // Purpur // Graphene
          Properties properties = new Properties();
  
          if (stream != null) {
