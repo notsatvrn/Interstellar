@@ -235,12 +235,12 @@ index 0000000000000000000000000000000000000000..f81a4985a24520ab5c7dce0b49a864e0
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index b6ee0e709..dee8e93a2 100644
+index bc57559a9..1cac03015 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -235,6 +235,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
-         // Paper end
+@@ -255,6 +255,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         gg.airplane.AirplaneConfig.load(); // Airplane - config
+         gg.airplane.commands.AirplaneCommands.init(); // Airplane - command
 
 +        gg.pufferfish.pufferfish.PufferfishConfig.load(); // Pufferfish
 +        gg.pufferfish.pufferfish.PufferfishCommand.init(); // Pufferfish

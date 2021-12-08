@@ -1,24 +1,24 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: YatopiaMC <yatopiamc@gmail.com>
+From: Toffikk <slodkitofik@gmail.com>
 Date: Sun, 17 Jan 2021 15:37:52 -0600
-Subject: [PATCH] Yatopia Config & Redirect Config
+Subject: [PATCH] Sugarcane Config
 
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index b12c5753..e1dc7499 100644
+index 83d61dfe..99831c02 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
 @@ -1737,6 +1737,14 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
          }
-         // Tentacles end
+         // Graphene end
 
-+        // Yatopia start - add config to timings report
++        // Sugarcane start - add config to timings report
 +        @NotNull
-+        public org.bukkit.configuration.file.YamlConfiguration getYatopiaConfig()
++        public org.bukkit.configuration.file.YamlConfiguration getSugarcaneConfig()
 +        {
 +            throw new UnsupportedOperationException("Not supported yet.");
 +        }
-+        // Yatopia end
++        // Sugarcane end
 +
          /**
           * Sends the component to the player
