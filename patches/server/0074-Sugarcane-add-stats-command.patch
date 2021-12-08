@@ -266,56 +266,35 @@ index 0000000000000000000000000000000000000000..0aa39659b11a094abf2268e4dc485461
 +    }
 +}
 diff --git a/src/main/java/org/sugarcanemc/sugarcane/command/SugarcaneCommandsManager.java b/src/main/java/org/sugarcanemc/sugarcane/command/SugarcaneCommandsManager.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..41267bfa19a0b5f848815c758d77f70bf9634e38
---- /dev/null
+index 41267bfa19a0b5f848815c758d77f70bf9634e38..e4fcc7f24f448b60a13231bc6819721cb88830c1 100644
+--- a/src/main/java/org/sugarcanemc/sugarcane/command/SugarcaneCommandsManager.java
 +++ b/src/main/java/org/sugarcanemc/sugarcane/command/SugarcaneCommandsManager.java
-@@ -0,0 +1,22 @@
-+package org.sugarcanemc.sugarcane.command;
-+
-+import java.util.Map;
-+import java.util.HashMap;
-+import org.bukkit.command.Command;
-+import net.minecraft.server.MinecraftServer;
-+
-+public class SugarcaneCommandsManager {
-+	private static Map<String, Command> commands;
-+
-+	static {
-+		commands = new HashMap<>();
+@@ -11,6 +11,7 @@ public class SugarcaneCommandsManager {
+ 	static {
+ 		commands = new HashMap<>();
+ 		commands.put("nspt", new NSPTCommand("nspt"));
 +		commands.put("stats", new StatsCommand("stats"));
-+	}
-+
-+	public static void registerCommands() {
-+		if (commands != null)
-+			for (var command : commands.entrySet()) {
-+				MinecraftServer.getServer().server.getCommandMap().register(command.getKey(), "Sugarcane", command.getValue());
-+			}
-+	}
-+}
+ 	}
+ 
+ 	public static void registerCommands() {
 diff --git a/src/main/java/org/sugarcanemc/sugarcane/util/Util.java b/src/main/java/org/sugarcanemc/sugarcane/util/Util.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..54eb3166c2a38363e8ad8c95448a4d807d09f0e7
---- /dev/null
+index 54eb3166c2a38363e8ad8c95448a4d807d09f0e7..b7f739a525fd63f0a996680620abb41866724bcd 100644
+--- a/src/main/java/org/sugarcanemc/sugarcane/util/Util.java
 +++ b/src/main/java/org/sugarcanemc/sugarcane/util/Util.java
-@@ -0,0 +1,15 @@
-+package org.sugarcanemc.sugarcane.util;
-+
-+import org.sugarcanemc.sugarcane.config.SugarcaneConfig;
-+
-+public class Util {
-+   private final static int ConsoleBarWidth = 78; //80 column display 
-+   public static int getIndentation(String s){
-+        if(!s.startsWith(" ")) return 0;
-+        int i = 0;
-+        while((s = s.replaceFirst(" ", "")).startsWith(" ")) i++;
-+        return i+1;
-+    }
-+    public static void logDebug(String s){
-+        if(SugarcaneConfig.debug) System.out.println(s);
-+    }
+@@ -3,6 +3,7 @@ package org.sugarcanemc.sugarcane.util;
+ import org.sugarcanemc.sugarcane.config.SugarcaneConfig;
+ 
+ public class Util {
++    private final static int ConsoleBarWidth = 78; //80 column display
+     public static int getIndentation(String s){
+         if(!s.startsWith(" ")) return 0;
+         int i = 0;
+@@ -12,4 +13,8 @@ public class Util {
+     public static void logDebug(String s){
+         if(SugarcaneConfig.debug) System.out.println(s);
+     }
 +    public static String getTextProgressBar(double value) {
 +        int progress = (int) (value*ConsoleBarWidth);
 +        return String.format("[%s%s]", "=".repeat(progress), "_".repeat(ConsoleBarWidth - progress));
 +    }
-+}
+ }
