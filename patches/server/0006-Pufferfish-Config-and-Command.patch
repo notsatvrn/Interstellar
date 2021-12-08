@@ -248,3 +248,17 @@ index b6ee0e709..dee8e93a2 100644
          this.setPvpAllowed(dedicatedserverproperties.pvp);
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
+diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+index 88089b089..321724df6 100644
+--- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
++++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+@@ -25,7 +25,8 @@ public class ServerConfigurations {
+       "spigot.yml",
+       "paper.yml",
+       "airplane.yml",
+-      "graphene.yml"
++      "graphene.yml",
++      "pufferfish.yml"
+     };
+
+     public static Map<String, String> getCleanCopies() throws IOException {

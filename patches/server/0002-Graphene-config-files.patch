@@ -410,3 +410,16 @@ index 56674053351962a75b2731dde137dbbc0c70dbde..bbdb893ae71ee6031cbdf72cecfecd90
                  // Paper start
                  acceptsAll(asList("server-name"), "Name of the server")
                          .withRequiredArg()
+diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+index f9a71ff3e..0207b3145 100644
+--- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
++++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+@@ -25,6 +25,7 @@ public class ServerConfigurations {
+       "spigot.yml",
+       "paper.yml",
+-      "airplane.yml"
++      "airplane.yml",
++      "graphene.yml"
+     };
+
+     public static Map<String, String> getCleanCopies() throws IOException {

@@ -1,45 +1,46 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: YatopiaMC <yatopiamc@gmail.com>
+From: SugarcaneMC <Sugarcanemcorg@gmail.com>
 Date: Fri, 23 Oct 2020 09:20:01 -0700
 Subject: [PATCH] Utilities
 
-This patch includes all utilities required by the Yatopia project and its patches.
+Original code by Yatopia, licensed under MIT License
+This patch includes all utilities required by the Sugarcane project and its patches.
 
 Co-authored-by: Mykyta Komarnytskyy <nkomarn@hotmail.com>
 Co-authored-by: Ivan Pekov <ivan@mrivanplays.com>
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index e8c307c19e912dfb9fad6f48b8958787bae899ff..a29539fbcb87690af0219c2d10f0ead71442b202 100644
+index 07629526818374ffbb61c69fd0175a185d5fd360..6c0259addbf5cc99c52dd5fab72a6d47dc10ad84 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -40,6 +40,7 @@ dependencies {
+@@ -43,6 +43,7 @@ dependencies {
      implementation("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
      implementation("org.ow2.asm:asm:9.2")
      implementation("org.ow2.asm:asm-commons:9.2") // Paper - ASM event executor generation
-+    implementation("org.apache.commons:commons-rng-core:1.3")
++    implementation("org.apache.commons:commons-rng-core:1.3") // Sugarcane - Utilities
      implementation("com.googlecode.json-simple:json-simple:1.1.1") {
          // This includes junit transitively for whatever reason
          isTransitive = false
-diff --git a/src/main/java/org/yatopiamc/yatopia/server/util/Constants.java b/src/main/java/org/yatopiamc/yatopia/server/util/Constants.java
+diff --git a/src/main/java/org/sugarcanemc/sugarcane/util/Constants.java b/src/main/java/org/sugarcanemc/sugarcane/util/Constants.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ac5235155eb1b5515165fc9648b7c9d7a0713b44
+index 0000000000000000000000000000000000000000..0b398b7c73a22718516c14b6bba38969555ef6e1
 --- /dev/null
-+++ b/src/main/java/org/yatopiamc/yatopia/server/util/Constants.java
++++ b/src/main/java/org/sugarcanemc/sugarcane/util/Constants.java
 @@ -0,0 +1,7 @@
-+package org.yatopiamc.yatopia.server.util;
++package org.sugarcanemc.sugarcane.util;
 +
 +public class Constants {
 +
 +    public static final int[] EMPTY_ARRAY = new int[0];
 +    public static final int[] ZERO_ARRAY = new int[]{0};
 +}
-diff --git a/src/main/java/org/yatopiamc/yatopia/server/util/FastRandom.java b/src/main/java/org/yatopiamc/yatopia/server/util/FastRandom.java
+diff --git a/src/main/java/org/sugarcanemc/sugarcane/util/FastRandom.java b/src/main/java/org/sugarcanemc/sugarcane/util/FastRandom.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e41c1e3fa656d8f595733897ab05089c3b0976a7
+index 0000000000000000000000000000000000000000..08231e36b47fd0998e8578675e290fc34aba5fce
 --- /dev/null
-+++ b/src/main/java/org/yatopiamc/yatopia/server/util/FastRandom.java
++++ b/src/main/java/org/sugarcanemc/sugarcane/util/FastRandom.java
 @@ -0,0 +1,64 @@
-+package org.yatopiamc.yatopia.server.util;
++package org.sugarcanemc.sugarcane.util;
 +
 +import org.apache.commons.rng.core.source64.XoRoShiRo128PlusPlus;
 +
@@ -103,13 +104,13 @@ index 0000000000000000000000000000000000000000..e41c1e3fa656d8f595733897ab05089c
 +        return random.nextLong();
 +    }
 +}
-diff --git a/src/main/java/org/yatopiamc/yatopia/server/util/TimeUtils.java b/src/main/java/org/yatopiamc/yatopia/server/util/TimeUtils.java
+diff --git a/src/main/java/org/sugarcanemc/sugarcane/util/TimeUtils.java b/src/main/java/org/sugarcanemc/sugarcane/util/TimeUtils.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..acdf3d60738791b767a3bafa2c9511342a8c18df
+index 0000000000000000000000000000000000000000..703df46706f0d0345b1b70bea1dc376aa4c19eca
 --- /dev/null
-+++ b/src/main/java/org/yatopiamc/yatopia/server/util/TimeUtils.java
++++ b/src/main/java/org/sugarcanemc/sugarcane/util/TimeUtils.java
 @@ -0,0 +1,27 @@
-+package org.yatopiamc.yatopia.server.util;
++package org.sugarcanemc.sugarcane.util;
 +
 +import java.util.concurrent.TimeUnit;
 +

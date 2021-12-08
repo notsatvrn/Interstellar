@@ -182,3 +182,17 @@ index 22e9dd17f..f24ae5284 100644
          OptionSet options = null;
 
          // Paper start - preload logger classes to avoid plugins mixing versions
+diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+index 321724df6..655ee903a 100644
+--- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
++++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
+@@ -26,7 +26,8 @@ public class ServerConfigurations {
+       "paper.yml",
+       "airplane.yml",
+       "graphene.yml",
+-      "pufferfish.yml"
++      "pufferfish.yml",
++      "jettpack.yml"
+     };
+
+     public static Map<String, String> getCleanCopies() throws IOException {
