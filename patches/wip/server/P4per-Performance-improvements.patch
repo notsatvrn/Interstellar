@@ -1,0 +1,422 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: acrylic-style <me@acrylicstyle.xyz>
+Date: Sat, 5 Jun 2021 00:24:27 +0900
+Subject: [PATCH] Performance improvements
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+index bb9894318e1ff75f0c5611a65d3e4d9969eab1fb..83818df106b4716b13f80bc4240590b01d8220fd 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
++++ b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+@@ -41,7 +41,7 @@ public class PaperGameProfileRepository extends YggdrasilGameProfileRepository {
+ 
+         // Some things were not found.... Proceed to look up.
+         if (!unfoundNames.isEmpty()) {
+-            String[] namesArr = unfoundNames.toArray(new String[unfoundNames.size()]);
++            String[] namesArr = unfoundNames.toArray(new String[0]); // P4per - use non-pre-sized array
+             super.findProfilesByNames(namesArr, agent, new PreProfileLookupCallback(callback));
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/BiomeStorage.java b/src/main/java/net/minecraft/server/BiomeStorage.java
+index 49114864e3cd7ef48b827220939c5069d3b8ca3a..a9ecedeb7973871a3942befcbf56720c6b7ab93d 100644
+--- a/src/main/java/net/minecraft/server/BiomeStorage.java
++++ b/src/main/java/net/minecraft/server/BiomeStorage.java
+@@ -95,12 +95,7 @@ public class BiomeStorage implements BiomeManager.Provider {
+     }
+ 
+     public void a(PacketDataSerializer packetdataserializer) {
+-        BiomeBase[] abiomebase = this.g;
+-        int i = abiomebase.length;
+-
+-        for (int j = 0; j < i; ++j) {
+-            BiomeBase biomebase = abiomebase[j];
+-
++        for (BiomeBase biomebase : this.g) { // P4per - optimize
+             packetdataserializer.writeInt(IRegistry.BIOME.a(biomebase)); // CraftBukkit - decompile error
+         }
+ 
+diff --git a/src/main/java/net/minecraft/server/ChunkProviderServer.java b/src/main/java/net/minecraft/server/ChunkProviderServer.java
+index 7d50b94cb37ea921451af1baa47c8900e99b37e1..65a5f2b05e50ae35f7f3613c7509177571df7c75 100644
+--- a/src/main/java/net/minecraft/server/ChunkProviderServer.java
++++ b/src/main/java/net/minecraft/server/ChunkProviderServer.java
+@@ -768,7 +768,6 @@ public class ChunkProviderServer extends IChunkProvider {
+ 
+         if (!flag) {
+             // Paper start - optimize isOutisdeRange
+-            PlayerChunkMap playerChunkMap = this.playerChunkMap;
+             for (EntityPlayer player : this.world.players) {
+                 if (!player.affectsSpawning || player.isSpectator()) {
+                     playerChunkMap.playerMobSpawnMap.remove(player);
+diff --git a/src/main/java/net/minecraft/server/DataPaletteBlock.java b/src/main/java/net/minecraft/server/DataPaletteBlock.java
+index 81362de5430f9cd045ee7cbefa4a28e4c6bc0457..f6f05c168067af910e7462ae021df3f918095ed2 100644
+--- a/src/main/java/net/minecraft/server/DataPaletteBlock.java
++++ b/src/main/java/net/minecraft/server/DataPaletteBlock.java
+@@ -80,8 +80,8 @@ public class DataPaletteBlock<T> implements DataPaletteExpandable<T> {
+     // Paper start - Anti-Xray - Add predefined objects
+     private void addPredefinedObjects() {
+         if (this.predefinedObjects != null && this.getDataPalette() != this.getDataPaletteGlobal()) {
+-            for (int i = 0; i < this.predefinedObjects.length; i++) {
+-                this.getDataPalette().getOrCreateIdFor(this.predefinedObjects[i]);
++            for (T predefinedObject : this.predefinedObjects) { // P4per - use enhanced for
++                this.getDataPalette().getOrCreateIdFor(predefinedObject);
+             }
+         }
+     }
+@@ -146,7 +146,7 @@ public class DataPaletteBlock<T> implements DataPaletteExpandable<T> {
+         return this.a(b(i, j, k), t0);
+     }
+ 
+-    protected synchronized T a(int i, T t0) { // Paper - synchronize - writes
++    protected T a(int i, T t0) { // Paper - synchronize - writes // P4per - remove synchronized as they're extremely slow
+         int j = this.h.a(t0);
+         int k = this.a.a(i, j);
+         T t1 = this.h.a(k);
+diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
+index 39072ebdc9e4be2bb762d81a8bd542dbdb8f6371..22b51a8ebb4b7cad46f32b62b9bf439bdf367186 100644
+--- a/src/main/java/net/minecraft/server/EntityPlayer.java
++++ b/src/main/java/net/minecraft/server/EntityPlayer.java
+@@ -613,9 +613,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+         }
+         // SPIGOT-5071: manually add player loot tables (SPIGOT-5195 - ignores keepInventory rule)
+         this.a(damagesource, this.lastDamageByPlayerTime > 0);
+-        for (org.bukkit.inventory.ItemStack item : this.drops) {
+-            loot.add(item);
+-        }
++        loot.addAll(this.drops); // P4per - bulk add
+         this.drops.clear(); // SPIGOT-5188: make sure to clear
+ 
+         IChatBaseComponent defaultMessage = this.getCombatTracker().getDeathMessage();
+diff --git a/src/main/java/net/minecraft/server/JsonList.java b/src/main/java/net/minecraft/server/JsonList.java
+index c97be42dd7b4c6ea2cadcc97f47185c7f02e2cce..caa15af46a7bdee8e7f9151f01ab56bf4f5e8311 100644
+--- a/src/main/java/net/minecraft/server/JsonList.java
++++ b/src/main/java/net/minecraft/server/JsonList.java
+@@ -111,7 +111,7 @@ public class JsonList<K, V extends JsonListEntry<K>> {
+     }
+ 
+     public String[] getEntries() {
+-        return (String[]) this.d.keySet().toArray(new String[this.d.size()]);
++        return (String[]) this.d.keySet().toArray(new String[0]); // P4per - use non-pre-sized array
+     }
+ 
+     // CraftBukkit start
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 5c71efe494faaf7427f82036d60cc81447e4b12c..559582c1f82269dc4858ea587ee8fd0c707f8124 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -713,22 +713,22 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+     }
+ 
+     // CraftBukkit start
+-    private boolean hasStopped = false;
++    private final java.util.concurrent.atomic.AtomicBoolean hasStopped = new java.util.concurrent.atomic.AtomicBoolean(false); // P4per - use AtomicBoolean
+     public volatile boolean hasFullyShutdown = false; // Paper
+-    private final Object stopLock = new Object();
++    //private final Object stopLock = new Object();
+     public final boolean hasStopped() {
+-        synchronized (stopLock) {
+-            return hasStopped;
+-        }
++        return hasStopped.get(); // P4per
+     }
+     // CraftBukkit end
+ 
+     protected void stop() {
+         // CraftBukkit start - prevent double stopping on multiple threads
+-        synchronized(stopLock) {
+-            if (hasStopped) return;
+-            hasStopped = true;
+-        }
++        // P4per start
++        //synchronized(stopLock) {
++            if (hasStopped.get()) return;
++            hasStopped.set(true);
++        //}
++        // P4per end
+         // Paper start - kill main thread, and kill it hard
+         shutdownThread = Thread.currentThread();
+         org.spigotmc.WatchdogThread.doStop(); // Paper
+@@ -1082,7 +1082,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+     @Override
+     protected TickTask postToMainThread(Runnable runnable) {
+         // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
+-        if (this.hasStopped && Thread.currentThread().equals(shutdownThread)) {
++        if (this.hasStopped.get() && Thread.currentThread().equals(shutdownThread)) { // P4per
+             runnable.run();
+             runnable = () -> {};
+         }
+diff --git a/src/main/java/net/minecraft/server/NameReferencingFileConverter.java b/src/main/java/net/minecraft/server/NameReferencingFileConverter.java
+index d3c2e1bedfde39c19fe293941036641ea72c1bcd..9a309a1d30e88a3722e14728635ee7fe56296fff 100644
+--- a/src/main/java/net/minecraft/server/NameReferencingFileConverter.java
++++ b/src/main/java/net/minecraft/server/NameReferencingFileConverter.java
+@@ -321,7 +321,7 @@ public class NameReferencingFileConverter {
+             }
+ 
+             try {
+-                final String[] astring = (String[]) list.toArray(new String[list.size()]);
++                final String[] astring = (String[]) list.toArray(new String[0]); // P4per - use non-pre-sized array
+                 ProfileLookupCallback profilelookupcallback = new ProfileLookupCallback() {
+                     public void onProfileLookupSucceeded(GameProfile gameprofile) {
+                         dedicatedserver.getUserCache().a(gameprofile);
+diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
+index f76dd80fc533928d194cc2e2995417b51966f393..5008a77a7293f0fcf04083d0721e44062fc7c200 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
++++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
+@@ -858,7 +858,7 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+             MutableBoolean mutableboolean = new MutableBoolean();
+ 
+             do {
+-                boolean isShuttingDown = world.getMinecraftServer().hasStopped(); // Paper
++                //boolean isShuttingDown = world.getMinecraftServer().hasStopped(); // Paper // P4per - comment out unused local variable
+                 mutableboolean.setFalse();
+                 list.stream().map((playerchunk) -> {
+                     CompletableFuture completablefuture;
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 03cbe720c430f549eb6c2f594d5a599cf1e73226..014fd799a2cca33d6bb6be744ef13e6b94b41f40 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -291,12 +291,8 @@ public class PlayerConnection implements PacketListenerPlayIn {
+         });
+         this.a(ichatbasecomponent); // CraftBukkit - fire quit instantly
+         this.networkManager.stopReading();
+-        MinecraftServer minecraftserver = this.minecraftServer;
+-        NetworkManager networkmanager = this.networkManager;
+-
+-        this.networkManager.getClass();
+         // CraftBukkit - Don't wait
+-        minecraftserver.scheduleOnMain(networkmanager::handleDisconnection); // Paper
++        this.minecraftServer.scheduleOnMain(this.networkManager::handleDisconnection); // Paper
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/server/RandomPositionGenerator.java b/src/main/java/net/minecraft/server/RandomPositionGenerator.java
+index d6a3b993394b34ddebc55a952d09df490884558d..5e7ac62913fefeb309e785749ac4da18398815aa 100644
+--- a/src/main/java/net/minecraft/server/RandomPositionGenerator.java
++++ b/src/main/java/net/minecraft/server/RandomPositionGenerator.java
+@@ -19,7 +19,6 @@ public class RandomPositionGenerator {
+ 
+     @Nullable
+     public static Vec3D b(EntityCreature entitycreature, int i, int j) {
+-        entitycreature.getClass();
+         return a(entitycreature, i, j, entitycreature::f);
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/RegistryMaterials.java b/src/main/java/net/minecraft/server/RegistryMaterials.java
+index dcdd8d38dee89ae7ac404a431e51a61c50b6d45c..1522f9604156895c8641e70d17e41a639d41b22a 100644
+--- a/src/main/java/net/minecraft/server/RegistryMaterials.java
++++ b/src/main/java/net/minecraft/server/RegistryMaterials.java
+@@ -103,7 +103,7 @@ public class RegistryMaterials<T> extends IRegistryWritable<T> {
+                 return null;
+             }
+ 
+-            this.d = collection.toArray(new Object[collection.size()]);
++            this.d = collection.toArray(new Object[0]); // P4per - use non-pre-sized array
+         }
+ 
+         return (T) this.d[random.nextInt(this.d.length)]; // Paper - Decompile fix
+diff --git a/src/main/java/net/minecraft/server/ScoreboardServer.java b/src/main/java/net/minecraft/server/ScoreboardServer.java
+index 929397a4ca8af8aba24c36bd6fc8ed0071982b64..2d8af0389228764de17bb61219a9f2c9c871f9f7 100644
+--- a/src/main/java/net/minecraft/server/ScoreboardServer.java
++++ b/src/main/java/net/minecraft/server/ScoreboardServer.java
+@@ -3,6 +3,7 @@ package net.minecraft.server;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Sets;
+ import java.util.Arrays;
++import java.util.Collections;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Set;
+@@ -72,7 +73,7 @@ public class ScoreboardServer extends Scoreboard {
+     @Override
+     public boolean addPlayerToTeam(String s, ScoreboardTeam scoreboardteam) {
+         if (super.addPlayerToTeam(s, scoreboardteam)) {
+-            this.sendAll(new PacketPlayOutScoreboardTeam(scoreboardteam, Arrays.asList(s), 3));
++            this.sendAll(new PacketPlayOutScoreboardTeam(scoreboardteam, Collections.singletonList(s), 3)); // P4per - use singleton list
+             this.b();
+             return true;
+         } else {
+@@ -83,7 +84,7 @@ public class ScoreboardServer extends Scoreboard {
+     @Override
+     public void removePlayerFromTeam(String s, ScoreboardTeam scoreboardteam) {
+         super.removePlayerFromTeam(s, scoreboardteam);
+-        this.sendAll(new PacketPlayOutScoreboardTeam(scoreboardteam, Arrays.asList(s), 4));
++        this.sendAll(new PacketPlayOutScoreboardTeam(scoreboardteam, Collections.singletonList(s), 4)); // P4per - use singleton list
+         this.b();
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/TickListServer.java b/src/main/java/net/minecraft/server/TickListServer.java
+index 2888ff74ba1e8e9b29f6e521f7eabc37a5b62920..af4430f07ae602bd3e3a8b80b4d01f5df95e5a0c 100644
+--- a/src/main/java/net/minecraft/server/TickListServer.java
++++ b/src/main/java/net/minecraft/server/TickListServer.java
+@@ -159,7 +159,7 @@ public class TickListServer<T> implements TickList<T> {
+         List<NextTickListEntry<T>> list = this.a((List) null, this.nextTickList, structureboundingbox, flag);
+ 
+         if (flag && list != null) {
+-            this.nextTickListHash.removeAll(list);
++            list.forEach(this.nextTickListHash::remove); // P4per - faster?
+         }
+ 
+         list = this.a(list, this.g, structureboundingbox, flag);
+diff --git a/src/main/java/net/minecraft/server/World.java b/src/main/java/net/minecraft/server/World.java
+index 6bca5767242902af8d8d771b9262ac233510781c..e32cad84f934e41f650135b1bcc7d292578a2c20 100644
+--- a/src/main/java/net/minecraft/server/World.java
++++ b/src/main/java/net/minecraft/server/World.java
+@@ -1509,10 +1509,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+         crashreportsystemdetails.a("All players", () -> {
+             return this.getPlayers().size() + " total; " + this.getPlayers();
+         });
+-        IChunkProvider ichunkprovider = this.chunkProvider;
+-
+-        this.chunkProvider.getClass();
+-        crashreportsystemdetails.a("Chunk stats", ichunkprovider::getName);
++        crashreportsystemdetails.a("Chunk stats", this.chunkProvider::getName);
+         crashreportsystemdetails.a("Level dimension", () -> {
+             return this.worldProvider.getDimensionManager().toString();
+         });
+diff --git a/src/main/java/net/minecraft/server/WorldServer.java b/src/main/java/net/minecraft/server/WorldServer.java
+index 46e261b6513b52f5562387b661de4a409ea515a3..14415f8b0cb4c5628ac78f2e97b7986b90a82f6d 100644
+--- a/src/main/java/net/minecraft/server/WorldServer.java
++++ b/src/main/java/net/minecraft/server/WorldServer.java
+@@ -1572,16 +1572,17 @@ public class WorldServer extends World {
+             EntityPlayer entityplayer = (EntityPlayer) iterator.next();
+ 
+             if (entityplayer != null && entityplayer.world == this && entityplayer.getId() != i) {
+-                double d0 = (double) blockposition.getX() - entityplayer.locX();
+-                double d1 = (double) blockposition.getY() - entityplayer.locY();
+-                double d2 = (double) blockposition.getZ() - entityplayer.locZ();
+-
+                 // CraftBukkit start
+                 if (entityhuman != null && entityhuman instanceof EntityPlayer && !entityplayer.getBukkitEntity().canSee(((EntityPlayer) entityhuman).getBukkitEntity())) {
+                     continue;
+                 }
+                 // CraftBukkit end
+ 
++                // P4per - moved from above
++                double d0 = (double) blockposition.getX() - entityplayer.locX();
++                double d1 = (double) blockposition.getY() - entityplayer.locY();
++                double d2 = (double) blockposition.getZ() - entityplayer.locZ();
++
+                 if (d0 * d0 + d1 * d1 + d2 * d2 < 1024.0D) {
+                     entityplayer.playerConnection.sendPacket(new PacketPlayOutBlockBreakAnimation(i, blockposition, j));
+                 }
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 568aefdf698facfc36edacc9332e83196c0d80bc..9e3dbd3fe34317acbb557a925491ddb2f7a1b9db 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1290,7 +1290,7 @@ public final class CraftServer implements Server {
+                     commands = ImmutableList.of(section.getString(key));
+                 }
+ 
+-                result.put(key, commands.toArray(new String[commands.size()]));
++                result.put(key, commands.toArray(new String[0])); // P4per - use non-pre-sized array
+             }
+         }
+ 
+@@ -1658,7 +1658,7 @@ public final class CraftServer implements Server {
+ 
+         players.addAll(getOnlinePlayers());
+ 
+-        return players.toArray(new OfflinePlayer[players.size()]);
++        return players.toArray(new OfflinePlayer[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 73ffc3c24d38c11982cb44bf0c08e761b9667cda..6a831b098fe6b35521fbda91a1b89052d4371c37 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -2299,7 +2299,7 @@ public class CraftWorld implements World {
+ 
+     @Override
+     public String[] getGameRules() {
+-        return getGameRulesNMS().keySet().toArray(new String[getGameRulesNMS().size()]);
++        return getGameRulesNMS().keySet().toArray(new String[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index a2815073bc04dd831fa22da47162031d360683dd..00eaad2c2edc3ba321d847a5b6d239aa2f620c5c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Collection;
++import java.util.Collections;
+ import java.util.Optional;
+ import java.util.Set;
+ import net.minecraft.server.BlockBed;
+@@ -562,7 +563,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public boolean discoverRecipe(NamespacedKey recipe) {
+-        return discoverRecipes(Arrays.asList(recipe)) != 0;
++        return discoverRecipes(Collections.singletonList(recipe)) != 0; // P4per - use singletonList
+     }
+ 
+     @Override
+@@ -572,7 +573,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public boolean undiscoverRecipe(NamespacedKey recipe) {
+-        return undiscoverRecipes(Arrays.asList(recipe)) != 0;
++        return undiscoverRecipes(Collections.singletonList(recipe)) != 0; // P4per - use singleton list
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/help/MultipleCommandAliasHelpTopic.java b/src/main/java/org/bukkit/craftbukkit/help/MultipleCommandAliasHelpTopic.java
+index 6133235c17da6a400f9d9fcd9147177b9e9ecd8e..954e28d2439aeb392ea4c7c33bd0db51b4204b1c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/help/MultipleCommandAliasHelpTopic.java
++++ b/src/main/java/org/bukkit/craftbukkit/help/MultipleCommandAliasHelpTopic.java
+@@ -23,7 +23,7 @@ public class MultipleCommandAliasHelpTopic extends HelpTopic {
+         StringBuilder sb = new StringBuilder();
+         for (int i = 0; i < alias.getCommands().length; i++) {
+             if (i != 0) {
+-                sb.append(ChatColor.GOLD + " > " + ChatColor.WHITE);
++                sb.append(ChatColor.GOLD).append(" > ").append(ChatColor.WHITE); // P4per - chain .append call instead of using +
+             }
+             sb.append("/");
+             sb.append(alias.getCommands()[i].getLabel());
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+index 706f1bd66c79dddc26794cad818679473e20382f..f152941cd5e9ce0e6e873ac04c4662aeb3c03d5e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaItem.java
+@@ -1739,8 +1739,9 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
+     private boolean ofAcceptableType(Collection<Namespaced> namespacedResources) {
+         boolean valid = true;
+         for (Namespaced resource : namespacedResources) {
+-            if (valid && !(resource instanceof org.bukkit.NamespacedKey || resource instanceof com.destroystokyo.paper.NamespacedTag)) {
++            if (!(resource instanceof org.bukkit.NamespacedKey || resource instanceof NamespacedTag)) { // P4per - remove "valid" condition as no longer needed after adding break
+                 valid = false;
++                break; // P4per - terminate the loop
+             }
+         }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java b/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
+index a44602ce0195219ccb64546c14019dd2e124de78..3da48fdb8768de0fc5f9656c0e797a73bb1d0b2f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
+@@ -120,7 +120,7 @@ public final class CraftChatMessage {
+                 appendNewComponent(message.length());
+             }
+ 
+-            output = list.toArray(new IChatBaseComponent[list.size()]);
++            output = list.toArray(new IChatBaseComponent[0]); // P4per - use non-pre-sized array
+         }
+ 
+         private void appendNewComponent(int index) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+index 3c8946837351bf5a469be494b735d414e1801c20..5f226de8979b86fdb6a9e8879aae2d25f2ca25b3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -175,10 +175,6 @@ public final class WeakCollection<T> implements Collection<T> {
+     }
+ 
+     private Collection<T> toCollection() {
+-        ArrayList<T> collection = new ArrayList<T>();
+-        for (T value : this) {
+-            collection.add(value);
+-        }
+-        return collection;
++        return new ArrayList<>(this); // P4per - just clone
+     }
+ }

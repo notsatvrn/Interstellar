@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: malfrador <malfrador@gmail.com>
+Date: Sat, 15 May 2021 20:04:20 +0200
+Subject: [PATCH] make-villagers-dumb
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java b/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java
+index d8028675fc82883d716bcfb44431ca6ac7dfda36..3ecab56452f0bf0dc3c9d686ae3ed3015c85a28a 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/EntityVillager.java
+@@ -135,12 +135,32 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
+     public EntityVillager(EntityTypes<? extends EntityVillager> entitytypes, World world, VillagerType villagertype) {
+         super(entitytypes, world);
+         this.by = new Reputation();
+-        ((Navigation) this.getNavigation()).a(true);
+-        this.getNavigation().d(true);
++        initPathfinder();
+         this.setCanPickupLoot(true);
+         this.setVillagerData(this.getVillagerData().withType(villagertype).withProfession(VillagerProfession.NONE));
+     }
+ 
++    @Override
++    protected void initPathfinder() {
++        this.goalSelector.a(0, new net.minecraft.world.entity.ai.goal.PathfinderGoalFloat(this));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget<>(this, net.minecraft.world.entity.monster.EntityZombie.class, 8.0F, 0.5D, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget<>(this, net.minecraft.world.entity.monster.EntityEvoker.class, 12.0F, 0.5D, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget<>(this, net.minecraft.world.entity.monster.EntityVindicator.class, 8.0F, 0.5D, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget<>(this, net.minecraft.world.entity.monster.EntityVex.class, 8.0F, 0.5D, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget<>(this, net.minecraft.world.entity.monster.EntityPillager.class, 15.0F, 0.5D, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget<>(this, net.minecraft.world.entity.monster.EntityIllagerIllusioner.class, 12.0F, 0.5D, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalPanic(this, 0.5D));
++        this.goalSelector.a(1, new net.minecraft.world.entity.ai.goal.PathfinderGoalLookAtTradingPlayer(this));
++        this.goalSelector.a(2, new net.minecraft.world.entity.ai.goal.PathfinderGoalStrollVillageGolem(this, 0.6D));
++        this.goalSelector.a(3, new net.minecraft.world.entity.ai.goal.PathfinderGoalMoveThroughVillage(this, 0.6D, false, 4, () -> {
++                return false;
++            }));
++        this.goalSelector.a(4, new net.minecraft.world.entity.ai.goal.PathfinderGoalMoveTowardsRestriction(this, 0.35D));
++        this.goalSelector.a(8, new net.minecraft.world.entity.ai.goal.PathfinderGoalRandomStrollLand(this, 0.35D));
++        this.goalSelector.a(9, new net.minecraft.world.entity.ai.goal.PathfinderGoalInteract(this, EntityHuman.class, 3.0F, 1.0F));
++        this.goalSelector.a(10, new net.minecraft.world.entity.ai.goal.PathfinderGoalLookAtPlayer(this, EntityInsentient.class, 8.0F));
++    }
++
+     @Override
+     public BehaviorController<EntityVillager> getBehaviorController() {
+         return (BehaviorController<EntityVillager>) super.getBehaviorController(); // CraftBukkit - decompile error
+@@ -153,10 +173,7 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
+ 
+     @Override
+     protected BehaviorController<?> a(Dynamic<?> dynamic) {
+-        BehaviorController<EntityVillager> behaviorcontroller = this.cK().a(dynamic);
+-
+-        this.a(behaviorcontroller);
+-        return behaviorcontroller;
++        return super.a(dynamic);
+     }
+ 
+     public void c(WorldServer worldserver) {

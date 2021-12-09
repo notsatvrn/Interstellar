@@ -1,0 +1,208 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Noah van der Aa <ndvdaa@gmail.com>
+Date: Thu, 29 Jul 2021 14:49:17 +0200
+Subject: [PATCH] Add set maximum TPS command
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
+index dcae40fde8087ce09ec8b9360f2abc860b88c975..2985cf4eed7312ce1a56bd601a24def0bf83c53b 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
++++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
+@@ -70,6 +70,7 @@ public class PaperConfig {
+         commands = new HashMap<String, Command>();
+         commands.put("paper", new PaperCommand("paper"));
+         commands.put("mspt", new MSPTCommand("mspt"));
++        commands.put("setmaxtps", new me.noahvdaa.dripstone.SetMaxTPSCommand("setmaxtps")); // Dripstone - TODO: Move this to DripstoneConfig class.
+ 
+         version = getInt("config-version", 22);
+         set("config-version", 22);
+diff --git a/src/main/java/com/destroystokyo/paper/gui/RAMDetails.java b/src/main/java/com/destroystokyo/paper/gui/RAMDetails.java
+index fa56cd09102a89692b42f1d14257990508c5c720..21753e2c72dd39ed5c87603e99ee90be4354588c 100644
+--- a/src/main/java/com/destroystokyo/paper/gui/RAMDetails.java
++++ b/src/main/java/com/destroystokyo/paper/gui/RAMDetails.java
+@@ -81,6 +81,6 @@ public class RAMDetails extends JList<String> {
+     }
+ 
+     private static String format(double tps) {
+-        return ( ( tps > 21.0 ) ? "*" : "" ) + Math.min( Math.round( tps * 100.0 ) / 100.0, 20.0 );
++        return (tps > net.minecraft.server.dedicated.DedicatedServer.TPS * 1.05f ? "*" : "") + Math.min(Math.round(tps * 100.0) / 100.0, net.minecraft.server.dedicated.DedicatedServer.TPS); // Dripstone - compatibility with setMaxTPS command.
+     }
+ }
+diff --git a/src/main/java/me/noahvdaa/dripstone/SetMaxTPSCommand.java b/src/main/java/me/noahvdaa/dripstone/SetMaxTPSCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d31951e83ff3256420c57eac8f9fc16183f1565d
+--- /dev/null
++++ b/src/main/java/me/noahvdaa/dripstone/SetMaxTPSCommand.java
+@@ -0,0 +1,73 @@
++package me.noahvdaa.dripstone;
++
++import net.minecraft.server.MinecraftServer;
++import org.apache.commons.lang3.math.NumberUtils;
++import org.bukkit.Location;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandSender;
++
++import java.util.Collections;
++import java.util.List;
++
++public class SetMaxTPSCommand extends Command {
++    public SetMaxTPSCommand(String name) {
++        super(name);
++        this.description = "Changes the maximum TPS for the server";
++        this.usageMessage = "/setmaxtps [tps] [duration until the change is reverted, in ticks]";
++        this.setPermission("bukkit.command.setmaxtps");
++    }
++
++    @Override
++    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
++        return Collections.emptyList();
++    }
++
++    @Override
++    public boolean execute(CommandSender sender, String commandLabel, String[] args) {
++        if (!testPermission(sender)) return true;
++
++        int targetMSPT = 50;
++        int resetTPSIn = -1;
++
++        if (args.length == 0) {
++            sender.sendMessage("§6Maximum TPS has been reset to 20.");
++        } else {
++            if (args.length > 2 || !NumberUtils.isParsable(args[0]) || (args.length == 2 && !NumberUtils.isParsable(args[1]))) {
++                sender.sendMessage("§cUsage: /setmaxtps [tps] [duration until the change is reverted, in ticks]");
++                return true;
++            }
++
++            int targetTPS = Integer.parseInt(args[0]);
++
++            // Don't allow negative or zero TPS.
++            if (targetTPS < 1) {
++                sender.sendMessage("§cThe target TPS must be at least 1.");
++                return true;
++            }
++
++            targetMSPT = 1000 / targetTPS;
++
++            if (args.length == 2) {
++                resetTPSIn = Integer.parseInt(args[1]);
++                if (resetTPSIn < 1) {
++                    sender.sendMessage("§cThe TPS reset duration must be at least 1 tick.");
++                    return true;
++                }
++
++                sender.sendMessage("§6Maximum TPS has been set to " + targetTPS + " and will be reset to 20 in " + resetTPSIn + " tick" + (resetTPSIn == 1 ? "" : "s") + ". This will probably a lot of plugins!");
++            } else {
++                sender.sendMessage("§6Maximum TPS has been set to " + targetTPS + ". This will break a lot of plugins!");
++            }
++
++            if (targetTPS > 20) {
++                sender.sendMessage("§cWarning: Your target TPS is higher than 20. Your server might not be able to keep up with this.");
++            }
++        }
++
++        MinecraftServer.MS_PER_TICK = targetMSPT;
++        MinecraftServer.TPS = 1000 / targetMSPT;
++        MinecraftServer.TICK_TIME = 1000000000 / MinecraftServer.TPS;
++        MinecraftServer.TICKS_UNTIL_TPS_RESET = resetTPSIn;
++        return true;
++    }
++}
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index fd6e4d595411a2a4808ab41f084564ae44a4e7b0..aee4e59f44c2ae47730de833bb7b57a2067c0285 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -195,7 +195,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public static final Logger LOGGER = LogManager.getLogger();
+     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
+     private static final int TICK_STATS_SPAN = 100;
+-    public static final int MS_PER_TICK = 50;
++    public static int MS_PER_TICK = 50; // Dripstone
+     private static final int SNOOPER_UPDATE_INTERVAL = 6000;
+     private static final int OVERLOADED_THRESHOLD = 2000;
+     private static final int OVERLOADED_WARNING_INTERVAL = 15000;
+@@ -301,9 +301,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public Commands vanillaCommandDispatcher;
+     public boolean forceTicks; // Paper
+     // CraftBukkit end
+-    // Spigot start
+-    public static final int TPS = 20;
+-    public static final int TICK_TIME = 1000000000 / MinecraftServer.TPS;
++	// Dripstone start
++    public static int TPS = 20;
++    public static int TICK_TIME = 1000000000 / MinecraftServer.TPS;
++	public static int TICKS_UNTIL_TPS_RESET = -1;
++	// Dripstone end
++	// Spigot start
+     private static final int SAMPLE_INTERVAL = 20; // Paper
+     public final double[] recentTps = new double[ 3 ];
+     public final SlackActivityAccountant slackActivityAccountant = new SlackActivityAccountant();
+@@ -1240,7 +1243,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+                         if (this.server.getWarnOnOverload()) // CraftBukkit
+                             MinecraftServer.LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", i, j);
+-                        this.nextTickTime += j * 50L;
++                        this.nextTickTime += j * MinecraftServer.MS_PER_TICK; // Dripstone
+                         this.lastOverloadWarning = this.nextTickTime;
+                     }
+ 
+@@ -1268,13 +1271,13 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+                     //MinecraftServer.currentTick = (int) (System.currentTimeMillis() / 50); // CraftBukkit // Paper - don't overwrite current tick time
+                     lastTick = curTime;
+-                    this.nextTickTime += 50L;
++                    this.nextTickTime += MinecraftServer.MS_PER_TICK; // Dripstone
+                     this.startMetricsRecordingTick();
+                     this.profiler.push("tick");
+                     this.tickServer(this::haveTime);
+                     this.profiler.popPush("nextTickWait");
+                     this.mayHaveDelayedTasks = true;
+-                    this.delayedTasksMaxNextTickTime = Math.max(Util.getMillis() + 50L, this.nextTickTime);
++                    this.delayedTasksMaxNextTickTime = Math.max(Util.getMillis() + MinecraftServer.MS_PER_TICK, this.nextTickTime); // Dripstone
+                     this.waitUntilNextTick();
+                     this.profiler.pop();
+                     this.endMetricsRecordingTick();
+@@ -1663,6 +1666,20 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         }
+         MinecraftTimings.tickablesTimer.stopTiming(); // Spigot // Paper
+ 
++        // Dripstone start - check if TPS can be reset to 20.
++        if (MinecraftServer.TICKS_UNTIL_TPS_RESET != -1) {
++            // Decrease ticks remaining.
++            MinecraftServer.TICKS_UNTIL_TPS_RESET--;
++            // Reset TPS.
++            if (MinecraftServer.TICKS_UNTIL_TPS_RESET == 0) {
++                MinecraftServer.MS_PER_TICK = 50;
++                MinecraftServer.TPS = 20;
++                MinecraftServer.TICK_TIME = 1000000000 / 20;
++                MinecraftServer.TICKS_UNTIL_TPS_RESET = -1;
++            }
++        }
++        // Dripstone end.
++
+         this.profiler.pop();
+     }
+ 
+diff --git a/src/main/java/org/spigotmc/TicksPerSecondCommand.java b/src/main/java/org/spigotmc/TicksPerSecondCommand.java
+index 9bede6a26c08ede063c7a38f1149c811df14b258..622ed244978de33987afeef7b3da2e5044bca877 100644
+--- a/src/main/java/org/spigotmc/TicksPerSecondCommand.java
++++ b/src/main/java/org/spigotmc/TicksPerSecondCommand.java
+@@ -47,7 +47,17 @@ public class TicksPerSecondCommand extends Command
+     private boolean hasShownMemoryWarning; // Paper
+     private static String format(double tps) // Paper - Made static
+     {
+-        return ( ( tps > 18.0 ) ? ChatColor.GREEN : ( tps > 16.0 ) ? ChatColor.YELLOW : ChatColor.RED ).toString()
+-                + ( ( tps > 21.0 ) ? "*" : "" ) + Math.min( Math.round( tps * 100.0 ) / 100.0, 20.0 ); // Paper - only print * at 21, we commonly peak to 20.02 as the tick sleep is not accurate enough, stop the noise
++        // Dripstone Start - Completely rewritten to work with the setmaxtps command.
++        int maxTPS = MinecraftServer.TPS;
++        ChatColor color;
++        if (tps > maxTPS * 0.9f)  // 90% (TPS > 18 on Spigot)
++            color = ChatColor.GREEN;
++        else if (tps > maxTPS * 0.8f) // 80% (TPS > 16 on Spigot)
++            color = ChatColor.YELLOW;
++        else // Everything else.
++            color = ChatColor.RED;
++
++        return color + (tps > maxTPS * 1.05f ? "*" : "") + Math.min(Math.round(tps * 100.0) / 100.0, maxTPS);
++        // Dripstone end.
+     }
+ }

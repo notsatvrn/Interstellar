@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Noah van der Aa <ndvdaa@gmail.com>
+Date: Thu, 29 Jul 2021 13:54:19 +0200
+Subject: [PATCH] Change version checker repo
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index 580bae0d414d371a07a6bfeefc41fdd989dc0083..074752aba4edb740c207959909303e0f65ef43e2 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -29,8 +29,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-Paper-".length()).split("[-\\s]");
+-        final Component updateMessage = getUpdateStatusMessage("PaperMC/Paper", GITHUB_BRANCH_NAME, parts[0]);
++        String[] parts = serverVersion.substring("git-Dripstone-".length()).split("[-\\s]"); // Dripstone
++        final Component updateMessage = getUpdateStatusMessage("NoahvdAa/Dripstone", GITHUB_BRANCH_NAME, parts[0]); // Dripstone
+         final Component history = getHistory();
+ 
+         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
+@@ -54,13 +54,10 @@ public class PaperVersionFetcher implements VersionFetcher {
+ 
+     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
+         int distance;
+-        try {
+-            int jenkinsBuild = Integer.parseInt(versionInfo);
+-            distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
+-        } catch (NumberFormatException ignored) {
+-            versionInfo = versionInfo.replace("\"", "");
+-            distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+-        }
++        // Dripstone start - We don't have Jenkins set up.
++        versionInfo = versionInfo.replace("\"", "");
++        distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
++        // Dripstone end.
+ 
+         switch (distance) {
+             case -1:

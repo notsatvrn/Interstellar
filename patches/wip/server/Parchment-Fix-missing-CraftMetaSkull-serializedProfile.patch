@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: lexikiq <noellekiq@gmail.com>
+Date: Mon, 21 Jun 2021 20:47:24 -0400
+Subject: [PATCH] Fix missing CraftMetaSkull serializedProfile
+
+Plugins (ab)using NMS may change the "profile" field using reflections instead of the "setProfile" method, especially if they are targeted towards old Minecraft versions. This fixes the potential discrepancies and NPEs.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java
+index 7cacc61fed0c610845c67894d1cc68e44f5e46fe..18feaf0152b67b18989ca03fbb74194db489081e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java
+@@ -78,6 +78,7 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+     @Override
+     void serializeInternal(final Map<String, Tag> internalTags) {
+         if (this.profile != null) {
++            refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
+             internalTags.put(SKULL_PROFILE.NBT, serializedProfile);
+         }
+     }
+@@ -91,6 +92,11 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+         }
+         // Paper end
+         this.profile = profile;
++        // Parchment start -- fix NPEs from plugins abusing NMS
++        refreshSerializedProfile();
++    }
++    private void refreshSerializedProfile() {
++        // Parchment end
+         this.serializedProfile = (profile == null) ? null : NbtUtils.writeGameProfile(new CompoundTag(), profile);
+     }
+ 
+@@ -99,6 +105,7 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+         super.applyToItem(tag);
+ 
+         if (this.profile != null) {
++            refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
+             // SPIGOT-6558: Set initial textures
+             tag.put(SKULL_OWNER.NBT, serializedProfile);
+             // Fill in textures
+@@ -234,6 +241,8 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+         if (meta instanceof CraftMetaSkull) {
+             CraftMetaSkull that = (CraftMetaSkull) meta;
+ 
++            refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
++            that.refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
+             // SPIGOT-5403: equals does not check properties
+             return (this.profile != null ? that.profile != null && this.serializedProfile.equals(that.serializedProfile) : that.profile == null);
+         }

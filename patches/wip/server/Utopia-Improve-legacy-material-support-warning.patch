@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: RuscalWorld <me@ruscalworld.ru>
+Date: Sat, 11 Sep 2021 12:19:07 +0300
+Subject: [PATCH] Improve legacy material support warning
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
+index b2a15c986c7500a0ce227a54cb61ec3f5378f6f3..28d3485c8b4c9b91ad9d7f55b6c50dc1853a493a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
++++ b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
+@@ -27,6 +27,8 @@ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.block.state.StateDefinition;
+ import net.minecraft.world.level.block.state.properties.Property;
++import org.apache.logging.log4j.LogManager;
++import org.apache.logging.log4j.Logger;
+ import org.bukkit.Material;
+ import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+ import org.bukkit.entity.EntityType;
+@@ -45,6 +47,7 @@ import org.bukkit.material.MaterialData;
+ @Deprecated
+ public final class CraftLegacy {
+ 
++    static final Logger LOGGER = LogManager.getLogger("CraftLegacy");
+     private static final Map<Byte, Material> SPAWN_EGGS = new HashMap<>();
+     private static final Set<String> whitelistedStates = new HashSet<>(Arrays.asList("explode", "check_decay", "decayable", "facing"));
+     private static final Map<MaterialData, Item> materialToItem = new HashMap<>(16384);
+@@ -255,7 +258,7 @@ public final class CraftLegacy {
+     }
+ 
+     static {
+-        System.err.println("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!");
++        CraftLegacy.LOGGER.warn("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!");
+         if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isDebugging()) {
+             new Exception().printStackTrace();
+         }

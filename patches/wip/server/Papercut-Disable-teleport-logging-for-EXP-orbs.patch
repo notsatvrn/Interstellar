@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Mariell Hoversholm <proximyst@proximyst.com>
+Date: Sat, 3 Oct 2020 11:18:55 +0200
+Subject: [PATCH] Disable teleport logging for EXP orbs
+
+---
+ .../java/net/minecraft/server/EntityExperienceOrb.java   | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/main/java/net/minecraft/server/EntityExperienceOrb.java b/src/main/java/net/minecraft/server/EntityExperienceOrb.java
+index c2be0c2bc315876f120cff207e5516dda2bd55d7..5f91a971be7860bfb79478825abcf5a24e17be7d 100644
+--- a/src/main/java/net/minecraft/server/EntityExperienceOrb.java
++++ b/src/main/java/net/minecraft/server/EntityExperienceOrb.java
+@@ -2,6 +2,7 @@ package net.minecraft.server;
+ 
+ import java.util.Map.Entry;
+ // CraftBukkit start
++import javax.annotation.Nullable;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+ import org.bukkit.event.entity.EntityTargetEvent;
+@@ -294,4 +295,12 @@ public class EntityExperienceOrb extends Entity {
+     public Packet<?> P() {
+         return new PacketPlayOutSpawnEntityExperienceOrb(this);
+     }
++
++    // Papercut start
++    @Override
++    public Entity teleportTo(WorldServer worldserver, BlockPosition location) {
++        if (!this.isAlive() || !this.valid) return null; // Orbs in portals cause a lot of logs...
++        return super.teleportTo(worldserver, location);
++    }
++    // Papercut end
+ }

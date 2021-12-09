@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KennyTV <kennytv@t-online.de>
+Date: Sat, 1 Feb 2020 17:36:31 +0100
+Subject: [PATCH] Suppress absolutely unnecessary classloading warning
+
+
+diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+index 62f7a6817da079513f471e36cd79739d36a36d86..909598d4a57ff4c292c6351a8de52b57910ed460 100644
+--- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+@@ -111,6 +111,7 @@ public final class PluginClassLoader extends URLClassLoader { // Spigot
+                 result = loader.getClassByName(name, this); // Paper - prioritize self
+ 
+                 if (result != null) {
++                    if (true) return result; // Lumi - just fuck off, please
+                     PluginDescriptionFile provider = ((PluginClassLoader) result.getClassLoader()).description;
+ 
+                     if (provider != description

@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Indhi Rousseau <contact@thekinrar.fr>
+Date: Sat, 7 Mar 2020 02:58:15 +0000
+Subject: [PATCH] Call ServerShutdownEvent
+
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index c495feda2b06a8ffebd379dc8a03198949c7920f..cd1e05defab28a198cdec6ee3ba37572046b23a0 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1133,6 +1133,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         this.safeShutdown(flag, false);
+     }
+     public void safeShutdown(boolean flag, boolean isRestarting) {
++        org.bukkit.Bukkit.getPluginManager().callEvent(new org.bukkit.event.server.ServerShutdownEvent()); // Papyrus
++
+         this.isRestarting = isRestarting;
+         this.hasLoggedStop = true; // Paper
+         if (isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper
