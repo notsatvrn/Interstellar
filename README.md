@@ -13,3 +13,4 @@ Contains patches (on top of Purpur's existing patches) from:
 - Akarin
 - Lithium
 - Pufferfish
+- Crunchy
