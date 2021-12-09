@@ -1,24 +1,24 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Toffikk <slodkitofik@gmail.com>
-Date: Sun, 17 Jan 2021 15:37:52 -0600
-Subject: [PATCH] Sugarcane Config
+From: MrFishCakes <finlayoxby@outlook.com>
+Date: Fri, 3 Sep 2021 18:41:27 +0100
+Subject: [PATCH] Crunchy Config
 
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 83d61dfe..99831c02 100644
+index 83d61dfe..fd8738bb 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
 @@ -1737,6 +1737,14 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
          }
          // Graphene end
 
-+        // Sugarcane start - add config to timings report
++        // Crunchy start
 +        @NotNull
-+        public org.bukkit.configuration.file.YamlConfiguration getSugarcaneConfig()
++        public org.bukkit.configuration.file.YamlConfiguration getCrunchyConfig()
 +        {
 +            throw new UnsupportedOperationException("Not supported yet.");
 +        }
-+        // Sugarcane end
++        // Crunchy end
 +
          /**
           * Sends the component to the player
