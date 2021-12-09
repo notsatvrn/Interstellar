@@ -4,7 +4,7 @@
 An light, powerful [Purpur] fork.
 
 Contains patches (on top of Purpur's existing patches) from:
-- Sugarcane/Yatopia
+- Sugarcane
 - Empirecraft
 - Origami
 - Mirai
