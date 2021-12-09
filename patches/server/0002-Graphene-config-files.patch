@@ -45,11 +45,11 @@ index 7a0462425f62ce1fb197fa2670e102286ef4c865..3432c7c24d5279a1f59dea9771ee4b25
          this.playerBreedingCooldowns = this.getNewBreedingCooldownCache(); // Purpur
          this.generator = gen;
          this.world = new CraftWorld((ServerLevel) this, gen, biomeProvider, env);
-diff --git a/src/main/java/tk.galaxiamc.graphene/GrapheneConfig.java b/src/main/java/tk.galaxiamc.graphene/GrapheneConfig.java
+diff --git a/src/main/java/tk/galaxiamc/graphene/GrapheneConfig.java b/src/main/java/tk/galaxiamc/graphene/GrapheneConfig.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..08de032c186b4481b141be2425bfc1f2aef1e0b6
 --- /dev/null
-+++ b/src/main/java/tk.galaxiamc.graphene/GrapheneConfig.java
++++ b/src/main/java/tk/galaxiamc/graphene/GrapheneConfig.java
 @@ -0,0 +1,148 @@
 +package tk.galaxiamc.graphene;
 +
@@ -200,11 +200,11 @@ index 0000000000000000000000000000000000000000..08de032c186b4481b141be2425bfc1f2
 +    }
 +}
 \ No newline at end of file
-diff --git a/src/main/java/tk.galaxiamc.graphene/GrapheneWorldConfig.java b/src/main/java/tk.galaxiamc.graphene/GrapheneWorldConfig.java
+diff --git a/src/main/java/tk/galaxiamc/graphene/GrapheneWorldConfig.java b/src/main/java/tk/galaxiamc/graphene/GrapheneWorldConfig.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..a826e2cc5167a7ae9ec88d33efb890ad95917bf9
 --- /dev/null
-+++ b/src/main/java/tk.galaxiamc.graphene/GrapheneWorldConfig.java
++++ b/src/main/java/tk/galaxiamc/graphene/GrapheneWorldConfig.java
 @@ -0,0 +1,79 @@
 +package tk.galaxiamc.graphene;
 +
@@ -285,11 +285,11 @@ index 0000000000000000000000000000000000000000..a826e2cc5167a7ae9ec88d33efb890ad
 +        return value.isEmpty() ? fallback : value;
 +    }
 +}
-diff --git a/src/main/java/tk.galaxiamc.graphene/command/GrapheneCommand.java b/src/main/java/tk.galaxiamc.graphene/command/GrapheneCommand.java
+diff --git a/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java b/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..c539c841dc990bac13d0f2eff006f4e1bdfd6c34
 --- /dev/null
-+++ b/src/main/java/tk.galaxiamc.graphene/command/GrapheneCommand.java
++++ b/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java
 @@ -0,0 +1,66 @@
 +package tk.galaxiamc.graphene.command;
 +

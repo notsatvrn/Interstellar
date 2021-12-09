@@ -1,0 +1,303 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MrFishCakes <finlayoxby@outlook.com>
+Date: Mon, 18 Oct 2021 19:06:04 +0100
+Subject: [PATCH] Smelt Raw Ore Blocks
+
+
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java b/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java
+index 30e6da894..abfbfef25 100644
+--- a/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java
++++ b/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java
+@@ -2,6 +2,7 @@ package dev.mrfishcakes.crunchy.commands;
+
+ import dev.mrfishcakes.crunchy.CrunchyUtil;
+ import dev.mrfishcakes.crunchy.config.CrunchyConfig;
++import dev.mrfishcakes.crunchy.recipe.CrunchyRecipeManager;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerLevel;
+ import org.bukkit.ChatColor;
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyConfig.java b/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyConfig.java
+index 8f7202c0c..d512cf849 100644
+--- a/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyConfig.java
++++ b/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyConfig.java
+@@ -182,4 +182,73 @@ public final class CrunchyConfig {
+         stopCommandAlreadyScheduled = getString("commands.stop.already-scheduled", "<red>A server stop is already scheduled, to cancel it use ''/stop cancel''");
+         stopCommandSuccess = getString("commands.stop.success", "<green>The stop has been successfully scheduled!");
+     }
++
++    // Smelt Raw Blocks
++    public static RawBlockData smeltRawCopperBlock;
++    public static RawBlockData smeltRawGoldBlock;
++    public static RawBlockData smeltRawIronBlock;
++
++    private static void smeltRawBlocks() {
++        final String copperRoot = "recipes.smelting.raw-copper-block.";
++        final String goldRoot = "recipes.smelting.raw-gold-block.";
++        final String ironRoot = "recipes.smelting.raw-iron-block.";
++
++        if (version < 2) {
++            set(copperRoot + "enabled", getBoolean("recipes.smelt-raw-copper-block", true));
++            set("recipes.smelt-raw-copper-block", null);
++
++            set(goldRoot + "enabled", getBoolean("recipes.smelt-raw-gold-block", true));
++            set("recipes.smelt-raw-gold-block", null);
++
++            set(ironRoot + "enabled", getBoolean("recipes.smelt-raw-iron-block", true));
++            set("recipes.smelt-raw-iron-block", null);
++        } else {
++            smeltRawCopperBlock = RawBlockData.fromValues(getBoolean(copperRoot + "enabled", true), (float) getDouble(copperRoot + "experience", 6.3D),
++                    getInt(copperRoot + "cook-time", 800), getInt(copperRoot + "blast-cook-time", 500));
++            smeltRawGoldBlock = RawBlockData.fromValues(getBoolean(goldRoot + "enabled", true), (float) getDouble(goldRoot + "experience", 9.0D),
++                    getInt(goldRoot + "cook-time", 800), getInt(goldRoot + "blast-cook-time", 500));
++            smeltRawIronBlock = RawBlockData.fromValues(getBoolean(ironRoot + "enabled", true), (float) getDouble(ironRoot + "experience", 6.3D),
++                    getInt(ironRoot + "cook-time", 800), getInt(ironRoot + "blast-cook-time", 500));
++        }
++    }
++
++    public static class RawBlockData {
++
++        private final boolean enabled;
++        private final float experience;
++        private final int cookTime;
++        private final int blastCookTime;
++
++        private RawBlockData(boolean enabled, float experience, int cookTime, int blastCookTime) {
++            this.enabled = enabled;
++            this.experience = experience > 0 ? experience : 5F;
++            this.cookTime = cookTime > 0 ? cookTime : 40;
++            this.blastCookTime = blastCookTime > 0 ? blastCookTime : 20;
++        }
++
++        @NotNull
++        private static RawBlockData fromValues(boolean enabled, float experience, int cookTime, int blastCookTime) {
++            if (experience < 1) experience = 1F;
++            if (cookTime < 1) cookTime = 1;
++            if (blastCookTime < 1) blastCookTime = 1;
++
++            return new RawBlockData(enabled, experience, cookTime,blastCookTime);
++        }
++
++        public boolean enabled() {
++            return enabled;
++        }
++
++        public float experience() {
++            return experience;
++        }
++
++        public int cookTime() {
++            return cookTime;
++        }
++
++        public int blastCookTime() {
++            return blastCookTime;
++        }
++    }
+ }
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/recipe/CrunchyRecipeManager.java b/src/main/java/dev/mrfishcakes/crunchy/recipe/CrunchyRecipeManager.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..22644415a0fba6ac0541cdbabe6e8843cf303e3c
+--- /dev/null
++++ b/src/main/java/dev/mrfishcakes/crunchy/recipe/CrunchyRecipeManager.java
+@@ -0,0 +1,56 @@
++package dev.mrfishcakes.crunchy.recipe;
++
++import dev.mrfishcakes.crunchy.config.CrunchyConfig;
++import dev.mrfishcakes.crunchy.recipe.smeltable.RawCopperBlock;
++import dev.mrfishcakes.crunchy.recipe.smeltable.RawGoldBlock;
++import dev.mrfishcakes.crunchy.recipe.smeltable.RawIronBlock;
++import org.bukkit.Bukkit;
++import org.bukkit.NamespacedKey;
++import org.bukkit.inventory.Recipe;
++import org.jetbrains.annotations.NotNull;
++
++import java.util.HashSet;
++import java.util.Set;
++import java.util.concurrent.CompletableFuture;
++import java.util.concurrent.Future;
++import java.util.concurrent.FutureTask;
++import java.util.concurrent.atomic.AtomicBoolean;
++import java.util.logging.Level;
++
++public final class CrunchyRecipeManager {
++
++    private static final AtomicBoolean INITIATED = new AtomicBoolean(false);
++    private static CrunchyRecipeManager instance;
++
++    public static CrunchyRecipeManager instance() {
++        return instance != null ? instance : new CrunchyRecipeManager();
++    }
++
++    private CrunchyRecipeManager() {
++        if (!INITIATED.compareAndSet(false, true)) return;
++
++        instance = this;
++
++        if (CrunchyConfig.smeltRawCopperBlock.enabled()) {
++            registerRecipe(RawCopperBlock.BLASTING, new RawCopperBlock.BlastFurnace());
++            registerRecipe(RawCopperBlock.FURNACE, new RawCopperBlock.Furnace());
++        }
++
++        if (CrunchyConfig.smeltRawGoldBlock.enabled()) {
++            registerRecipe(RawGoldBlock.BLASTING, new RawGoldBlock.BlastFurnace());
++            registerRecipe(RawGoldBlock.FURNACE, new RawGoldBlock.Furnace());
++        }
++
++        if (CrunchyConfig.smeltRawIronBlock.enabled()) {
++            registerRecipe(RawIronBlock.BLASTING, new RawIronBlock.BlastFurnace());
++            registerRecipe(RawIronBlock.FURNACE, new RawIronBlock.Furnace());
++        }
++    }
++
++    public void registerRecipe(@NotNull NamespacedKey key, @NotNull Recipe recipe) {
++        if (!Bukkit.addRecipe(recipe)) {
++            Bukkit.getLogger().log(Level.SEVERE, String.format("Unable to register the recipe '%s'", key.getKey()));
++        }
++    }
++
++}
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawCopperBlock.java b/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawCopperBlock.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..b03c5766618a6db7c590f8d23674675825957ee7
+--- /dev/null
++++ b/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawCopperBlock.java
+@@ -0,0 +1,34 @@
++package dev.mrfishcakes.crunchy.recipe.smeltable;
++
++import dev.mrfishcakes.crunchy.config.CrunchyConfig;
++import org.bukkit.Material;
++import org.bukkit.NamespacedKey;
++import org.bukkit.inventory.BlastingRecipe;
++import org.bukkit.inventory.FurnaceRecipe;
++import org.bukkit.inventory.ItemStack;
++
++public class RawCopperBlock {
++
++    public static final NamespacedKey BLASTING = NamespacedKey.crunchy("raw_copper_block_blast_furnace");
++    public static final NamespacedKey FURNACE = NamespacedKey.crunchy("raw_copper_block_furnace");
++
++    private static final ItemStack RESULT = new ItemStack(Material.COPPER_BLOCK);
++    private static final Material MATERIAL = Material.RAW_COPPER_BLOCK;
++
++    public static final class BlastFurnace extends BlastingRecipe {
++
++        public BlastFurnace() {
++            super(BLASTING, RESULT, MATERIAL, CrunchyConfig.smeltRawCopperBlock.experience(), CrunchyConfig.smeltRawCopperBlock.blastCookTime());
++        }
++
++    }
++
++    public static final class Furnace extends FurnaceRecipe {
++
++        public Furnace() {
++            super(FURNACE, RESULT, MATERIAL, CrunchyConfig.smeltRawCopperBlock.experience(), CrunchyConfig.smeltRawCopperBlock.cookTime());
++        }
++
++    }
++
++}
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawGoldBlock.java b/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawGoldBlock.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d640406d1342308b2646dd45c5db7e9307d48b06
+--- /dev/null
++++ b/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawGoldBlock.java
+@@ -0,0 +1,34 @@
++package dev.mrfishcakes.crunchy.recipe.smeltable;
++
++import dev.mrfishcakes.crunchy.config.CrunchyConfig;
++import org.bukkit.Material;
++import org.bukkit.NamespacedKey;
++import org.bukkit.inventory.BlastingRecipe;
++import org.bukkit.inventory.FurnaceRecipe;
++import org.bukkit.inventory.ItemStack;
++
++public class RawGoldBlock {
++
++    public static final NamespacedKey BLASTING = NamespacedKey.crunchy("raw_gold_block_blast_furnace");
++    public static final NamespacedKey FURNACE = NamespacedKey.crunchy("raw_gold_block_furnace");
++
++    private static final ItemStack RESULT = new ItemStack(Material.GOLD_BLOCK);
++    private static final Material MATERIAL = Material.RAW_GOLD_BLOCK;
++
++    public static final class BlastFurnace extends BlastingRecipe {
++
++        public BlastFurnace() {
++            super(BLASTING, RESULT, MATERIAL, CrunchyConfig.smeltRawGoldBlock.experience(), CrunchyConfig.smeltRawGoldBlock.blastCookTime());
++        }
++
++    }
++
++    public static final class Furnace extends FurnaceRecipe {
++
++        public Furnace() {
++            super(FURNACE, RESULT, MATERIAL, CrunchyConfig.smeltRawGoldBlock.experience(), CrunchyConfig.smeltRawGoldBlock.cookTime());
++        }
++
++    }
++
++}
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawIronBlock.java b/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawIronBlock.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0acadd183b514cbe24cab2bd2db9d7a74be707d5
+--- /dev/null
++++ b/src/main/java/dev/mrfishcakes/crunchy/recipe/smeltable/RawIronBlock.java
+@@ -0,0 +1,34 @@
++package dev.mrfishcakes.crunchy.recipe.smeltable;
++
++import dev.mrfishcakes.crunchy.config.CrunchyConfig;
++import org.bukkit.Material;
++import org.bukkit.NamespacedKey;
++import org.bukkit.inventory.BlastingRecipe;
++import org.bukkit.inventory.FurnaceRecipe;
++import org.bukkit.inventory.ItemStack;
++
++public class RawIronBlock {
++
++    public static final NamespacedKey BLASTING = NamespacedKey.crunchy("raw_iron_block_blast_furnace");
++    public static final NamespacedKey FURNACE = NamespacedKey.crunchy("raw_iron_block_furnace");
++
++    private static final ItemStack RESULT = new ItemStack(Material.IRON_BLOCK);
++    private static final Material MATERIAL = Material.RAW_IRON_BLOCK;
++
++    public static final class BlastFurnace extends BlastingRecipe {
++
++        public BlastFurnace() {
++            super(BLASTING, RESULT, MATERIAL, CrunchyConfig.smeltRawIronBlock.experience(), CrunchyConfig.smeltRawIronBlock.blastCookTime());
++        }
++
++    }
++
++    public static final class Furnace extends FurnaceRecipe {
++
++        public Furnace() {
++            super(FURNACE, RESULT, MATERIAL, CrunchyConfig.smeltRawIronBlock.experience(), CrunchyConfig.smeltRawIronBlock.cookTime());
++        }
++
++    }
++
++}
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 9587902be86c44c861b08a45a4d90c5d248c6adb..5953d55bae815ccc956296d1fa9cff5e0ccd23b1 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1218,7 +1218,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 String doneTime = String.format(java.util.Locale.ROOT, "%.3fs", (double) (Util.getNanos() - serverStartTime) / 1.0E9D);
+                 LOGGER.info("Done ({})! For help, type \"help\"", doneTime);
+                 // Paper end
+-
++                dev.mrfishcakes.crunchy.recipe.CrunchyRecipeManager.instance(); // Crunchy - Smelt raw ore blocks
+                 org.spigotmc.WatchdogThread.tick(); // Paper
+                 org.spigotmc.WatchdogThread.hasStarted = true; // Paper
+                 Arrays.fill( recentTps, 20 );
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index e4bc6acd78a457fd0e9340646fde6d61a3fd2bfc..e59e87e112df53705085db57b078854e393ff059 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
+ import com.google.common.base.Function;
+ import com.google.common.base.Preconditions;
+ import com.google.common.collect.ImmutableList;
+-import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.Iterators;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.MapMaker;

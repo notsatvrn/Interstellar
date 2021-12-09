@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MrFishCakes <finlayoxby@outlook.com>
+Date: Tue, 9 Nov 2021 22:40:20 +0000
+Subject: [PATCH] Player Beheading
+
+
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyWorldConfig.java b/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyWorldConfig.java
+index 22b044600115d9a6b15e42c29c85df05af2f7632..82525657169efc8e2917363d725e22eaf9ef352c 100644
+--- a/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyWorldConfig.java
++++ b/src/main/java/dev/mrfishcakes/crunchy/config/CrunchyWorldConfig.java
+@@ -1,8 +1,18 @@
+ package dev.mrfishcakes.crunchy.config;
+ 
++import net.minecraft.core.Registry;
++import net.minecraft.resources.ResourceLocation;
++import net.minecraft.world.item.Item;
++import net.minecraft.world.item.Items;
+ import org.bukkit.configuration.ConfigurationSection;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.entity.Player;
++import org.bukkit.inventory.ItemStack;
+ import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
+ 
++import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.List;
+ import java.util.logging.Level;
+ 
+@@ -81,6 +91,30 @@ public final class CrunchyWorldConfig {
+         return config.getList(namedPath + path, config.getList(defaultPath + path));
+     }
+ 
++    // Beheading Settings
++    public boolean beheadingEnabled;
++    public double beheadingChance;
++    public List<Item> beheadingItems;
++
++    private void beheadingSettings() {
++        beheadingEnabled = getBoolean("beheading.enabled", false);
++        beheadingChance = getDouble("beheading.chance", 0.03D);
++        beheadingItems = new ArrayList<>();
++        getList("beheading.items", List.of(
++                "minecraft:diamond_axe",
++                "minecraft:netherite_axe",
++                "minecraft:diamond_sword",
++                "minecraft:netherite_sword"
++        )).forEach(key -> {
++            Item item = Registry.ITEM.get(new ResourceLocation(key.toString()));
++            if (item != Items.AIR) beheadingItems.add(item);
++        });
++    }
++
++    public boolean isValidBeheadingItem(@Nullable Player player) {
++        return player != null && beheadingItems.contains(CraftItemStack.asNMSCopy(player.getInventory().getItemInMainHand()).getItem());
++    }
++
+     // Chicken Settings
+     public boolean chickenAvoidFox;
+     public float chickenAvoidFoxDistance;
+diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+index b6f9c99d580d985f2b84efaa655d9ae40073e72b..70e9bbc887343e4b509df1c3cb3c84a209401a06 100644
+--- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
++++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+@@ -869,7 +869,19 @@ public class ServerPlayer extends Player {
+             return;
+         }
+         // Paper end
++        // Crunchy start - Player Beheading
++        if (level.crunchyConfig.beheadingEnabled) {
++            final double chance = level.crunchyConfig.beheadingChance;
+ 
++            if (chance > 0D && random.nextDouble() <= chance) {
++                if (level.crunchyConfig.isValidBeheadingItem(getBukkitEntity().getKiller())) {
++                    org.bukkit.inventory.ItemStack skullItem = new dev.mrfishcakes.crunchy.SkullBuilder().setOfflinePlayer(getBukkitEntity()).build();
++
++                    level.getWorld().dropItemNaturally(new org.bukkit.Location(level.getWorld(), getX(), getY(), getZ()), skullItem); // Drop separate to loot
++                }
++            }
++        }
++        // Crunchy end - Player Beheading
+         // SPIGOT-943 - only call if they have an inventory open
+         if (this.containerMenu != this.inventoryMenu) {
+             this.closeContainer(org.bukkit.event.inventory.InventoryCloseEvent.Reason.DEATH); // Paper
