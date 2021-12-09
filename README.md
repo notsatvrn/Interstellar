@@ -1,9 +1,11 @@
 [Purpur]: https://purpur.pl3x.net
 
 ## Graphene
-An light, powerful [Purpur] fork.
+A light, stable, fast, and flexible Minecraft server software.
 
-Contains patches (on top of Purpur's existing patches) from:
+Graphene is a fork of [Purpur], designed to be the overall best server software in existence.
+
+Graphene contains patches (on top of Purpur's existing patches) from:
 - Sugarcane
 - Empirecraft
 - Origami
