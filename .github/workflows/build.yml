@@ -37,7 +37,7 @@ jobs:
         id: mcver
       - name: Build
         run: |
-          ./gradlew build --stacktrace --no-daemon
+          ./gradlew build -x test --stacktrace --no-daemon
           ./gradlew paperclipJar --stacktrace --no-daemon
       - name: Archive Paperclip
         uses: actions/upload-artifact@v2
