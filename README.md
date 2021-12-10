@@ -16,3 +16,5 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - Lithium
 - Pufferfish
 - Crunchy
+- Dripstone
+- Utopia
