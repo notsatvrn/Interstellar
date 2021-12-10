@@ -6,7 +6,7 @@ Subject: [PATCH] Implement performance watchdog and auto config control
 Adds an ability to enable automatic change of some config values such as spawn limits depending on current server TPS. Also adds an utopia.yml file with config for performance watchdog.
 
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 38a0fb9a7c4ade9cacfd30dffabfea7e6b773981..a810900abd47e66a2594a721b70b997714da830c 100644
+index ecf892c1b..281ca796b 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -6,10 +6,8 @@ import com.mojang.authlib.GameProfile;
@@ -22,20 +22,19 @@ index 38a0fb9a7c4ade9cacfd30dffabfea7e6b773981..a810900abd47e66a2594a721b70b9977
  import java.net.InetAddress;
  import java.net.Proxy;
  import java.nio.charset.StandardCharsets;
-@@ -233,6 +231,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
-         // Paper end
- 
-+        ru.bortexel.utopia.UtopiaConfig.init((File) options.valueOf("utopia-settings"));
-+
+@@ -278,6 +276,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         dev.mrfishcakes.crunchy.config.CrunchyConfig.registerCommands();
+         // Crunchy end
+
++        ru.bortexel.utopia.UtopiaConfig.init((File) options.valueOf("utopia-settings")); // Utopia
          this.setPvpAllowed(dedicatedserverproperties.pvp);
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 54b9a776a911d414fa09c3e36c7e2063043c4ad2..ef7d0a5b80c9210381f853b4f43a47568e6c1374 100644
+index 79dfa1792..de4a0f8c6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -28,22 +28,7 @@ import java.io.IOException;
+@@ -27,25 +27,7 @@ import java.io.IOException;
  import java.io.InputStreamReader;
  import java.nio.ByteBuffer;
  import java.nio.charset.StandardCharsets;
@@ -55,21 +54,27 @@ index 54b9a776a911d414fa09c3e36c7e2063043c4ad2..ef7d0a5b80c9210381f853b4f43a4756
 -import java.util.Random;
 -import java.util.Set;
 -import java.util.UUID;
+-import java.util.function.Consumer;
+-import java.util.logging.Level;
+-import java.util.logging.Logger;
 +import java.util.*;
- import java.util.function.Consumer;
- import java.util.logging.Level;
- import java.util.logging.Logger;
-@@ -250,6 +235,9 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
- import org.yaml.snakeyaml.error.MarkedYAMLException;
- 
+ import javax.imageio.ImageIO;
+ import net.minecraft.advancements.Advancement;
+ import net.minecraft.commands.CommandSourceStack;
+@@ -246,6 +228,12 @@ import org.yaml.snakeyaml.error.MarkedYAMLException;
+
  import net.md_5.bungee.api.chat.BaseComponent; // Spigot
+
++// Utopia start
 +import ru.bortexel.utopia.UtopiaConfig;
 +import ru.bortexel.utopia.management.PerformanceWatchdog;
-+import ru.bortexel.utopia.management.PropertyPool; // Utopia
- 
++import ru.bortexel.utopia.management.PropertyPool;
++// Utopia end
++
  import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
-@@ -380,6 +368,12 @@ public final class CraftServer implements Server {
+
+@@ -377,6 +365,12 @@ public final class CraftServer implements Server {
          this.minimumAPI = this.configuration.getString("settings.minimum-api");
          this.loadIcon();
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -80,69 +85,70 @@ index 54b9a776a911d414fa09c3e36c7e2063043c4ad2..ef7d0a5b80c9210381f853b4f43a4756
 +        timer.schedule(new PerformanceWatchdog(), UtopiaConfig.performanceWatchdogDelay / 2, UtopiaConfig.performanceWatchdogDelay);
 +        // Utopia end
      }
- 
+
      public boolean getCommandBlockOverride(String command) {
-@@ -694,7 +688,7 @@ public final class CraftServer implements Server {
- 
+@@ -693,7 +687,7 @@ public final class CraftServer implements Server {
+
      @Override
      public int getViewDistance() {
 -        return this.getProperties().viewDistance;
 +        return PropertyPool.viewDistance; // Utopia
      }
- 
+
      @Override
-@@ -933,6 +927,7 @@ public final class CraftServer implements Server {
- 
-         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
-         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
+@@ -932,6 +926,7 @@ public final class CraftServer implements Server {
+         tk.galaxiamc.graphene.GrapheneConfig.init((File) console.options.valueOf("graphene-settings")); // Graphene
+         me.titaniumtown.JettPackConfig.init((File) console.options.valueOf("jettpack-settings")); // JettPack
+         dev.mrfishcakes.crunchy.config.CrunchyConfig.init((File) console.options.valueOf("crunchy-settings")); // Crunchy
 +        ru.bortexel.utopia.UtopiaConfig.init((File) console.options.valueOf("utopia-settings")); // Utopia
          for (ServerLevel world : this.console.getAllLevels()) {
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
-@@ -2102,22 +2097,22 @@ public final class CraftServer implements Server {
- 
+@@ -2124,22 +2119,22 @@ public final class CraftServer implements Server {
+
      @Override
      public int getMonsterSpawnLimit() {
 -        return this.monsterSpawn;
 +        return PropertyPool.monsterSpawnLimit; // Utopia
      }
- 
+
      @Override
      public int getAnimalSpawnLimit() {
 -        return this.animalSpawn;
 +        return PropertyPool.animalSpawnLimit; // Utopia
      }
- 
+
      @Override
      public int getWaterAnimalSpawnLimit() {
 -        return this.waterAnimalSpawn;
 +        return PropertyPool.waterAnimalSpawnLimit; // Utopia
      }
- 
+
      @Override
      public int getWaterAmbientSpawnLimit() {
 -        return this.waterAmbientSpawn;
 +        return PropertyPool.waterAmbientSpawnLimit; // Utopia
      }
- 
+
      @Override
-@@ -2127,7 +2122,7 @@ public final class CraftServer implements Server {
- 
+@@ -2149,7 +2144,7 @@ public final class CraftServer implements Server {
+
      @Override
      public int getAmbientSpawnLimit() {
 -        return this.ambientSpawn;
 +        return PropertyPool.ambientSpawnLimit; // Utopia
      }
- 
+
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index 450518903c0a10301b177d8dd7fe05aca3b8b37e..94f91e2e778e816dfa1fdbb29af59def8607fc88 100644
+index 5e60e7f9a..ed495b920 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -153,6 +153,14 @@ public class Main {
-                         .describedAs("Jar file");
-                 // Paper end
- 
+@@ -194,6 +194,14 @@ public class Main {
+                         .defaultsTo(new File("crunchy.yml"))
+                         .describedAs("Yml file");
+                 // Crunchy end
++
 +                // Utopia Start
 +                acceptsAll(asList("utopia", "utopia-settings"), "File for utopia settings")
 +                        .withRequiredArg()
@@ -150,10 +156,9 @@ index 450518903c0a10301b177d8dd7fe05aca3b8b37e..94f91e2e778e816dfa1fdbb29af59def
 +                        .defaultsTo(new File("utopia.yml"))
 +                        .describedAs("Yml file");
 +                // Utopia end
-+
-                 // Paper start
-                 acceptsAll(asList("server-name"), "Name of the server")
-                         .withRequiredArg()
+             }
+         };
+         OptionSet options = null;
 diff --git a/src/main/java/ru/bortexel/utopia/UtopiaConfig.java b/src/main/java/ru/bortexel/utopia/UtopiaConfig.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..c8bb546264fad5ea954f29d60fc8e3fb27b78572

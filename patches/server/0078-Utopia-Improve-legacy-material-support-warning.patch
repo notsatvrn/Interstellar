@@ -5,7 +5,7 @@ Subject: [PATCH] Improve legacy material support warning
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
-index b2a15c986c7500a0ce227a54cb61ec3f5378f6f3..28d3485c8b4c9b91ad9d7f55b6c50dc1853a493a 100644
+index 6d5f030b6..4f7abe770 100644
 --- a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
 +++ b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
 @@ -27,6 +27,8 @@ import net.minecraft.world.level.block.Blocks;
@@ -20,15 +20,15 @@ index b2a15c986c7500a0ce227a54cb61ec3f5378f6f3..28d3485c8b4c9b91ad9d7f55b6c50dc1
 @@ -45,6 +47,7 @@ import org.bukkit.material.MaterialData;
  @Deprecated
  public final class CraftLegacy {
- 
+
 +    static final Logger LOGGER = LogManager.getLogger("CraftLegacy");
      private static final Map<Byte, Material> SPAWN_EGGS = new HashMap<>();
      private static final Set<String> whitelistedStates = new HashSet<>(Arrays.asList("explode", "check_decay", "decayable", "facing"));
      private static final Map<MaterialData, Item> materialToItem = new HashMap<>(16384);
-@@ -255,7 +258,7 @@ public final class CraftLegacy {
-     }
- 
+@@ -256,7 +259,7 @@ public final class CraftLegacy {
+
      static {
+         if (!net.pl3x.purpur.PurpurConfig.loggerSuppressInitLegacyMaterialError) // Purpur
 -        System.err.println("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!");
 +        CraftLegacy.LOGGER.warn("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!");
          if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isDebugging()) {
