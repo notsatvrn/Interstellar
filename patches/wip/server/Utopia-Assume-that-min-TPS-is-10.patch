@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: RuscalWorld <me@ruscalworld.ru>
+Date: Fri, 9 Jul 2021 16:01:15 +0300
+Subject: [PATCH] Assume that min TPS is 10
+
+
+diff --git a/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java b/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java
+index 3a67aee11b31aae9a4dc5fab275fd1338baa7f6d..fdb33b35080d095a47244d90e97a21b8527a7a43 100644
+--- a/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java
++++ b/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java
+@@ -15,8 +15,8 @@ public class PerformanceWatchdog extends TimerTask {
+         if (!UtopiaConfig.configManagementEnabled) return;
+         if (UtopiaConfig.configManagementEnableFrom.after(now) || UtopiaConfig.configManagementEnableTill.before(now)) return;
+ 
+-        double currentTPS = Bukkit.getTPS()[0];
+-        double maxTPS = MinecraftServer.TPS;
++        double currentTPS = Math.max(0, Bukkit.getTPS()[0] - 10);
++        double maxTPS = MinecraftServer.TPS - 10;
+         double rate = currentTPS / maxTPS * 100;
+ 
+         try {

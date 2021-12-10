@@ -1,0 +1,405 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: RuscalWorld <me@ruscalworld.ru>
+Date: Tue, 6 Jul 2021 23:01:10 +0300
+Subject: [PATCH] Implement performance watchdog and auto config control
+
+Adds an ability to enable automatic change of some config values such as spawn limits depending on current server TPS. Also adds an utopia.yml file with config for performance watchdog.
+
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index 38a0fb9a7c4ade9cacfd30dffabfea7e6b773981..a810900abd47e66a2594a721b70b997714da830c 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -6,10 +6,8 @@ import com.mojang.authlib.GameProfile;
+ import com.mojang.authlib.GameProfileRepository;
+ import com.mojang.authlib.minecraft.MinecraftSessionService;
+ import com.mojang.datafixers.DataFixer;
+-import java.io.BufferedReader;
+-import java.io.BufferedWriter;
+-import java.io.IOException;
+-import java.io.InputStreamReader;
++
++import java.io.*;
+ import java.net.InetAddress;
+ import java.net.Proxy;
+ import java.nio.charset.StandardCharsets;
+@@ -233,6 +231,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
+         // Paper end
+ 
++        ru.bortexel.utopia.UtopiaConfig.init((File) options.valueOf("utopia-settings"));
++
+         this.setPvpAllowed(dedicatedserverproperties.pvp);
+         this.setFlightAllowed(dedicatedserverproperties.allowFlight);
+         this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 54b9a776a911d414fa09c3e36c7e2063043c4ad2..ef7d0a5b80c9210381f853b4f43a47568e6c1374 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -28,22 +28,7 @@ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import java.nio.ByteBuffer;
+ import java.nio.charset.StandardCharsets;
+-import java.util.ArrayList;
+-import java.util.Arrays;
+-import java.util.Base64;
+-import java.util.Collections;
+-import java.util.HashSet;
+-import java.util.Iterator;
+-import java.util.LinkedHashMap;
+-import java.util.LinkedHashSet;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Objects;
+-import java.util.Optional;
+-import java.util.Properties;
+-import java.util.Random;
+-import java.util.Set;
+-import java.util.UUID;
++import java.util.*;
+ import java.util.function.Consumer;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
+@@ -250,6 +235,9 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
+ import org.yaml.snakeyaml.error.MarkedYAMLException;
+ 
+ import net.md_5.bungee.api.chat.BaseComponent; // Spigot
++import ru.bortexel.utopia.UtopiaConfig;
++import ru.bortexel.utopia.management.PerformanceWatchdog;
++import ru.bortexel.utopia.management.PropertyPool; // Utopia
+ 
+ import javax.annotation.Nullable; // Paper
+ import javax.annotation.Nonnull; // Paper
+@@ -380,6 +368,12 @@ public final class CraftServer implements Server {
+         this.minimumAPI = this.configuration.getString("settings.minimum-api");
+         this.loadIcon();
+         datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
++
++        // Utopia start
++        PropertyPool.loadDefault(console.settings.getProperties(), this);
++        Timer timer = new Timer();
++        timer.schedule(new PerformanceWatchdog(), UtopiaConfig.performanceWatchdogDelay / 2, UtopiaConfig.performanceWatchdogDelay);
++        // Utopia end
+     }
+ 
+     public boolean getCommandBlockOverride(String command) {
+@@ -694,7 +688,7 @@ public final class CraftServer implements Server {
+ 
+     @Override
+     public int getViewDistance() {
+-        return this.getProperties().viewDistance;
++        return PropertyPool.viewDistance; // Utopia
+     }
+ 
+     @Override
+@@ -933,6 +927,7 @@ public final class CraftServer implements Server {
+ 
+         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
++        ru.bortexel.utopia.UtopiaConfig.init((File) console.options.valueOf("utopia-settings")); // Utopia
+         for (ServerLevel world : this.console.getAllLevels()) {
+             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
+             world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
+@@ -2102,22 +2097,22 @@ public final class CraftServer implements Server {
+ 
+     @Override
+     public int getMonsterSpawnLimit() {
+-        return this.monsterSpawn;
++        return PropertyPool.monsterSpawnLimit; // Utopia
+     }
+ 
+     @Override
+     public int getAnimalSpawnLimit() {
+-        return this.animalSpawn;
++        return PropertyPool.animalSpawnLimit; // Utopia
+     }
+ 
+     @Override
+     public int getWaterAnimalSpawnLimit() {
+-        return this.waterAnimalSpawn;
++        return PropertyPool.waterAnimalSpawnLimit; // Utopia
+     }
+ 
+     @Override
+     public int getWaterAmbientSpawnLimit() {
+-        return this.waterAmbientSpawn;
++        return PropertyPool.waterAmbientSpawnLimit; // Utopia
+     }
+ 
+     @Override
+@@ -2127,7 +2122,7 @@ public final class CraftServer implements Server {
+ 
+     @Override
+     public int getAmbientSpawnLimit() {
+-        return this.ambientSpawn;
++        return PropertyPool.ambientSpawnLimit; // Utopia
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 450518903c0a10301b177d8dd7fe05aca3b8b37e..94f91e2e778e816dfa1fdbb29af59def8607fc88 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -153,6 +153,14 @@ public class Main {
+                         .describedAs("Jar file");
+                 // Paper end
+ 
++                // Utopia Start
++                acceptsAll(asList("utopia", "utopia-settings"), "File for utopia settings")
++                        .withRequiredArg()
++                        .ofType(File.class)
++                        .defaultsTo(new File("utopia.yml"))
++                        .describedAs("Yml file");
++                // Utopia end
++
+                 // Paper start
+                 acceptsAll(asList("server-name"), "Name of the server")
+                         .withRequiredArg()
+diff --git a/src/main/java/ru/bortexel/utopia/UtopiaConfig.java b/src/main/java/ru/bortexel/utopia/UtopiaConfig.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c8bb546264fad5ea954f29d60fc8e3fb27b78572
+--- /dev/null
++++ b/src/main/java/ru/bortexel/utopia/UtopiaConfig.java
+@@ -0,0 +1,127 @@
++package ru.bortexel.utopia;
++
++import com.google.common.base.Throwables;
++import org.bukkit.Bukkit;
++import org.bukkit.configuration.InvalidConfigurationException;
++import org.bukkit.configuration.file.YamlConfiguration;
++import ru.bortexel.utopia.management.ControlledProperty;
++
++import java.io.File;
++import java.io.IOException;
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
++import java.lang.reflect.Modifier;
++import java.sql.Time;
++import java.util.HashMap;
++import java.util.List;
++import java.util.logging.Level;
++
++public class UtopiaConfig {
++
++    private static File CONFIG_FILE;
++    private static final String HEADER = "This is the main configuration file for Utopia.";
++    /*========================================================================*/
++    public static YamlConfiguration config;
++    /*========================================================================*/
++
++    public static void init(File configFile) {
++        CONFIG_FILE = configFile;
++        config = new YamlConfiguration();
++
++        try {
++            config.load(CONFIG_FILE);
++        } catch (IOException ignored) {
++        } catch (InvalidConfigurationException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not load utopia.yml, please correct your syntax errors", ex);
++            throw Throwables.propagate(ex);
++        }
++
++        config.options().header(HEADER);
++        config.options().copyDefaults(true);
++        readConfig();
++    }
++
++    static void readConfig() {
++        for (Method method : UtopiaConfig.class.getDeclaredMethods()) {
++            if (Modifier.isPrivate(method.getModifiers())) {
++                if (method.getParameterTypes().length == 0 && method.getReturnType() == Void.TYPE) {
++                    try {
++                        method.setAccessible(true);
++                        method.invoke(null);
++                    } catch (InvocationTargetException ex) {
++                        throw Throwables.propagate(ex.getCause());
++                    } catch (Exception ex) {
++                        Bukkit.getLogger().log(Level.SEVERE, "Error invoking " + method, ex);
++                    }
++                }
++            }
++        }
++
++        try {
++            config.save(CONFIG_FILE);
++        } catch (IOException ex) {
++            Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
++        }
++    }
++
++    public static void set(String path, Object val) {
++        config.set(path, val);
++    }
++
++    public static boolean getBoolean(String path, boolean def) {
++        config.addDefault(path, def);
++        return config.getBoolean(path, config.getBoolean(path));
++    }
++
++    public static double getDouble(String path, double def) {
++        config.addDefault(path, def);
++        return config.getDouble(path, config.getDouble(path));
++    }
++
++    public static float getFloat(String path, float def) {
++        // TODO: Figure out why getFloat() always returns the default value.
++        return (float) getDouble(path, (double) def);
++    }
++
++    public static int getInt(String path, int def) {
++        config.addDefault(path, def);
++        return config.getInt(path, config.getInt(path));
++    }
++
++    public static <T> List getList(String path, T def) {
++        config.addDefault(path, def);
++        return (List<T>) config.getList(path, config.getList(path));
++    }
++
++    public static String getString(String path, String def) {
++        config.addDefault(path, def);
++        return config.getString(path, config.getString(path));
++    }
++
++    public static String MANAGEMENT_ROOT = "config-management";
++    public static String MANAGEMENT_PROPERTIES = MANAGEMENT_ROOT + ".properties";
++    public static boolean configManagementEnabled = false;
++    public static Time configManagementEnableFrom = null;
++    public static Time configManagementEnableTill = null;
++    public static int performanceWatchdogDelay = 1000;
++    private static void configManagement() {
++        configManagementEnabled = getBoolean(MANAGEMENT_ROOT + ".enable.value", false);
++        if (configManagementEnabled) {
++            loadControlledProperty(new ControlledProperty("view-distance", 6, 10, 10));
++            loadControlledProperty(new ControlledProperty("monster-limit", 5, 70, 10));
++            loadControlledProperty(new ControlledProperty("animal-limit", 2, 15, 7));
++            loadControlledProperty(new ControlledProperty("water-animal-limit", 1, 5, 7));
++            loadControlledProperty(new ControlledProperty("ambient-limit", 2, 15, 7));
++            loadControlledProperty(new ControlledProperty("water-ambient-limit", 2, 20, 5));
++        }
++
++        configManagementEnableFrom = Time.valueOf(getString(MANAGEMENT_ROOT + ".enable.from", "00:00:00"));
++        configManagementEnableTill = Time.valueOf(getString(MANAGEMENT_ROOT + ".enable.till", "23:59:59"));
++        performanceWatchdogDelay = getInt(MANAGEMENT_ROOT + ".delay", 1000);
++    }
++
++    public static HashMap<String, ControlledProperty> controlledProperties = new HashMap<>();
++    private static void loadControlledProperty(ControlledProperty property) {
++        controlledProperties.put(property.getName(), property);
++    }
++}
+diff --git a/src/main/java/ru/bortexel/utopia/management/ControlledProperty.java b/src/main/java/ru/bortexel/utopia/management/ControlledProperty.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d00d5837a786fc80955d1c814321b74a8287571
+--- /dev/null
++++ b/src/main/java/ru/bortexel/utopia/management/ControlledProperty.java
+@@ -0,0 +1,36 @@
++package ru.bortexel.utopia.management;
++
++import org.bukkit.configuration.ConfigurationSection;
++import ru.bortexel.utopia.UtopiaConfig;
++
++public class ControlledProperty {
++    public double min;
++    public double max;
++    public int weight;
++    private final String name;
++
++    public ControlledProperty(ConfigurationSection configuration) {
++        this.min = configuration.getDouble("min");
++        this.max = configuration.getDouble("max");
++        this.weight = configuration.getInt("weight");
++        this.name = configuration.getCurrentPath();
++    }
++
++    public ControlledProperty(String name, double defMin, double defMax, int defWeight) {
++        String path = UtopiaConfig.MANAGEMENT_PROPERTIES + "." + name + ".";
++        this.min = UtopiaConfig.getDouble(path + "min", defMin);
++        this.max = UtopiaConfig.getDouble(path + "max", defMax);
++        this.weight = UtopiaConfig.getInt(path + "weight", defWeight);
++        this.name = name;
++    }
++
++    public double getValue(double lagRate) {
++        // TODO: Add weight support
++        double value = this.min + (this.max - this.min) * lagRate / 100;
++        return Math.max(this.min, Math.min(this.max, value));
++    }
++
++    public String getName() {
++        return name;
++    }
++}
+diff --git a/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java b/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..3a67aee11b31aae9a4dc5fab275fd1338baa7f6d
+--- /dev/null
++++ b/src/main/java/ru/bortexel/utopia/management/PerformanceWatchdog.java
+@@ -0,0 +1,40 @@
++package ru.bortexel.utopia.management;
++
++import net.minecraft.server.MinecraftServer;
++import org.bukkit.Bukkit;
++import ru.bortexel.utopia.UtopiaConfig;
++
++import java.sql.Time;
++import java.time.LocalTime;
++import java.util.TimerTask;
++
++public class PerformanceWatchdog extends TimerTask {
++    @Override
++    public void run() {
++        Time now = Time.valueOf(LocalTime.now());
++        if (!UtopiaConfig.configManagementEnabled) return;
++        if (UtopiaConfig.configManagementEnableFrom.after(now) || UtopiaConfig.configManagementEnableTill.before(now)) return;
++
++        double currentTPS = Bukkit.getTPS()[0];
++        double maxTPS = MinecraftServer.TPS;
++        double rate = currentTPS / maxTPS * 100;
++
++        try {
++            ControlledProperty viewDistance = UtopiaConfig.controlledProperties.get("view-distance");
++            ControlledProperty monsterSpawnLimit = UtopiaConfig.controlledProperties.get("monster-limit");
++            ControlledProperty animalSpawnLimit = UtopiaConfig.controlledProperties.get("animal-limit");
++            ControlledProperty waterAnimalSpawnLimit = UtopiaConfig.controlledProperties.get("water-animal-limit");
++            ControlledProperty ambientSpawnLimit = UtopiaConfig.controlledProperties.get("ambient-limit");
++            ControlledProperty waterAmbientSpawnLimit = UtopiaConfig.controlledProperties.get("water-ambient-limit");
++
++            if (viewDistance != null) PropertyPool.viewDistance = ((int) Math.round(viewDistance.getValue(rate)));
++            if (monsterSpawnLimit != null) PropertyPool.monsterSpawnLimit = ((int) Math.round(monsterSpawnLimit.getValue(rate)));
++            if (animalSpawnLimit != null) PropertyPool.animalSpawnLimit = ((int) Math.round(animalSpawnLimit.getValue(rate)));
++            if (waterAnimalSpawnLimit != null) PropertyPool.waterAnimalSpawnLimit = ((int) Math.round(waterAnimalSpawnLimit.getValue(rate)));
++            if (ambientSpawnLimit != null) PropertyPool.ambientSpawnLimit = ((int) Math.round(ambientSpawnLimit.getValue(rate)));
++            if (waterAmbientSpawnLimit != null) PropertyPool.waterAmbientSpawnLimit = ((int) Math.round(waterAmbientSpawnLimit.getValue(rate)));
++        } catch (Exception e) {
++            Bukkit.getLogger().warning("Performance Watchdog failure: " + e.getLocalizedMessage());
++        }
++    }
++}
+diff --git a/src/main/java/ru/bortexel/utopia/management/PropertyPool.java b/src/main/java/ru/bortexel/utopia/management/PropertyPool.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..da419b95f2f6be917b7828df0dce7bfcbf9f96db
+--- /dev/null
++++ b/src/main/java/ru/bortexel/utopia/management/PropertyPool.java
+@@ -0,0 +1,22 @@
++package ru.bortexel.utopia.management;
++
++import net.minecraft.server.dedicated.DedicatedServerProperties;
++import org.bukkit.craftbukkit.CraftServer;
++
++public class PropertyPool {
++    public static Integer viewDistance = 10;
++    public static Integer monsterSpawnLimit = 70;
++    public static Integer animalSpawnLimit = 15;
++    public static Integer waterAnimalSpawnLimit = 5;
++    public static Integer ambientSpawnLimit = 15;
++    public static Integer waterAmbientSpawnLimit = 20;
++
++    public static void loadDefault(DedicatedServerProperties properties, CraftServer server) {
++        viewDistance = properties.viewDistance;
++        monsterSpawnLimit = server.getMonsterSpawnLimit();
++        animalSpawnLimit = server.getAnimalSpawnLimit();
++        waterAnimalSpawnLimit = server.getWaterAnimalSpawnLimit();
++        ambientSpawnLimit = server.getAmbientSpawnLimit();
++        waterAmbientSpawnLimit = server.getWaterAmbientSpawnLimit();
++    }
++}

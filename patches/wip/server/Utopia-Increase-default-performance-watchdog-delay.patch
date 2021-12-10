@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: RuscalWorld <me@ruscalworld.ru>
+Date: Wed, 7 Jul 2021 09:44:35 +0300
+Subject: [PATCH] Increase default performance watchdog delay
+
+
+diff --git a/src/main/java/ru/bortexel/utopia/UtopiaConfig.java b/src/main/java/ru/bortexel/utopia/UtopiaConfig.java
+index c8bb546264fad5ea954f29d60fc8e3fb27b78572..21e35a3c63784dea160210d9e8ae6db0988e6c7b 100644
+--- a/src/main/java/ru/bortexel/utopia/UtopiaConfig.java
++++ b/src/main/java/ru/bortexel/utopia/UtopiaConfig.java
+@@ -103,7 +103,7 @@ public class UtopiaConfig {
+     public static boolean configManagementEnabled = false;
+     public static Time configManagementEnableFrom = null;
+     public static Time configManagementEnableTill = null;
+-    public static int performanceWatchdogDelay = 1000;
++    public static int performanceWatchdogDelay = 60000;
+     private static void configManagement() {
+         configManagementEnabled = getBoolean(MANAGEMENT_ROOT + ".enable.value", false);
+         if (configManagementEnabled) {
+@@ -117,7 +117,7 @@ public class UtopiaConfig {
+ 
+         configManagementEnableFrom = Time.valueOf(getString(MANAGEMENT_ROOT + ".enable.from", "00:00:00"));
+         configManagementEnableTill = Time.valueOf(getString(MANAGEMENT_ROOT + ".enable.till", "23:59:59"));
+-        performanceWatchdogDelay = getInt(MANAGEMENT_ROOT + ".delay", 1000);
++        performanceWatchdogDelay = getInt(MANAGEMENT_ROOT + ".delay", 60000);
+     }
+ 
+     public static HashMap<String, ControlledProperty> controlledProperties = new HashMap<>();

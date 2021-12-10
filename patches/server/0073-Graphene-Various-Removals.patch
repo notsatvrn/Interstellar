@@ -1,0 +1,384 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Thu, 9 Dec 2021 00:34:15 +0000
+Subject: [PATCH] Various Removals
+
+
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 3db8c5d80..11bf082c7 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -239,12 +239,16 @@ public class Main {
+                 dedicatedserver1.c(optionset.has(optionspec2));
+                 dedicatedserver1.b((String) optionset.valueOf(optionspec12));
+                 */
++                // Graphene start
++                /*
+                 boolean flag1 = !optionset.has("nogui") && !optionset.nonOptionArguments().contains("nogui");
+
+                 if(!Boolean.parseBoolean(System.getenv().getOrDefault("PAPER_DISABLE_SERVER_GUI", String.valueOf(false)))) // Paper
+                 if (flag1 && !GraphicsEnvironment.isHeadless()) {
+                     dedicatedserver1.showGui();
+                 }
++                */
++                // Graphene end
+
+                 if (optionset.has("port")) {
+                     int port = (Integer) optionset.valueOf("port");
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index e51dca98c..5e60e7f9a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -121,6 +121,7 @@ public class Main {
+
+                 acceptsAll(Main.asList("forceUpgrade"), "Whether to force a world upgrade");
+                 acceptsAll(Main.asList("eraseCache"), "Whether to force cache erase during world upgrade");
++                /* // Graphene
+                 acceptsAll(Main.asList("nogui"), "Disables the graphical console");
+
+                 acceptsAll(Main.asList("nojline"), "Disables jline and emulates the vanilla console");
+@@ -130,6 +131,7 @@ public class Main {
+                 acceptsAll(Main.asList("v", "version"), "Show the CraftBukkit Version");
+
+                 acceptsAll(Main.asList("demo"), "Demo mode");
++                */
+
+                 // Spigot Start
+                 acceptsAll(Main.asList("S", "spigot-settings"), "File for spigot settings")
+@@ -232,6 +234,7 @@ public class Main {
+             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
+         }
+
++        /* // Graphene
+         if ((options == null) || (options.has("?"))) {
+             try {
+                 parser.printHelpOn(System.out);
+@@ -241,134 +244,138 @@ public class Main {
+         } else if (options.has("v")) {
+             System.out.println(CraftServer.class.getPackage().getImplementationVersion());
+         } else {
+-            // Do you love Java using + and ! as string based identifiers? I sure do!
+-            String path = new File(".").getAbsolutePath();
+-            if (path.contains("!") || path.contains("+")) {
+-                System.err.println("Cannot run server in a directory with ! or + in the pathname. Please rename the affected folders and try again.");
+-                return;
+-            }
++        */
+
+-            float javaVersion = Float.parseFloat(System.getProperty("java.class.version"));
+-            if (javaVersion < 60.0) {
+-                System.err.println("Unsupported Java detected (" + javaVersion + "). This version of Minecraft requires at least Java 16. Check your Java version with the command 'java -version'.");
+-                return;
+-            }
+-            if (javaVersion > 61.0) {
+-                System.err.println("Unsupported Java detected (" + javaVersion + "). Only up to Java 17 is supported.");
+-                if (!Boolean.getBoolean("Paper.IgnoreJavaVersion")) return; // Paper
+-            }
+-
+-            try {
+-                // Paper start - Handled by TerminalConsoleAppender
+-                /*
+-                // This trick bypasses Maven Shade's clever rewriting of our getProperty call when using String literals
+-                String jline_UnsupportedTerminal = new String(new char[]{'j', 'l', 'i', 'n', 'e', '.', 'U', 'n', 's', 'u', 'p', 'p', 'o', 'r', 't', 'e', 'd', 'T', 'e', 'r', 'm', 'i', 'n', 'a', 'l'});
+-                String jline_terminal = new String(new char[]{'j', 'l', 'i', 'n', 'e', '.', 't', 'e', 'r', 'm', 'i', 'n', 'a', 'l'});
++        // Do you love Java using + and ! as string based identifiers? I sure do!
++        String path = new File(".").getAbsolutePath();
++        if (path.contains("!") || path.contains("+")) {
++            System.err.println("Cannot run server in a directory with ! or + in the pathname. Please rename the affected folders and try again.");
++            return;
++        }
+
+-                Main.useJline = !(jline_UnsupportedTerminal).equals(System.getProperty(jline_terminal));
++        float javaVersion = Float.parseFloat(System.getProperty("java.class.version"));
++        if (javaVersion < 60.0) {
++            System.err.println("Unsupported Java detected (" + javaVersion + "). This version of Minecraft requires at least Java 16. Check your Java version with the command 'java -version'.");
++            return;
++        }
+
+-                if (options.has("nojline")) {
+-                    System.setProperty("user.language", "en");
+-                    Main.useJline = false;
+-                }
++        if (javaVersion > 61.0) {
++            System.err.println("Unsupported Java detected (" + javaVersion + "). Only up to Java 17 is supported.");
++            if (!Boolean.getBoolean("Paper.IgnoreJavaVersion")) return; // Paper
++        }
+
+-                if (Main.useJline) {
+-                    AnsiConsole.systemInstall();
+-                } else {
+-                    // This ensures the terminal literal will always match the jline implementation
+-                    System.setProperty(jline.TerminalFactory.JLINE_TERMINAL, jline.UnsupportedTerminal.class.getName());
+-                }
+-                */
++        try {
++            // Paper start - Handled by TerminalConsoleAppender
++            /*
++            // This trick bypasses Maven Shade's clever rewriting of our getProperty call when using String literals
++            String jline_UnsupportedTerminal = new String(new char[]{'j', 'l', 'i', 'n', 'e', '.', 'U', 'n', 's', 'u', 'p', 'p', 'o', 'r', 't', 'e', 'd', 'T', 'e', 'r', 'm', 'i', 'n', 'a', 'l'});
++            String jline_terminal = new String(new char[]{'j', 'l', 'i', 'n', 'e', '.', 't', 'e', 'r', 'm', 'i', 'n', 'a', 'l'});
+
+-                if (options.has("nojline")) {
+-                    System.setProperty(TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY, "false");
+-                    useJline = false;
+-                }
+-                // Paper end
++            Main.useJline = !(jline_UnsupportedTerminal).equals(System.getProperty(jline_terminal));
+
+-                if (options.has("noconsole")) {
+-                    Main.useConsole = false;
+-                    useJline = false; // Paper
+-                    System.setProperty(TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY, "false"); // Paper
+-                }
++            if (options.has("nojline")) {
++                System.setProperty("user.language", "en");
++                Main.useJline = false;
++            }
+
+-                if (false && Main.class.getPackage().getImplementationVendor() != null && System.getProperty("IReallyKnowWhatIAmDoingISwear") == null) {  // Purpur
+-                    Date buildDate = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(Main.class.getPackage().getImplementationVendor()); // Paper
+-
+-                    Calendar deadline = Calendar.getInstance();
+-                    deadline.add(Calendar.DAY_OF_YEAR, -28);
+-                    if (buildDate.before(deadline.getTime())) {
+-                        // Paper start - This is some stupid bullshit
+-                        System.err.println("*** Warning, you've not updated in a while! ***");
+-                        System.err.println("*** Please download a new build as per instructions from https://papermc.io/downloads ***"); // Paper
+-                        //System.err.println("*** Server will start in 20 seconds ***");
+-                        //Thread.sleep(TimeUnit.SECONDS.toMillis(20));
+-                        // Paper End
+-                    }
+-                }
++            if (Main.useJline) {
++                AnsiConsole.systemInstall();
++            } else {
++                // This ensures the terminal literal will always match the jline implementation
++                System.setProperty(jline.TerminalFactory.JLINE_TERMINAL, jline.UnsupportedTerminal.class.getName());
++            }
++            */
+
+-                // Paper start - Log Java and OS versioning to help with debugging plugin issues
+-                java.lang.management.RuntimeMXBean runtimeMX = java.lang.management.ManagementFactory.getRuntimeMXBean();
+-                java.lang.management.OperatingSystemMXBean osMX = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+-                if (runtimeMX != null && osMX != null) {
+-                    String javaInfo = "Java " + runtimeMX.getSpecVersion() + " (" + runtimeMX.getVmName() + " " + runtimeMX.getVmVersion() + ")";
+-                    String osInfo = "Host: " + osMX.getName() + " " + osMX.getVersion() + " (" + osMX.getArch() + ")";
++            /* // Graphene
++            if (options.has("nojline")) {
++                System.setProperty(TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY, "false");
++                useJline = false;
++            }
++            // Paper end
+
+-                    System.out.println("System Info: " + javaInfo + " " + osInfo);
+-                } else {
+-                    System.out.println("Unable to read system info");
++            if (options.has("noconsole")) {
++                Main.useConsole = false;
++                useJline = false; // Paper
++                System.setProperty(TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY, "false"); // Paper
++            }
++            */
++
++            if (false && Main.class.getPackage().getImplementationVendor() != null && System.getProperty("IReallyKnowWhatIAmDoingISwear") == null) {  // Purpur
++                Date buildDate = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(Main.class.getPackage().getImplementationVendor()); // Paper
++
++                Calendar deadline = Calendar.getInstance();
++                deadline.add(Calendar.DAY_OF_YEAR, -28);
++                if (buildDate.before(deadline.getTime())) {
++                    // Paper start - This is some stupid bullshit
++                    System.err.println("*** Warning, you've not updated in a while! ***");
++                    System.err.println("*** Please download a new build as per instructions from https://papermc.io/downloads ***"); // Paper
++                    //System.err.println("*** Server will start in 20 seconds ***");
++                    //Thread.sleep(TimeUnit.SECONDS.toMillis(20));
++                    // Paper End
+                 }
+-                // Paper end
+-                System.setProperty( "library.jansi.version", "Paper" ); // Paper - set meaningless jansi version to prevent git builds from crashing on Windows
+-                System.out.println("Loading libraries, please wait...");
+-                net.minecraft.server.Main.main(options);
+-            } catch (Throwable t) {
+-                t.printStackTrace();
+             }
+-            // Paper start
+-            // load some required classes to avoid errors during shutdown if jar is replaced
+-            // also to guarantee our version loads over plugins
+-            tryPreloadClass("com.destroystokyo.paper.util.SneakyThrow");
+-            tryPreloadClass("com.google.common.collect.Iterators$PeekingImpl");
+-            tryPreloadClass("com.google.common.collect.MapMakerInternalMap$Values");
+-            tryPreloadClass("com.google.common.collect.MapMakerInternalMap$ValueIterator");
+-            tryPreloadClass("com.google.common.collect.MapMakerInternalMap$WriteThroughEntry");
+-            tryPreloadClass("com.google.common.collect.Iterables");
+-            for (int i = 1; i <= 15; i++) {
+-                tryPreloadClass("com.google.common.collect.Iterables$" + i, false);
++
++            // Paper start - Log Java and OS versioning to help with debugging plugin issues
++            java.lang.management.RuntimeMXBean runtimeMX = java.lang.management.ManagementFactory.getRuntimeMXBean();
++            java.lang.management.OperatingSystemMXBean osMX = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
++            if (runtimeMX != null && osMX != null) {
++                String javaInfo = "Java " + runtimeMX.getSpecVersion() + " (" + runtimeMX.getVmName() + " " + runtimeMX.getVmVersion() + ")";
++                String osInfo = "Host: " + osMX.getName() + " " + osMX.getVersion() + " (" + osMX.getArch() + ")";
++
++                System.out.println("System Info: " + javaInfo + " " + osInfo);
++            } else {
++                System.out.println("Unable to read system info");
+             }
+-            tryPreloadClass("org.apache.commons.lang3.mutable.MutableBoolean");
+-            tryPreloadClass("org.apache.commons.lang3.mutable.MutableInt");
+-            tryPreloadClass("org.jline.terminal.impl.MouseSupport");
+-            tryPreloadClass("org.jline.terminal.impl.MouseSupport$1");
+-            tryPreloadClass("org.jline.terminal.Terminal$MouseTracking");
+-            tryPreloadClass("co.aikar.timings.TimingHistory");
+-            tryPreloadClass("co.aikar.timings.TimingHistory$MinuteReport");
+-            tryPreloadClass("io.netty.channel.AbstractChannelHandlerContext");
+-            tryPreloadClass("io.netty.channel.AbstractChannelHandlerContext$11");
+-            tryPreloadClass("io.netty.channel.AbstractChannelHandlerContext$12");
+-            tryPreloadClass("io.netty.channel.AbstractChannel$AbstractUnsafe$8");
+-            tryPreloadClass("io.netty.util.concurrent.DefaultPromise");
+-            tryPreloadClass("io.netty.util.concurrent.DefaultPromise$1");
+-            tryPreloadClass("io.netty.util.internal.PromiseNotificationUtil");
+-            tryPreloadClass("io.netty.util.internal.SystemPropertyUtil");
+-            tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler");
+-            tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$1");
+-            tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$2");
+-            tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$3");
+-            tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$4");
+-            tryPreloadClass("org.slf4j.helpers.MessageFormatter");
+-            tryPreloadClass("org.slf4j.helpers.FormattingTuple");
+-            tryPreloadClass("org.slf4j.helpers.BasicMarker");
+-            tryPreloadClass("org.slf4j.helpers.Util");
+-            tryPreloadClass("com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent");
+-            tryPreloadClass("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");
+-            // Minecraft, seen during saving
+-            tryPreloadClass(LayerLightEventListener.DummyLightLayerEventListener.class.getName());
+-            tryPreloadClass(LayerLightEventListener.class.getName());
+-            tryPreloadClass(ExceptionCollector.class.getName());
+             // Paper end
++            System.setProperty( "library.jansi.version", "Paper" ); // Paper - set meaningless jansi version to prevent git builds from crashing on Windows
++            System.out.println("Loading libraries, please wait...");
++            net.minecraft.server.Main.main(options);
++        } catch (Throwable t) {
++            t.printStackTrace();
+         }
++        // Paper start
++        // load some required classes to avoid errors during shutdown if jar is replaced
++        // also to guarantee our version loads over plugins
++        tryPreloadClass("com.destroystokyo.paper.util.SneakyThrow");
++        tryPreloadClass("com.google.common.collect.Iterators$PeekingImpl");
++        tryPreloadClass("com.google.common.collect.MapMakerInternalMap$Values");
++        tryPreloadClass("com.google.common.collect.MapMakerInternalMap$ValueIterator");
++        tryPreloadClass("com.google.common.collect.MapMakerInternalMap$WriteThroughEntry");
++        tryPreloadClass("com.google.common.collect.Iterables");
++        for (int i = 1; i <= 15; i++) {
++            tryPreloadClass("com.google.common.collect.Iterables$" + i, false);
++        }
++        tryPreloadClass("org.apache.commons.lang3.mutable.MutableBoolean");
++        tryPreloadClass("org.apache.commons.lang3.mutable.MutableInt");
++        tryPreloadClass("org.jline.terminal.impl.MouseSupport");
++        tryPreloadClass("org.jline.terminal.impl.MouseSupport$1");
++        tryPreloadClass("org.jline.terminal.Terminal$MouseTracking");
++        tryPreloadClass("co.aikar.timings.TimingHistory");
++        tryPreloadClass("co.aikar.timings.TimingHistory$MinuteReport");
++        tryPreloadClass("io.netty.channel.AbstractChannelHandlerContext");
++        tryPreloadClass("io.netty.channel.AbstractChannelHandlerContext$11");
++        tryPreloadClass("io.netty.channel.AbstractChannelHandlerContext$12");
++        tryPreloadClass("io.netty.channel.AbstractChannel$AbstractUnsafe$8");
++        tryPreloadClass("io.netty.util.concurrent.DefaultPromise");
++        tryPreloadClass("io.netty.util.concurrent.DefaultPromise$1");
++        tryPreloadClass("io.netty.util.internal.PromiseNotificationUtil");
++        tryPreloadClass("io.netty.util.internal.SystemPropertyUtil");
++        tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler");
++        tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$1");
++        tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$2");
++        tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$3");
++        tryPreloadClass("org.bukkit.craftbukkit.scheduler.CraftScheduler$4");
++        tryPreloadClass("org.slf4j.helpers.MessageFormatter");
++        tryPreloadClass("org.slf4j.helpers.FormattingTuple");
++        tryPreloadClass("org.slf4j.helpers.BasicMarker");
++        tryPreloadClass("org.slf4j.helpers.Util");
++        tryPreloadClass("com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent");
++        tryPreloadClass("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");
++        // Minecraft, seen during saving
++        tryPreloadClass(LayerLightEventListener.DummyLightLayerEventListener.class.getName());
++        tryPreloadClass(LayerLightEventListener.class.getName());
++        tryPreloadClass(ExceptionCollector.class.getName());
++        // Paper end
+     }
+
+     // Paper start
+diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
+index 4217d52a4..d9eb912a7 100644
+--- a/src/main/java/org/spigotmc/SpigotConfig.java
++++ b/src/main/java/org/spigotmc/SpigotConfig.java
+@@ -248,7 +248,7 @@ public class SpigotConfig
+     {
+         int count = SpigotConfig.getInt( "settings.netty-threads", 4 );
+         System.setProperty( "io.netty.eventLoopThreads", Integer.toString( count ) );
+-        Bukkit.getLogger().log( Level.INFO, "Using {0} threads for Netty based IO", count );
++        // Bukkit.getLogger().log( Level.INFO, "Using {0} threads for Netty based IO", count ); // Graphene
+     }
+
+     public static boolean disableStatSaving;
+@@ -292,7 +292,7 @@ public class SpigotConfig
+     private static void playerSample()
+     {
+         SpigotConfig.playerSample = Math.max( SpigotConfig.getInt( "settings.sample-count", 12 ), 0 ); // Paper - Avoid negative counts
+-        Bukkit.getLogger().log( Level.INFO, "Server Ping Player Sample Count: {0}", playerSample ); // Paper - Use logger
++        // Bukkit.getLogger().log( Level.INFO, "Server Ping Player Sample Count: {0}", playerSample ); // Paper - Use logger // Graphene
+     }
+
+     public static int playerShuffle;
+@@ -382,10 +382,13 @@ public class SpigotConfig
+         if ( LogManager.getRootLogger().isTraceEnabled() )
+         {
+             Bukkit.getLogger().info( "Debug logging is enabled" );
++        /* // Graphene - remove it all
+         } else
+         {
+             // Bukkit.getLogger().info( "Debug logging is disabled" ); // Paper - Don't log if debug logging isn't enabled.
+         }
++        */
++        }
+     }
+
+     public static boolean disableAdvancementSaving;
+diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
+index 6474a7fb738e1238cc272afc5ff14b645947e688..f56c6f788c33b0f1291b1d2a271879c5f8e5dedc 100644
+--- a/src/main/resources/configurations/bukkit.yml
++++ b/src/main/resources/configurations/bukkit.yml
+@@ -15,7 +15,6 @@
+ settings:
+     allow-end: true
+     warn-on-overload: true
+-    permissions-file: permissions.yml
+     update-folder: update
+     plugin-profiling: false
+     connection-throttle: 4000
+@@ -38,4 +37,3 @@ ticks-per:
+     water-ambient-spawns: 1
+     ambient-spawns: 1
+     autosave: 6000
+-aliases: now-in-commands.yml
+diff --git a/src/main/resources/configurations/commands.yml b/src/main/resources/configurations/commands.yml
+deleted file mode 100644
+index 0f45c397df38e8af1c8b5bb8ca24f54a88e5880b..0000000000000000000000000000000000000000
+--- a/src/main/resources/configurations/commands.yml
++++ /dev/null
+@@ -1,17 +0,0 @@
+-# This is the commands configuration file for Bukkit.
+-# For documentation on how to make use of this file, check out the Bukkit Wiki at
+-# https://www.spigotmc.org/go/commands-yml
+-# 
+-# If you need help on this file, feel free to join us on irc or leave a message
+-# on the forums asking for advice.
+-# 
+-# IRC: #spigot @ irc.spi.gt
+-#    (If this means nothing to you, just go to https://www.spigotmc.org/go/irc )
+-# Forums: https://www.spigotmc.org/
+-# Bug tracker: https://www.spigotmc.org/go/bugs
+-
+-command-block-overrides: []
+-ignore-vanilla-permissions: false
+-aliases:
+-    icanhasbukkit:
+-      - "version $1-"

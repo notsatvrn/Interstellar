@@ -1,0 +1,178 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Thu, 9 Dec 2021 00:34:15 +0000
+Subject: [PATCH] Various Removals
+
+
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 53aca52049292db255056873905ef4e6e533e8c0..15b0ea8d323ba146169d08ed4bc2272afa55c35a 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -235,12 +235,16 @@ public class Main {
+                 dedicatedserver1.c(optionset.has(optionspec2));
+                 dedicatedserver1.b((String) optionset.valueOf(optionspec12));
+                 */
++                // Graphene start
++                /*
+                 boolean flag1 = !optionset.has("nogui") && !optionset.nonOptionArguments().contains("nogui");
+ 
+                 if(!Boolean.parseBoolean(System.getenv().getOrDefault("PAPER_DISABLE_SERVER_GUI", String.valueOf(false)))) // Paper
+                 if (flag1 && !GraphicsEnvironment.isHeadless()) {
+                     dedicatedserver1.bd();
+                 }
++                */
++                // Graphene end
+ 
+                 if (optionset.has("port")) {
+                     int port = (Integer) optionset.valueOf("port");
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 57180e164ac51b1aac070c00d820792d13d67258..14b35686998cc6cd5be1175e1a80ed5b07576846 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -121,6 +121,8 @@ public class Main {
+ 
+                 acceptsAll(asList("forceUpgrade"), "Whether to force a world upgrade");
+                 acceptsAll(asList("eraseCache"), "Whether to force cache erase during world upgrade");
++                // Leaf start
++                /*
+                 acceptsAll(asList("nogui"), "Disables the graphical console");
+ 
+                 acceptsAll(asList("nojline"), "Disables jline and emulates the vanilla console");
+@@ -130,7 +132,8 @@ public class Main {
+                 acceptsAll(asList("v", "version"), "Show the CraftBukkit Version");
+ 
+                 acceptsAll(asList("demo"), "Demo mode");
+-
++                */
++                // Leaf end
+                 // Spigot Start
+                 acceptsAll(asList("S", "spigot-settings"), "File for spigot settings")
+                         .withRequiredArg()
+@@ -208,6 +211,8 @@ public class Main {
+             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
+         }
+ 
++        // Leaf start
++        /*
+         if ((options == null) || (options.has("?"))) {
+             try {
+                 parser.printHelpOn(System.out);
+@@ -217,6 +222,7 @@ public class Main {
+         } else if (options.has("v")) {
+             System.out.println(CraftServer.class.getPackage().getImplementationVersion());
+         } else {
++        */
+             // Do you love Java using + and ! as string based identifiers? I sure do!
+             String path = new File(".").getAbsolutePath();
+             if (path.contains("!") || path.contains("+")) {
+@@ -252,12 +258,14 @@ public class Main {
+                 }
+                 */
+ 
++                /*
+                 if (options.has("nojline")) {
+                     System.setProperty(TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY, "false");
+                     useJline = false;
+                 }
+                 // Paper end
+ 
++
+                 if (options.has("noconsole")) {
+                     useConsole = false;
+                     useJline = false; // Paper
+@@ -278,6 +286,7 @@ public class Main {
+                         // Paper End
+                     }
+                 }
++                */
+ 
+                 // Paper start - Log Java and OS versioning to help with debugging plugin issues
+                 java.lang.management.RuntimeMXBean runtimeMX = java.lang.management.ManagementFactory.getRuntimeMXBean();
+@@ -340,7 +349,8 @@ public class Main {
+             tryPreloadClass(LightEngineLayerEventListener.class.getName());
+             tryPreloadClass(ExceptionSuppressor.class.getName());
+             // Paper end
+-        }
++        //}
++        // Leaf end
+     }
+ 
+     // Paper start
+diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
+index 564285c1c96f3faf99022eec639dbefed54f2a7d..d9838999b28bbd3273b318c0faeaece41b3b21b1 100644
+--- a/src/main/java/org/spigotmc/SpigotConfig.java
++++ b/src/main/java/org/spigotmc/SpigotConfig.java
+@@ -246,7 +246,7 @@ public class SpigotConfig
+     {
+         int count = getInt( "settings.netty-threads", 4 );
+         System.setProperty( "io.netty.eventLoopThreads", Integer.toString( count ) );
+-        Bukkit.getLogger().log( Level.INFO, "Using {0} threads for Netty based IO", count );
++        // Bukkit.getLogger().log( Level.INFO, "Using {0} threads for Netty based IO", count ); // Graphene
+     }
+ 
+     public static boolean disableStatSaving;
+@@ -290,7 +290,7 @@ public class SpigotConfig
+     private static void playerSample()
+     {
+         playerSample = Math.max( getInt( "settings.sample-count", 12 ), 0 ); // Paper - Avoid negative counts
+-        Bukkit.getLogger().log( Level.INFO, "Server Ping Player Sample Count: {0}", playerSample ); // Paper - Use logger
++        // Bukkit.getLogger().log( Level.INFO, "Server Ping Player Sample Count: {0}", playerSample ); // Paper - Use logger // Graphene
+     }
+ 
+     public static int playerShuffle;
+@@ -380,10 +380,15 @@ public class SpigotConfig
+         if ( LogManager.getRootLogger().isTraceEnabled() )
+         {
+             Bukkit.getLogger().info( "Debug logging is enabled" );
++        // Graphene start
++        }
++        /*
+         } else
+         {
+             Bukkit.getLogger().info( "Debug logging is disabled" );
+         }
++        */
++        // Graphene end
+     }
+ 
+     public static boolean disableAdvancementSaving;
+diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
+index 6474a7fb738e1238cc272afc5ff14b645947e688..f56c6f788c33b0f1291b1d2a271879c5f8e5dedc 100644
+--- a/src/main/resources/configurations/bukkit.yml
++++ b/src/main/resources/configurations/bukkit.yml
+@@ -15,7 +15,6 @@
+ settings:
+     allow-end: true
+     warn-on-overload: true
+-    permissions-file: permissions.yml
+     update-folder: update
+     plugin-profiling: false
+     connection-throttle: 4000
+@@ -38,4 +37,3 @@ ticks-per:
+     water-ambient-spawns: 1
+     ambient-spawns: 1
+     autosave: 6000
+-aliases: now-in-commands.yml
+diff --git a/src/main/resources/configurations/commands.yml b/src/main/resources/configurations/commands.yml
+deleted file mode 100644
+index 0f45c397df38e8af1c8b5bb8ca24f54a88e5880b..0000000000000000000000000000000000000000
+--- a/src/main/resources/configurations/commands.yml
++++ /dev/null
+@@ -1,17 +0,0 @@
+-# This is the commands configuration file for Bukkit.
+-# For documentation on how to make use of this file, check out the Bukkit Wiki at
+-# https://www.spigotmc.org/go/commands-yml
+-# 
+-# If you need help on this file, feel free to join us on irc or leave a message
+-# on the forums asking for advice.
+-# 
+-# IRC: #spigot @ irc.spi.gt
+-#    (If this means nothing to you, just go to https://www.spigotmc.org/go/irc )
+-# Forums: https://www.spigotmc.org/
+-# Bug tracker: https://www.spigotmc.org/go/bugs
+-
+-command-block-overrides: []
+-ignore-vanilla-permissions: false
+-aliases:
+-    icanhasbukkit:
+-      - "version $1-"

@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: RuscalWorld <me@ruscalworld.ru>
+Date: Fri, 9 Jul 2021 16:02:10 +0300
+Subject: [PATCH] Make performance watchdog run right after initialization
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index ef7d0a5b80c9210381f853b4f43a47568e6c1374..feec0a5b9ba22f617d0416ff4e3c40243f446f0a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -372,7 +372,7 @@ public final class CraftServer implements Server {
+         // Utopia start
+         PropertyPool.loadDefault(console.settings.getProperties(), this);
+         Timer timer = new Timer();
+-        timer.schedule(new PerformanceWatchdog(), UtopiaConfig.performanceWatchdogDelay / 2, UtopiaConfig.performanceWatchdogDelay);
++        timer.schedule(new PerformanceWatchdog(), 0, UtopiaConfig.performanceWatchdogDelay);
+         // Utopia end
+     }
+ 
