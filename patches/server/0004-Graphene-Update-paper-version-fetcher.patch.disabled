@@ -5,7 +5,7 @@ Subject: [PATCH] Update paper version fetcher
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index aadd6550a..87d181caa 100644
+index aadd6550a..8293791b7 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -3,7 +3,10 @@ package com.destroystokyo.paper;
@@ -60,7 +60,7 @@ index aadd6550a..87d181caa 100644
          final Component history = getHistory();
 
          return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
-@@ -55,74 +66,46 @@ public class PaperVersionFetcher implements VersionFetcher {
+@@ -55,77 +66,48 @@ public class PaperVersionFetcher implements VersionFetcher {
      }
 
      private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
@@ -72,7 +72,10 @@ index aadd6550a..87d181caa 100644
 -            versionInfo = versionInfo.replace("\"", "");
 -            distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
 -        }
--
++        // Graphene start
++        versionInfo = versionInfo.replace("\"", "");
++        int distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+
 -        switch (distance) {
 -            case -1:
 -                return Component.text("Error obtaining version information", NamedTextColor.YELLOW);
@@ -89,10 +92,7 @@ index aadd6550a..87d181caa 100644
 -                                        .clickEvent(ClickEvent.openUrl(DOWNLOAD_PAGE))));
 -        }
 -    }
-+        // Graphene start
-+        versionInfo = versionInfo.replace("\"", "");
-+        int distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
-
+-
 -    private static int fetchDistanceFromSiteApi(int jenkinsBuild, @Nullable String siteApiVersion) {
 -        if (siteApiVersion == null) { return -1; }
 -        try {
@@ -122,26 +122,24 @@ index aadd6550a..87d181caa 100644
 
      // Contributed by Techcable <Techcable@outlook.com> in GH-65
      private static int fetchDistanceFromGitHub(@Nonnull String repo, @Nonnull String branch, @Nonnull String hash) {
--        try {
++        // Graphene start
++        var request = HttpRequest.newBuilder()
++            .uri(URI.create("https://api.github.com/repos/%s/compare/%s...%s".formatted(repo, branch, hash)))
++            .timeout(Duration.ofSeconds(10))
++            .header("Accept", "application/vnd.github.v3+json")
++            .GET()
++            .build();
++        var response = client.send(request, BodyHandlers.ofString());
++
++        if (response.statusCode() == HttpURLConnection.HTTP_NOT_FOUND) return -2; // Unknown commit
++
+         try {
 -            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
 -            connection.connect();
 -            if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) return -2; // Unknown commit
 -            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charsets.UTF_8))) {
 -                JsonObject obj = new Gson().fromJson(reader, JsonObject.class);
-+            // Graphene start
-+            var request = HttpRequest.newBuilder()
-+                .uri(URI.create("https://api.github.com/repos/%s/compare/%s...%s".formatted(repo, branch, hash)))
-+                .timeout(Duration.ofSeconds(10))
-+                .header("Accept", "application/vnd.github.v3+json")
-+                .GET()
-+                .build();
-+            var response = client.send(request, BodyHandlers.ofString());
-+
-+            if (response.statusCode() == HttpURLConnection.HTTP_NOT_FOUND) return -2; // Unknown commit
-+
-+            try {
-+                JsonObject obj = new Gson().fromJson(response.body(), JsonObject.class);
-                 String status = obj.get("status").getAsString();
+-                String status = obj.get("status").getAsString();
 -                switch (status) {
 -                    case "identical":
 -                        return 0;
@@ -150,18 +148,26 @@ index aadd6550a..87d181caa 100644
 -                    default:
 -                        return -1;
 -                }
-+                return switch (status) {
-+                    case "identical" -> 0;
-+                    case "behind" -> obj.get("behind_by").getAsInt();
-+                    default -> -1;
-+                };
-+                // Graphene end
-             } catch (JsonSyntaxException | NumberFormatException e) {
-                 e.printStackTrace();
-                 return -1;
-             }
+-            } catch (JsonSyntaxException | NumberFormatException e) {
+-                e.printStackTrace();
+-                return -1;
+-            }
 -        } catch (IOException e) {
-+        } catch (IOException | InterruptedException e) {
++            JsonObject obj = new Gson().fromJson(response.body(), JsonObject.class);
++            String status = obj.get("status").getAsString();
++            return switch (status) {
++                case "identical" -> 0;
++                case "behind" -> obj.get("behind_by").getAsInt();
++                default -> -1;
++            };
++            // Graphene end
++        } catch (JsonSyntaxException | NumberFormatException e) {
              e.printStackTrace();
              return -1;
          }
++    } catch (IOException | InterruptedException e) {
++        e.printStackTrace();
++        return -1;
+     }
+
+     @Nullable
