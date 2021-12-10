@@ -487,7 +487,7 @@ index 4217d52a4..d9eb912a7 100644
 
      public static boolean disableAdvancementSaving;
 diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
-index 6474a7fb738e1238cc272afc5ff14b645947e688..f56c6f788c33b0f1291b1d2a271879c5f8e5dedc 100644
+index 236ffc5a5..b899e9a42 100644
 --- a/src/main/resources/configurations/bukkit.yml
 +++ b/src/main/resources/configurations/bukkit.yml
 @@ -15,7 +15,6 @@
@@ -498,8 +498,8 @@ index 6474a7fb738e1238cc272afc5ff14b645947e688..f56c6f788c33b0f1291b1d2a271879c5
      update-folder: update
      plugin-profiling: false
      connection-throttle: 4000
-@@ -38,4 +37,3 @@ ticks-per:
-     water-ambient-spawns: 1
+@@ -40,4 +39,3 @@ ticks-per:
+     water-underground-creature-spawns: 1
      ambient-spawns: 1
      autosave: 6000
 -aliases: now-in-commands.yml
