@@ -306,6 +306,150 @@ index e51dca98c..5e60e7f9a 100644
      }
 
      // Paper start
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index bb920e1f8..79dfa1792 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -265,7 +265,7 @@ public final class CraftServer implements Server {
+     protected final DedicatedPlayerList playerList;
+     private final Map<String, World> worlds = new LinkedHashMap<String, World>();
+     private YamlConfiguration configuration;
+-    private YamlConfiguration commandsConfiguration;
++    // private YamlConfiguration commandsConfiguration; // Graphene
+     private final Yaml yaml = new Yaml(new SafeConstructor());
+     private final Map<UUID, OfflinePlayer> offlinePlayers = new MapMaker().weakValues().makeMap();
+     private final EntityMetadataStore entityMetadata = new EntityMetadataStore();
+@@ -327,6 +327,7 @@ public final class CraftServer implements Server {
+         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
+         this.configuration.options().copyDefaults(true);
+         this.configuration.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("configurations/bukkit.yml"), Charsets.UTF_8)));
++        /* // Graphene
+         ConfigurationSection legacyAlias = null;
+         if (!this.configuration.isString("aliases")) {
+             legacyAlias = this.configuration.getConfigurationSection("aliases");
+@@ -362,6 +363,7 @@ public final class CraftServer implements Server {
+         this.saveCommandsConfig();
+         this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
+         this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
++        */
+         this.pluginManager.useTimings(this.configuration.getBoolean("settings.plugin-profiling"));
+         this.monsterSpawn = this.configuration.getInt("spawn-limits.monsters");
+         this.animalSpawn = this.configuration.getInt("spawn-limits.animals");
+@@ -378,7 +380,7 @@ public final class CraftServer implements Server {
+     }
+
+     public boolean getCommandBlockOverride(String command) {
+-        return this.overrideAllCommandBlockCommands || this.commandsConfiguration.getStringList("command-block-overrides").contains(command);
++        return this.overrideAllCommandBlockCommands /* || this.commandsConfiguration.getStringList("command-block-overrides").contains(command) */; // Graphene
+     }
+
+     private File getConfigFile() {
+@@ -397,6 +399,7 @@ public final class CraftServer implements Server {
+         }
+     }
+
++    /* // Graphene
+     private void saveCommandsConfig() {
+         try {
+             this.commandsConfiguration.save(this.getCommandsConfigFile());
+@@ -404,6 +407,7 @@ public final class CraftServer implements Server {
+             Logger.getLogger(CraftServer.class.getName()).log(Level.SEVERE, "Could not save " + this.getCommandsConfigFile(), ex);
+         }
+     }
++    */
+
+     public void loadPlugins() {
+         this.pluginManager.registerInterface(JavaPluginLoader.class);
+@@ -464,7 +468,7 @@ public final class CraftServer implements Server {
+         if (type == PluginLoadOrder.STARTUP) {
+             this.helpMap.clear();
+             this.helpMap.initializeGeneralTopics();
+-            if (com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) loadCustomPermissions(); // Paper
++            // if (com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) loadCustomPermissions(); // Paper // Graphene
+         }
+
+         Plugin[] plugins = this.pluginManager.getPlugins();
+@@ -481,10 +485,10 @@ public final class CraftServer implements Server {
+             this.commandMap.setFallbackCommands();
+             this.setVanillaCommands(false);
+             // Spigot end
+-            this.commandMap.registerServerAliases();
++            // this.commandMap.registerServerAliases(); // Graphene
+             DefaultPermissions.registerCorePermissions();
+             CraftDefaultPermissions.registerCorePermissions();
+-            if (!com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) this.loadCustomPermissions(); // Paper
++            // if (!com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) this.loadCustomPermissions(); // Paper // Graphene
+             this.helpMap.initializeCommands();
+             this.syncCommands();
+         }
+@@ -890,7 +894,7 @@ public final class CraftServer implements Server {
+         new dev.mrfishcakes.crunchy.event.ServerReloadEvent().callEvent(); // Crunchy - Server reload events
+         this.reloadCount++;
+         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
+-        this.commandsConfiguration = YamlConfiguration.loadConfiguration(this.getCommandsConfigFile());
++        // this.commandsConfiguration = YamlConfiguration.loadConfiguration(this.getCommandsConfigFile()); // Graphene
+
+         console.settings = new DedicatedServerSettings(console.options);
+         DedicatedServerProperties config = console.settings.getProperties();
+@@ -989,8 +993,8 @@ public final class CraftServer implements Server {
+         net.pl3x.purpur.PurpurConfig.registerCommands(); // Purpur
+         org.sugarcanemc.sugarcane.command.SugarcaneCommandsManager.registerCommands(); // Sugarcane
+         dev.mrfishcakes.crunchy.config.CrunchyConfig.registerCommands(); // Crunchy
+-        this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
+-        this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
++        // this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*"); // Graphene
++        // this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions"); // Graphene
+         int pollCount = 0;
+
+         // Wait for at most 2.5 seconds for plugins to close their threads
+@@ -1071,6 +1075,7 @@ public final class CraftServer implements Server {
+         }
+     }
+
++    /* // Graphene
+     @SuppressWarnings({ "unchecked", "finally" })
+     private void loadCustomPermissions() {
+         File file = new File(this.configuration.getString("settings.permissions-file"));
+@@ -1117,6 +1122,7 @@ public final class CraftServer implements Server {
+             }
+         }
+     }
++    */
+
+     @Override
+     public String toString() {
+@@ -1561,6 +1567,7 @@ public final class CraftServer implements Server {
+         return false;
+     }
+
++    /* // Graphene
+     @Override
+     public Map<String, String[]> getCommandAliases() {
+         ConfigurationSection section = this.commandsConfiguration.getConfigurationSection("aliases");
+@@ -1582,6 +1589,7 @@ public final class CraftServer implements Server {
+
+         return result;
+     }
++    */
+
+     public void removeBukkitSpawnRadius() {
+         this.configuration.set("settings.spawn-radius", null);
+@@ -2687,6 +2695,7 @@ public final class CraftServer implements Server {
+         return this.adventure$audiences;
+     }
+
++    /* // Graphene
+     @Override
+     public void reloadPermissions() {
+         pluginManager.clearPermissions();
+@@ -2723,6 +2732,7 @@ public final class CraftServer implements Server {
+         commandMap.registerServerAliases();
+         return true;
+     }
++    */
+
+     @Override
+     public boolean suggestPlayerNamesWhenNullTabCompletions() {
 diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
 index 4217d52a4..d9eb912a7 100644
 --- a/src/main/java/org/spigotmc/SpigotConfig.java
@@ -382,3 +526,16 @@ index 0f45c397df38e8af1c8b5bb8ca24f54a88e5880b..00000000000000000000000000000000
 -aliases:
 -    icanhasbukkit:
 -      - "version $1-"
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index 023134516..ecf892c1b 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -249,7 +249,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         tk.galaxiamc.graphene.GrapheneConfig.registerCommands();
+         org.sugarcanemc.sugarcane.command.SugarcaneCommandsManager.registerCommands(); // Sugarcane
+         // Graphene end
+-        com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
++        // com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now // Graphene
+         io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
+         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
+         // Paper end
