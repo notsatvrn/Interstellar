@@ -1,0 +1,282 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Fri, 10 Dec 2021 21:59:00 +0000
+Subject: [PATCH] optimizations
+
+These optimizations are potentially unstable!
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperCommand.java b/src/main/java/com/destroystokyo/paper/PaperCommand.java
+index 34bc24403..268910b20 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperCommand.java
++++ b/src/main/java/com/destroystokyo/paper/PaperCommand.java
+@@ -66,6 +66,7 @@ import java.util.Map;
+ import java.util.Set;
+ import java.util.function.ToIntFunction;
+ import java.util.stream.Collectors;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class PaperCommand extends Command {
+     private static final String BASE_PERM = "bukkit.command.paper.";
+@@ -213,7 +214,7 @@ public class PaperCommand extends Command {
+             case "version":
+                 Command ver = MinecraftServer.getServer().server.getCommandMap().getCommand("version");
+                 if (ver != null) {
+-                    ver.execute(sender, commandLabel, new String[0]);
++                    ver.execute(sender, commandLabel, ArrayConstants.STREMPTY);
+                     break;
+                 }
+                 // else - fall through to default
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java b/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java
+index abfbfef25..bb03fda50 100644
+--- a/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java
++++ b/src/main/java/dev/mrfishcakes/crunchy/commands/CrunchyCommand.java
+@@ -15,6 +15,7 @@ import java.util.Collections;
+ import java.util.List;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ /**
+  * Class to manage the basic <i>/crunchy</i> command
+@@ -48,7 +49,7 @@ public class CrunchyCommand extends Command {
+             case "version":
+                 Command versionCommand = MinecraftServer.getServer().server.getCommandMap().getCommand("version");
+                 if (versionCommand != null) {
+-                    versionCommand.execute(sender, commandLabel, new String[0]);
++                    versionCommand.execute(sender, commandLabel, ArrayConstants.STREMPTY);
+                     break;
+                 }
+             default:
+diff --git a/src/main/java/me/jellysquid/mods/lithium/common/util/ArrayConstants.java b/src/main/java/me/jellysquid/mods/lithium/common/util/ArrayConstants.java
+index 1ed3c1fc5..3d55222fb 100644
+--- a/src/main/java/me/jellysquid/mods/lithium/common/util/ArrayConstants.java
++++ b/src/main/java/me/jellysquid/mods/lithium/common/util/ArrayConstants.java
+@@ -1,6 +1,7 @@
+ package me.jellysquid.mods.lithium.common.util;
+ 
+ public class ArrayConstants {
+-    public static final int[] EMPTY = new int[0];
+-    public static final int[] ZERO = new int[]{0};
++    public static final int[] INTEMPTY = new int[0];
++    public static final int[] INTZERO = new int[]{0};
++    public static final int[] STREMPTY = new String[0];
+ }
+diff --git a/src/main/java/net/minecraft/nbt/CompoundTag.java b/src/main/java/net/minecraft/nbt/CompoundTag.java
+index 7199be3b9..f87e6cdc7 100644
+--- a/src/main/java/net/minecraft/nbt/CompoundTag.java
++++ b/src/main/java/net/minecraft/nbt/CompoundTag.java
+@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+ import net.minecraft.ReportedException;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class CompoundTag implements Tag {
+     public static final Codec<CompoundTag> CODEC = Codec.PASSTHROUGH.comapFlatMap((dynamic) -> {
+@@ -315,7 +316,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, IntArrayTag.TYPE, var3));
+         }
+ 
+-        return new int[0];
++        return ArrayConstants.INTEMPTY;
+     }
+ 
+     public long[] getLongArray(String key) {
+diff --git a/src/main/java/net/minecraft/nbt/IntArrayTag.java b/src/main/java/net/minecraft/nbt/IntArrayTag.java
+index e645d15c1..d46426822 100644
+--- a/src/main/java/net/minecraft/nbt/IntArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/IntArrayTag.java
+@@ -7,6 +7,7 @@ import java.io.IOException;
+ import java.util.Arrays;
+ import java.util.List;
+ import org.apache.commons.lang3.ArrayUtils;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class IntArrayTag extends CollectionTag<IntTag> {
+ 
+@@ -167,6 +168,6 @@ public class IntArrayTag extends CollectionTag<IntTag> {
+     }
+ 
+     public void clear() {
+-        this.data = new int[0];
++        this.data = ArrayConstants.INTEMPTY;
+     }
+ }
+diff --git a/src/main/java/net/minecraft/nbt/ListTag.java b/src/main/java/net/minecraft/nbt/ListTag.java
+index 88bac72ed..6255cbaa0 100644
+--- a/src/main/java/net/minecraft/nbt/ListTag.java
++++ b/src/main/java/net/minecraft/nbt/ListTag.java
+@@ -11,6 +11,7 @@ import java.io.IOException;
+ import java.util.Arrays;
+ import java.util.List;
+ import java.util.Objects;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class ListTag extends CollectionTag<Tag> {
+     private static final int SELF_SIZE_IN_BITS = 296;
+@@ -165,7 +166,7 @@ public class ListTag extends CollectionTag<Tag> {
+             }
+         }
+ 
+-        return new int[0];
++        return ArrayConstants.INTEMPTY;
+     }
+ 
+     public long[] getLongArray(int index) {
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 8f2dd7d7b..b01af4165 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -53,6 +53,7 @@ import net.minecraft.world.level.storage.LevelStorageSource;
+ import net.minecraft.world.level.storage.LevelSummary;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ // CraftBukkit start
+ import net.minecraft.SharedConstants;
+@@ -77,7 +78,7 @@ public class Main {
+         OptionSpec<Void> optionspec6 = optionparser.accepts("safeMode", "Loads level with vanilla datapack only");
+         OptionSpec<Void> optionspec7 = optionparser.accepts("help").forHelp();
+         OptionSpec<String> optionspec8 = optionparser.accepts("singleplayer").withRequiredArg();
+-        OptionSpec<String> optionspec9 = optionparser.accepts("universe").withRequiredArg().defaultsTo(".", new String[0]);
++        OptionSpec<String> optionspec9 = optionparser.accepts("universe").withRequiredArg().defaultsTo(".", ArrayConstants.STREMPTY);
+         OptionSpec<String> optionspec10 = optionparser.accepts("world").withRequiredArg();
+         OptionSpec<Integer> optionspec11 = optionparser.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(-1, new Integer[0]);
+         OptionSpec<String> optionspec12 = optionparser.accepts("serverId").withRequiredArg();
+diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
+index 6c2e2bc3f..dc1b96ccb 100644
+--- a/src/main/java/net/minecraft/server/players/StoredUserList.java
++++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
+@@ -26,6 +26,7 @@ import net.minecraft.Util;
+ import net.minecraft.util.GsonHelper;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+ 
+@@ -100,7 +101,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+     }
+ 
+     public String[] getUserList() {
+-        return (String[]) this.map.keySet().toArray(new String[0]);
++        return (String[]) this.map.keySet().toArray(ArrayConstants.STREMPTY);
+     }
+ 
+     // CraftBukkit start
+diff --git a/src/main/java/net/minecraft/world/item/crafting/ShapedRecipe.java b/src/main/java/net/minecraft/world/item/crafting/ShapedRecipe.java
+index f42e3a908..65e879dce 100644
+--- a/src/main/java/net/minecraft/world/item/crafting/ShapedRecipe.java
++++ b/src/main/java/net/minecraft/world/item/crafting/ShapedRecipe.java
+@@ -28,6 +28,7 @@ import org.bukkit.craftbukkit.inventory.CraftRecipe;
+ import org.bukkit.craftbukkit.inventory.CraftShapedRecipe;
+ import org.bukkit.inventory.RecipeChoice;
+ // CraftBukkit end
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class ShapedRecipe implements CraftingRecipe {
+ 
+@@ -242,7 +243,7 @@ public class ShapedRecipe implements CraftingRecipe {
+         }
+ 
+         if (pattern.length == l) {
+-            return new String[0];
++            return ArrayConstants.STREMPTY;
+         } else {
+             String[] astring1 = new String[pattern.length - l - k];
+ 
+diff --git a/src/main/java/net/minecraft/world/level/block/ComposterBlock.java b/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
+index 29ed3516b..d0b7ecf0d 100644
+--- a/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
+@@ -395,7 +395,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.DOWN ? ArrayConstants.ZERO : ArrayConstants.EMPTY; // Jettpack
++            return side == Direction.DOWN ? ArrayConstants.INTZERO : ArrayConstants.INTEMPTY; // Jettpack
+         }
+ 
+         @Override
+@@ -444,7 +444,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.UP ? ArrayConstants.ZERO : ArrayConstants.EMPTY; // Jettpack
++            return side == Direction.UP ? ArrayConstants.INTZERO : ArrayConstants.INTEMPTY; // Jettpack
+         }
+ 
+         @Override
+@@ -481,7 +481,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return ArrayConstants.EMPTY; // Jettpack
++            return ArrayConstants.INTEMPTY; // Jettpack
+         }
+ 
+         @Override
+diff --git a/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java b/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java
+index 90d5768dc..870612fd3 100644
+--- a/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java
++++ b/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java
+@@ -18,6 +18,7 @@ import java.io.FileInputStream;
+ import java.io.InputStream;
+ import org.bukkit.craftbukkit.entity.CraftPlayer;
+ // CraftBukkit end
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class PlayerDataStorage {
+ 
+@@ -152,7 +153,7 @@ public class PlayerDataStorage {
+         String[] astring = this.playerDir.list();
+ 
+         if (astring == null) {
+-            astring = new String[0];
++            astring = ArrayConstants.STREMPTY;
+         }
+ 
+         for (int i = 0; i < astring.length; ++i) {
+diff --git a/src/main/java/net/pl3x/purpur/command/PurpurCommand.java b/src/main/java/net/pl3x/purpur/command/PurpurCommand.java
+index cd63e9e55..89d4bde27 100644
+--- a/src/main/java/net/pl3x/purpur/command/PurpurCommand.java
++++ b/src/main/java/net/pl3x/purpur/command/PurpurCommand.java
+@@ -13,6 +13,7 @@ import java.util.Collections;
+ import java.util.List;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class PurpurCommand extends Command {
+     public PurpurCommand(String name) {
+@@ -57,7 +58,7 @@ public class PurpurCommand extends Command {
+         } else if (args[0].equalsIgnoreCase("version")) {
+             Command verCmd = org.bukkit.Bukkit.getServer().getCommandMap().getCommand("version");
+             if (verCmd != null) {
+-                return verCmd.execute(sender, commandLabel, new String[0]);
++                return verCmd.execute(sender, commandLabel, ArrayConstants.STREMPTY);
+             }
+         }
+ 
+diff --git a/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java b/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java
+index b9a70dc1c..c1255ec7f 100644
+--- a/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java
++++ b/src/main/java/tk/galaxiamc/graphene/command/GrapheneCommand.java
+@@ -13,6 +13,7 @@ import java.util.Collections;
+ import java.util.List;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+ 
+ public class GrapheneCommand extends Command {
+     public GrapheneCommand(String name) {
+@@ -57,7 +58,7 @@ public class GrapheneCommand extends Command {
+         } else if (args[0].equalsIgnoreCase("version")) {
+             Command verCmd = org.bukkit.Bukkit.getServer().getCommandMap().getCommand("version");
+             if (verCmd != null) {
+-                return verCmd.execute(sender, commandLabel, new String[0]);
++                return verCmd.execute(sender, commandLabel, ArrayConstants.STREMPTY);
+             }
+         }
+ 
