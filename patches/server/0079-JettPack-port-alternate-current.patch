@@ -2334,6 +2334,21 @@ index 4698b567c..36d324b9c 100644
          }
      }
 
+diff --git a/src/main/java/net/minecraft/world/level/block/RedStoneWireBlock.java b/src/main/java/net/minecraft/world/level/block/RedStoneWireBlock.java
+index d093e9ff8..5f23ae461 100644
+--- a/src/main/java/net/minecraft/world/level/block/RedStoneWireBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/RedStoneWireBlock.java
+@@ -501,9 +501,9 @@ public class RedStoneWireBlock extends Block implements WireBlock { // Jettpack
+                 dropResources(state, world, pos);
+                 world.removeBlock(pos, false);
+             }
++        }
+         */
+         // Jettpack end
+-        }
+     }
+
+     @Override
 diff --git a/src/main/java/net/minecraft/world/level/block/RedstoneTorchBlock.java b/src/main/java/net/minecraft/world/level/block/RedstoneTorchBlock.java
 index 47df36208..e3bbacf24 100644
 --- a/src/main/java/net/minecraft/world/level/block/RedstoneTorchBlock.java
