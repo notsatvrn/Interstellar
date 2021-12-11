@@ -493,3 +493,35 @@ index ed495b920..92902bb48 100644
                      //System.err.println("*** Server will start in 20 seconds ***");
                      //Thread.sleep(TimeUnit.SECONDS.toMillis(20));
                      // Paper End
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index 281ca796b..fbb7bc2ca 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -104,9 +104,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         Thread thread = new Thread("Server console handler") {
+             public void run() {
+                 // CraftBukkit start
++                /* // Graphene
+                 if (!org.bukkit.craftbukkit.Main.useConsole) {
+                     return;
+                 }
++                */
+                 // Paper start - Use TerminalConsoleAppender
+                 new com.destroystokyo.paper.console.PaperConsole(DedicatedServer.this).start();
+                 /*
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index e50c9931e..80c699863 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -311,9 +311,11 @@ public final class CraftServer implements Server {
+         PotionEffectType.stopAcceptingRegistrations();
+         // Ugly hack :(
+
++        /* // Graphene
+         if (!Main.useConsole) {
+             this.getLogger().info("Console input is disabled due to --noconsole command argument");
+         }
++        */
+
+         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
+         this.configuration.options().copyDefaults(true);
