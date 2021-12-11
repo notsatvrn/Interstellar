@@ -10,7 +10,7 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - [Origami](https://github.com/Minebench/Origami)
 - [Mirai](https://github.com/etil2jz/Mirai)
 - [Patina](https://github.com/PatinaMC/Patina)
-- [Jettpack](https://gitlab.com/Titaniumtown/JettPack/-/tree/main)
+- [JettPack](https://gitlab.com/Titaniumtown/JettPack/-/tree/main)
 - [Akarin](https://github.com/Akarin-project/Akarin)
 - [Lithium](https://github.com/CaffeineMC/lithium-fabric)
 - [Pufferfish](https://github.com/pufferfish-gg/Pufferfish)
