@@ -1,101 +1,117 @@
-From 248d379021de3d3790f0884fda0670363275fdad Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: froobynooby <froobynooby@froobworld.com>
-Date: Sat, 12 Dec 2020 15:45:30 +0930
-Subject: [PATCH] Separate inventories for creative / survival
+Date: Mon, 28 Jun 2021 16:01:51 +0930
+Subject: [PATCH] Separate inventory for creative
 
----
- .../net/minecraft/server/EntityHuman.java     | 27 ++++++++++++++-----
- .../net/minecraft/server/EntityPlayer.java    | 17 ++++++++++++
- 2 files changed, 38 insertions(+), 6 deletions(-)
 
-diff --git a/src/main/java/net/minecraft/server/EntityHuman.java b/src/main/java/net/minecraft/server/EntityHuman.java
-index 59b00c78f..4fbd4341b 100644
---- a/src/main/java/net/minecraft/server/EntityHuman.java
-+++ b/src/main/java/net/minecraft/server/EntityHuman.java
-@@ -39,9 +39,13 @@ public abstract class EntityHuman extends EntityLiving {
-     protected static final DataWatcherObject<NBTTagCompound> bk = DataWatcher.a(EntityHuman.class, DataWatcherRegistry.p);
-     protected static final DataWatcherObject<NBTTagCompound> bl = DataWatcher.a(EntityHuman.class, DataWatcherRegistry.p);
-     private long e;
--    public final PlayerInventory inventory = new PlayerInventory(this);
-+    // Nabulus start - separate inventories for creative / survival
-+    public PlayerInventory inventory = new PlayerInventory(this);
-+    public final PlayerInventory survivalInventory = new PlayerInventory(this);
-+    public final PlayerInventory creativeInventory = new PlayerInventory(this);
-+    // Nabulus end
-     protected InventoryEnderChest enderChest = new InventoryEnderChest(this); // CraftBukkit - add "this" to constructor
--    public final ContainerPlayer defaultContainer;
-+    public ContainerPlayer defaultContainer; // Nabulus - final -> not final
-     public Container activeContainer;
-     protected FoodMetaData foodData = new FoodMetaData(this); // CraftBukkit - add "this" to constructor
-     protected int br;
-@@ -88,6 +92,7 @@ public abstract class EntityHuman extends EntityLiving {
-         this.bM = this.i();
-         this.a_(a(gameprofile));
-         this.bJ = gameprofile;
-+        this.inventory = survivalInventory; // Nabulus - separate inventories for creative / survival
-         this.defaultContainer = new ContainerPlayer(this.inventory, !world.isClientSide, this);
-         this.activeContainer = this.defaultContainer;
-         this.setPositionRotation((double) blockposition.getX() + 0.5D, (double) (blockposition.getY() + 1), (double) blockposition.getZ() + 0.5D, f, 0.0F);
-@@ -669,8 +674,15 @@ public abstract class EntityHuman extends EntityLiving {
-         this.a_(a(this.bJ));
-         NBTTagList nbttaglist = nbttagcompound.getList("Inventory", 10);
+diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+index dcba69c0ad3288ddc64dacc58b6fb857eed3109c..895c349c6a14d7e0d198e8b66767e49b80c72ea0 100644
+--- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
++++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+@@ -104,12 +104,7 @@ import net.minecraft.world.entity.player.Inventory;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.entity.projectile.AbstractArrow;
+ import net.minecraft.world.food.FoodData;
+-import net.minecraft.world.inventory.AbstractContainerMenu;
+-import net.minecraft.world.inventory.ContainerListener;
+-import net.minecraft.world.inventory.ContainerSynchronizer;
+-import net.minecraft.world.inventory.HorseInventoryMenu;
+-import net.minecraft.world.inventory.ResultSlot;
+-import net.minecraft.world.inventory.Slot;
++import net.minecraft.world.inventory.*;
+ import net.minecraft.world.item.ComplexItem;
+ import net.minecraft.world.item.ItemCooldowns;
+ import net.minecraft.world.item.ItemStack;
+@@ -264,6 +259,19 @@ public class ServerPlayer extends Player {
+     public boolean needsChunkCenterUpdate; // Paper - no-tick view distance // Tuinity - public
+     public org.bukkit.event.player.PlayerQuitEvent.QuitReason quitReason = null; // Paper - there are a lot of changes to do if we change all methods leading to the event
  
--        this.inventory.b(nbttaglist);
--        this.inventory.itemInHandIndex = nbttagcompound.getInt("SelectedItemSlot");
-+        // Nabulus start - separate inventories for creative / survival
-+        this.survivalInventory.b(nbttaglist);
-+        this.survivalInventory.itemInHandIndex = nbttagcompound.getInt("SelectedItemSlot");
-+
-+        NBTTagList nbttaglistCreative = nbttagcompound.getList("InventoryCreative", 10);
-+
-+        this.creativeInventory.b(nbttaglistCreative);
-+        this.creativeInventory.itemInHandIndex = nbttagcompound.getInt("SelectedItemSlot");
-+        //Nabulus end
-         this.sleepTicks = nbttagcompound.getShort("SleepTimer");
-         this.exp = nbttagcompound.getFloat("XpP");
-         this.expLevel = nbttagcompound.getInt("XpLevel");
-@@ -702,8 +714,11 @@ public abstract class EntityHuman extends EntityLiving {
-     public void saveData(NBTTagCompound nbttagcompound) {
-         super.saveData(nbttagcompound);
-         nbttagcompound.setInt("DataVersion", SharedConstants.getGameVersion().getWorldVersion());
--        nbttagcompound.set("Inventory", this.inventory.a(new NBTTagList()));
--        nbttagcompound.setInt("SelectedItemSlot", this.inventory.itemInHandIndex);
-+        // Nabulus start - separate inventories for creative / survival
-+        nbttagcompound.set("Inventory", this.survivalInventory.a(new NBTTagList()));
-+        nbttagcompound.setInt("SelectedItemSlot", this.survivalInventory.itemInHandIndex);
-+        nbttagcompound.set("InventoryCreative", this.creativeInventory.a(new NBTTagList()));
-+        // Nabulus end
-         nbttagcompound.setShort("SleepTimer", (short) this.sleepTicks);
-         nbttagcompound.setFloat("XpP", this.exp);
-         nbttagcompound.setInt("XpLevel", this.expLevel);
-diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index 8c74b7e23..500929940 100644
---- a/src/main/java/net/minecraft/server/EntityPlayer.java
-+++ b/src/main/java/net/minecraft/server/EntityPlayer.java
-@@ -1833,6 +1833,23 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
-         if (enumgamemode == this.playerInteractManager.getGameMode()) {
-             return;
-         }
-+        // Nabulus start - separate inventories for creative / survival
-+        if (enumgamemode == EnumGamemode.CREATIVE) {
-+            creativeInventory.itemInHandIndex = inventory.itemInHandIndex;
-+            this.inventory = this.creativeInventory;
-+            this.defaultContainer = new ContainerPlayer(this.inventory, !world.isClientSide, this);
-+            closeInventory();
-+            updateInventory(this.activeContainer);
-+            syncInventory();
-+        } else {
-+            survivalInventory.itemInHandIndex = inventory.itemInHandIndex;
-+            this.inventory = this.survivalInventory;
-+            this.defaultContainer = new ContainerPlayer(this.inventory, !world.isClientSide, this);
-+            closeInventory();
-+            updateInventory(this.activeContainer);
-+            syncInventory();
++    // Nabulus start
++    public void updateInventory(GameType gameMode) {
++        Inventory newInventory = gameMode == GameType.CREATIVE ? creativeInventory : defaultInventory;
++        if (this.inventory != newInventory) {
++            newInventory.selected = this.inventory.selected;
++            this.inventory = newInventory;
++            this.inventoryMenu = new InventoryMenu(this.inventory, !this.level.isClientSide, this);
++            this.initInventoryMenu();
++            this.closeContainer();
 +        }
-+        // Nabulus end
++    }
++    // Nabulus end
++
+     public ServerPlayer(MinecraftServer server, ServerLevel world, GameProfile profile) {
+         super(world, world.getSharedSpawnPos(), world.getSharedSpawnAngle(), profile);
+         this.chatVisibility = ChatVisiblity.FULL;
+@@ -334,6 +342,7 @@ public class ServerPlayer extends Player {
+         this.bukkitPickUpLoot = true;
+         this.maxHealthCache = this.getMaxHealth();
+         this.cachedSingleMobDistanceMap = new com.destroystokyo.paper.util.PooledHashSets.PooledObjectLinkedOpenHashSet<>(this); // Paper
++        this.updateInventory(gameMode.getGameModeForPlayer()); // Nabulus
+     }
+     // Paper start - Chunk priority
+     public BlockPos getPointInFront(double inFront) {
+@@ -1818,6 +1827,7 @@ public class ServerPlayer extends Player {
  
-         PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(getBukkitEntity(), GameMode.getByValue(enumgamemode.getId()));
-         world.getServer().getPluginManager().callEvent(event);
--- 
-2.29.2
-
+             this.onUpdateAbilities();
+             this.updateEffectVisibility();
++            this.updateInventory(gameMode); // Nabulus
+             return event; // Paper
+         }
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
+index e7a7de5ad9b64876df77e20465631ca8e5b19a4a..8e6cdb65fac75b0694fcecbd90d538f48c68f274 100644
+--- a/src/main/java/net/minecraft/world/entity/player/Player.java
++++ b/src/main/java/net/minecraft/world/entity/player/Player.java
+@@ -149,9 +149,14 @@ public abstract class Player extends LivingEntity {
+     protected static final EntityDataAccessor<CompoundTag> DATA_SHOULDER_LEFT = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
+     protected static final EntityDataAccessor<CompoundTag> DATA_SHOULDER_RIGHT = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
+     private long timeEntitySatOnShoulder;
+-    private final Inventory inventory = new Inventory(this);
++    // Nabulus start
++    //private final Inventory inventory = new Inventory(this);
++    protected Inventory inventory;
++    protected final Inventory defaultInventory = new Inventory(this);
++    protected final Inventory creativeInventory = new Inventory(this);
++    // Nabulus end
+     protected PlayerEnderChestContainer enderChestInventory = new PlayerEnderChestContainer(this); // CraftBukkit - add "this" to constructor
+-    public final InventoryMenu inventoryMenu;
++    public InventoryMenu inventoryMenu; // Nabulus - final -> not final
+     public AbstractContainerMenu containerMenu;
+     protected FoodData foodData = new FoodData(this); // CraftBukkit - add "this" to constructor
+     protected int jumpTriggerTime;
+@@ -199,6 +204,7 @@ public abstract class Player extends LivingEntity {
+         this.cooldowns = this.createItemCooldowns();
+         this.setUUID(Player.createPlayerUUID(profile));
+         this.gameProfile = profile;
++        this.inventory = defaultInventory; // Nabulus - separate inventories for creative/survival
+         this.inventoryMenu = new InventoryMenu(this.inventory, !world.isClientSide, this);
+         this.containerMenu = this.inventoryMenu;
+         this.moveTo((double) pos.getX() + 0.5D, (double) (pos.getY() + 1), (double) pos.getZ() + 0.5D, yaw, 0.0F);
+@@ -832,8 +838,13 @@ public abstract class Player extends LivingEntity {
+         super.readAdditionalSaveData(nbt);
+         this.setUUID(Player.createPlayerUUID(this.gameProfile));
+         ListTag nbttaglist = nbt.getList("Inventory", 10);
++        ListTag creativeInventoryTagList = nbt.getList("InventoryCreative", 10); // Nabulus
+ 
+-        this.inventory.load(nbttaglist);
++        // Nabulus start
++        //this.inventory.load(nbttaglist);
++        this.defaultInventory.load(nbttaglist);
++        this.creativeInventory.load(creativeInventoryTagList);
++        // Nabulus end
+         this.inventory.selected = nbt.getInt("SelectedItemSlot");
+         this.sleepCounter = nbt.getShort("SleepTimer");
+         this.experienceProgress = nbt.getFloat("XpP");
+@@ -866,7 +877,11 @@ public abstract class Player extends LivingEntity {
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         super.addAdditionalSaveData(nbt);
+         nbt.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+-        nbt.put("Inventory", this.inventory.save(new ListTag()));
++        // Nabulus start
++        //nbt.put("Inventory", this.inventory.save(new ListTag()));
++        nbt.put("Inventory", this.defaultInventory.save(new ListTag()));
++        nbt.put("InventoryCreative", this.creativeInventory.save(new ListTag()));
++        // Nabulus end
+         nbt.putInt("SelectedItemSlot", this.inventory.selected);
+         nbt.putShort("SleepTimer", (short) this.sleepCounter);
+         nbt.putFloat("XpP", this.experienceProgress);
