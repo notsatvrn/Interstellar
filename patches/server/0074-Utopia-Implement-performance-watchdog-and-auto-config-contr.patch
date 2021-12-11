@@ -31,10 +31,10 @@ index ecf892c1b..281ca796b 100644
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 79dfa1792..8b1f46706 100644
+index 79dfa1792..7f18b48ea 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -27,23 +27,7 @@ import java.io.IOException;
+@@ -27,22 +27,7 @@ import java.io.IOException;
  import java.io.InputStreamReader;
  import java.nio.ByteBuffer;
  import java.nio.charset.StandardCharsets;
@@ -54,12 +54,11 @@ index 79dfa1792..8b1f46706 100644
 -import java.util.Random;
 -import java.util.Set;
 -import java.util.UUID;
--import java.util.function.Consumer;
 +import java.util.*;
+ import java.util.function.Consumer;
  import java.util.logging.Level;
  import java.util.logging.Logger;
- import javax.imageio.ImageIO;
-@@ -246,6 +230,12 @@ import org.yaml.snakeyaml.error.MarkedYAMLException;
+@@ -246,6 +231,12 @@ import org.yaml.snakeyaml.error.MarkedYAMLException;
 
  import net.md_5.bungee.api.chat.BaseComponent; // Spigot
 
@@ -72,11 +71,10 @@ index 79dfa1792..8b1f46706 100644
  import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
 
-@@ -377,6 +367,12 @@ public final class CraftServer implements Server {
+@@ -377,6 +368,11 @@ public final class CraftServer implements Server {
          this.minimumAPI = this.configuration.getString("settings.minimum-api");
          this.loadIcon();
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
-+
 +        // Utopia start
 +        PropertyPool.loadDefault(console.settings.getProperties(), this);
 +        Timer timer = new Timer();
