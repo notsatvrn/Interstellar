@@ -415,3 +415,81 @@ index 6a00ee7f6..0d8a10fc4 100644
 
              org.spigotmc.SpigotConfig.disabledAdvancements = spigotConfiguration.getStringList("advancements.disabled"); // Paper - fix SPIGOT-5885, must be set early in init
              // Paper start - fix SPIGOT-5824
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index b01af4165..cabe246b5 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -113,11 +113,6 @@ public class Main {
+             Path path1 = Paths.get("eula.txt");
+             Eula eula = new Eula(path1);
+
+-            if (optionset.has("initSettings")) { // CraftBukkit
+-                Main.LOGGER.info("Initialized '{}' and '{}'", path.toAbsolutePath(), path1.toAbsolutePath());
+-                return;
+-            }
+-
+             // Spigot Start
+             boolean eulaAgreed = Boolean.getBoolean( "com.mojang.eula.agree" );
+             if ( eulaAgreed )
+@@ -133,6 +128,11 @@ public class Main {
+             }
+             */
+
++            if (optionset.has("initSettings")) { // CraftBukkit
++                Main.LOGGER.info("Initialized '{}'", path.toAbsolutePath());
++                return;
++            }
++
+             org.spigotmc.SpigotConfig.disabledAdvancements = spigotConfiguration.getStringList("advancements.disabled"); // Paper - fix SPIGOT-5885, must be set early in init
+             // Paper start - fix SPIGOT-5824
+             File file;
+@@ -241,8 +241,8 @@ public class Main {
+                 dedicatedserver1.c(optionset.has(optionspec2));
+                 dedicatedserver1.b((String) optionset.valueOf(optionspec12));
+                 */
+-                // Graphene start
+-                /*
++
++                /* // Graphene
+                 boolean flag1 = !optionset.has("nogui") && !optionset.nonOptionArguments().contains("nogui");
+
+                 if(!Boolean.parseBoolean(System.getenv().getOrDefault("PAPER_DISABLE_SERVER_GUI", String.valueOf(false)))) // Paper
+@@ -250,7 +250,6 @@ public class Main {
+                     dedicatedserver1.showGui();
+                 }
+                 */
+-                // Graphene end
+
+                 if (optionset.has("port")) {
+                     int port = (Integer) optionset.valueOf("port");
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index ed495b920..92902bb48 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -17,9 +17,6 @@ import net.minecraft.world.level.lighting.LayerLightEventListener;
+ import net.minecrell.terminalconsole.TerminalConsoleAppender; // Paper
+
+ public class Main {
+-    public static boolean useJline = true;
+-    public static boolean useConsole = true;
+-
+     public static void main(String[] args) {
+         // Paper start
+         final String warnWhenLegacyFormattingDetected = String.join(".", "net", "kyori", "adventure", "text", "warnWhenLegacyFormattingDetected");
+@@ -121,6 +118,7 @@ public class Main {
+
+                 acceptsAll(Main.asList("forceUpgrade"), "Whether to force a world upgrade");
+                 acceptsAll(Main.asList("eraseCache"), "Whether to force cache erase during world upgrade");
++
+                 /* // Graphene
+                 acceptsAll(Main.asList("nogui"), "Disables the graphical console");
+
+@@ -316,7 +314,7 @@ public class Main {
+                 if (buildDate.before(deadline.getTime())) {
+                     // Paper start - This is some stupid bullshit
+                     System.err.println("*** Warning, you've not updated in a while! ***");
+-                    System.err.println("*** Please download a new build as per instructions from https://papermc.io/downloads ***"); // Paper
++                    System.err.println("*** Please download a new build from https://github.com/GalaxiaMC/Graphene/actions ***"); // Paper // Graphene
+                     //System.err.println("*** Server will start in 20 seconds ***");
+                     //Thread.sleep(TimeUnit.SECONDS.toMillis(20));
+                     // Paper End
