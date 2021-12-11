@@ -31,10 +31,10 @@ index ecf892c1b..281ca796b 100644
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 79dfa1792..de4a0f8c6 100644
+index 79dfa1792..8b1f46706 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -27,25 +27,7 @@ import java.io.IOException;
+@@ -27,23 +27,7 @@ import java.io.IOException;
  import java.io.InputStreamReader;
  import java.nio.ByteBuffer;
  import java.nio.charset.StandardCharsets;
@@ -55,13 +55,11 @@ index 79dfa1792..de4a0f8c6 100644
 -import java.util.Set;
 -import java.util.UUID;
 -import java.util.function.Consumer;
--import java.util.logging.Level;
--import java.util.logging.Logger;
 +import java.util.*;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
  import javax.imageio.ImageIO;
- import net.minecraft.advancements.Advancement;
- import net.minecraft.commands.CommandSourceStack;
-@@ -246,6 +228,12 @@ import org.yaml.snakeyaml.error.MarkedYAMLException;
+@@ -246,6 +230,12 @@ import org.yaml.snakeyaml.error.MarkedYAMLException;
 
  import net.md_5.bungee.api.chat.BaseComponent; // Spigot
 
@@ -74,7 +72,7 @@ index 79dfa1792..de4a0f8c6 100644
  import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
 
-@@ -377,6 +365,12 @@ public final class CraftServer implements Server {
+@@ -377,6 +367,12 @@ public final class CraftServer implements Server {
          this.minimumAPI = this.configuration.getString("settings.minimum-api");
          this.loadIcon();
          datapackManager = new io.papermc.paper.datapack.PaperDatapackManager(console.getPackRepository()); // Paper
@@ -87,7 +85,7 @@ index 79dfa1792..de4a0f8c6 100644
      }
 
      public boolean getCommandBlockOverride(String command) {
-@@ -693,7 +687,7 @@ public final class CraftServer implements Server {
+@@ -693,7 +689,7 @@ public final class CraftServer implements Server {
 
      @Override
      public int getViewDistance() {
@@ -96,7 +94,7 @@ index 79dfa1792..de4a0f8c6 100644
      }
 
      @Override
-@@ -932,6 +926,7 @@ public final class CraftServer implements Server {
+@@ -932,6 +928,7 @@ public final class CraftServer implements Server {
          tk.galaxiamc.graphene.GrapheneConfig.init((File) console.options.valueOf("graphene-settings")); // Graphene
          me.titaniumtown.JettPackConfig.init((File) console.options.valueOf("jettpack-settings")); // JettPack
          dev.mrfishcakes.crunchy.config.CrunchyConfig.init((File) console.options.valueOf("crunchy-settings")); // Crunchy
@@ -104,7 +102,7 @@ index 79dfa1792..de4a0f8c6 100644
          for (ServerLevel world : this.console.getAllLevels()) {
              // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
              world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
-@@ -2124,22 +2119,22 @@ public final class CraftServer implements Server {
+@@ -2124,22 +2121,22 @@ public final class CraftServer implements Server {
 
      @Override
      public int getMonsterSpawnLimit() {
@@ -131,7 +129,7 @@ index 79dfa1792..de4a0f8c6 100644
      }
 
      @Override
-@@ -2149,7 +2144,7 @@ public final class CraftServer implements Server {
+@@ -2149,7 +2146,7 @@ public final class CraftServer implements Server {
 
      @Override
      public int getAmbientSpawnLimit() {
