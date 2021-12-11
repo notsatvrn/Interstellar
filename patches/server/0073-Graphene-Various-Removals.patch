@@ -520,7 +520,7 @@ index cabe246b5..049d77687 100644
              }
              */
 
-+            boolean eulaAgreed = true
++            boolean eulaAgreed = true;
 +
              if (optionset.has("initSettings")) { // CraftBukkit
                  Main.LOGGER.info("Initialized '{}'", path.toAbsolutePath());
