@@ -382,19 +382,6 @@ index 0f45c397df38e8af1c8b5bb8ca24f54a88e5880b..00000000000000000000000000000000
 -aliases:
 -    icanhasbukkit:
 -      - "version $1-"
-diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 023134516..ecf892c1b 100644
---- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-+++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -249,7 +249,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         tk.galaxiamc.graphene.GrapheneConfig.registerCommands();
-         org.sugarcanemc.sugarcane.command.SugarcaneCommandsManager.registerCommands(); // Sugarcane
-         // Graphene end
--        com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
-+        // com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now // Graphene
-         io.papermc.paper.util.ObfHelper.INSTANCE.getClass(); // load mappings for stacktrace deobf and etc.
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
-         // Paper end
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
 index 6a00ee7f6..0d8a10fc4 100644
 --- a/src/main/java/net/minecraft/server/Main.java
@@ -525,3 +512,16 @@ index e50c9931e..80c699863 100644
 
          this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
          this.configuration.options().copyDefaults(true);
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index cabe246b5..049d77687 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -128,6 +128,8 @@ public class Main {
+             }
+             */
+
++            boolean eulaAgreed = true
++
+             if (optionset.has("initSettings")) { // CraftBukkit
+                 Main.LOGGER.info("Initialized '{}'", path.toAbsolutePath());
+                 return;
