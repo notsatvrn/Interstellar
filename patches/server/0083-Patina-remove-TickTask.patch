@@ -1,0 +1,87 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: foss-mc <69294560+foss-mc@users.noreply.github.com>
+Date: Thu, 1 Jul 2021 11:59:11 +0000
+Subject: [PATCH] (Patina) remove TickTask
+
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 2c194e5e0..29fc9b4e3 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -189,7 +189,7 @@ import org.bukkit.event.server.ServerLoadEvent;
+ import co.aikar.timings.MinecraftTimings; // Paper
+ import org.spigotmc.SlackActivityAccountant; // Spigot
+
+-public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable { // SnooperPopulator, // Patina - completely remove snooper
++public abstract class MinecraftServer extends ReentrantBlockableEventLoop<Runnable> implements CommandSource, AutoCloseable { // Patina
+
+     private static MinecraftServer SERVER; // Paper
+     public static final Logger LOGGER = LogManager.getLogger();
+@@ -1410,19 +1410,21 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+
+     @Override
+-    public TickTask wrapRunnable(Runnable runnable) {
++    public Runnable wrapRunnable(Runnable runnable) { // Patina
+         // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
+         if (this.hasStopped && Thread.currentThread().equals(shutdownThread)) {
+             runnable.run();
+             runnable = () -> {};
+         }
+         // Paper end
+-        return new TickTask(this.tickCount, runnable);
++        return runnable; // Patina
+     }
+
++    /* // Patina
+     protected boolean shouldRun(TickTask ticktask) {
+         return ticktask.getTick() + 3 < this.tickCount || this.haveTime();
+     }
++    */
+
+     @Override
+     public boolean pollTask() {
+@@ -1453,10 +1455,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         }
+     }
+
++    /* // Patina
+     public void doRunTask(TickTask ticktask) {
+         this.getProfiler().incrementCounter("runTask");
+         super.doRunTask(ticktask);
+     }
++    */
+
+     private void updateStatusIcon(ServerStatus metadata) {
+         Optional<File> optional = Optional.of(this.getFile("server-icon.png")).filter(File::isFile);
+diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+index b559e67c3..273a2ebf8 100644
+--- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
++++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
+@@ -1248,10 +1248,12 @@ public class ServerChunkCache extends ChunkSource {
+             return runnable;
+         }
+
++        /* // Patina
+         @Override
+         protected boolean shouldRun(Runnable task) {
+             return true;
+         }
++        */
+
+         @Override
+         protected boolean scheduleExecutables() {
+diff --git a/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java b/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java
+index 04bedb83f..bd13d2c33 100644
+--- a/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java
++++ b/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java
+@@ -29,7 +29,9 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
+
+     protected abstract R wrapRunnable(Runnable runnable);
+
++    /* // Patina
+     protected abstract boolean shouldRun(R task);
++    */
+
+     public boolean isSameThread() {
+         return Thread.currentThread() == this.getRunningThread();
