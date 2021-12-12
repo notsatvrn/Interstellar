@@ -1,7 +1,7 @@
 [Purpur]: https://purpur.pl3x.net
 
 ## Graphene
-A light, stable, fast, and flexible Minecraft server software.
+A light, stable, and flexible Minecraft server software.
 
 Graphene is a fork of [Purpur], designed to be the overall best server software in existence.
 
@@ -16,6 +16,7 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - [Pufferfish](https://github.com/pufferfish-gg/Pufferfish)
 - [Crunchy](https://github.com/MrFishCakes/Crunchy)
 - [Utopia](https://github.com/bortexel/utopia)
+- [Slice](https://github.com/Cryptite/Slice)
 - [KTP](https://github.com/lynxplay/ktp)
 - [Nyper](https://github.com/NyCodeGHG/Nyper)
 - [Nabulus](https://github.com/FroobWorld/Nabulus)
