@@ -19,4 +19,5 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - [KTP](https://github.com/lynxplay/ktp)
 - [Nyper](https://github.com/NyCodeGHG/Nyper)
 - [Nabulus](https://github.com/FroobWorld/Nabulus)
+- [P4per (patches were heavily edited)](https://github.com/acrylic-style/P4per)
 - [Leaf (patches were heavily edited)](https://github.com/anhcraft/Leaf)
