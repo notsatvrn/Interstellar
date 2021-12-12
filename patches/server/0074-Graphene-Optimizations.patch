@@ -404,7 +404,7 @@ index 72d58fb76..cf40d133b 100644
                  }
 
 -                result.put(key, commands.toArray(new String[commands.size()]));
-+                result.put(key, commands.toArray(ArrayConstants.STREMPTY); // Graphene
++                result.put(key, commands.toArray(ArrayConstants.STREMPTY)); // Graphene
              }
          }
 
