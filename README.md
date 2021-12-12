@@ -18,4 +18,5 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - [Dripstone](https://github.com/NoahvdAa/Dripstone)
 - [Utopia](https://github.com/bortexel/utopia)
 - [KTP](https://github.com/lynxplay/ktp)
+- [Nyper](https://github.com/NyCodeGHG/Nyper)
 - [Leaf (patches were heavily edited)](https://github.com/anhcraft/Leaf)
