@@ -5,7 +5,7 @@ Subject: [PATCH] Separate inventory for creative
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index dcba69c0ad3288ddc64dacc58b6fb857eed3109c..895c349c6a14d7e0d198e8b66767e49b80c72ea0 100644
+index 8d2dc9bbf..d335ac2c3 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -104,12 +104,7 @@ import net.minecraft.world.entity.player.Inventory;
@@ -22,10 +22,10 @@ index dcba69c0ad3288ddc64dacc58b6fb857eed3109c..895c349c6a14d7e0d198e8b66767e49b
  import net.minecraft.world.item.ComplexItem;
  import net.minecraft.world.item.ItemCooldowns;
  import net.minecraft.world.item.ItemStack;
-@@ -264,6 +259,19 @@ public class ServerPlayer extends Player {
-     public boolean needsChunkCenterUpdate; // Paper - no-tick view distance // Tuinity - public
+@@ -269,6 +264,19 @@ public class ServerPlayer extends Player {
      public org.bukkit.event.player.PlayerQuitEvent.QuitReason quitReason = null; // Paper - there are a lot of changes to do if we change all methods leading to the event
- 
+     public boolean smoothWorldTeleport; // Slice
+
 +    // Nabulus start
 +    public void updateInventory(GameType gameMode) {
 +        Inventory newInventory = gameMode == GameType.CREATIVE ? creativeInventory : defaultInventory;
@@ -42,16 +42,16 @@ index dcba69c0ad3288ddc64dacc58b6fb857eed3109c..895c349c6a14d7e0d198e8b66767e49b
      public ServerPlayer(MinecraftServer server, ServerLevel world, GameProfile profile) {
          super(world, world.getSharedSpawnPos(), world.getSharedSpawnAngle(), profile);
          this.chatVisibility = ChatVisiblity.FULL;
-@@ -334,6 +342,7 @@ public class ServerPlayer extends Player {
-         this.bukkitPickUpLoot = true;
+@@ -340,6 +348,7 @@ public class ServerPlayer extends Player {
          this.maxHealthCache = this.getMaxHealth();
          this.cachedSingleMobDistanceMap = new com.destroystokyo.paper.util.PooledHashSets.PooledObjectLinkedOpenHashSet<>(this); // Paper
+         this.spawnInvulnerableTime = world.purpurConfig.playerSpawnInvulnerableTicks; // Purpur
 +        this.updateInventory(gameMode.getGameModeForPlayer()); // Nabulus
      }
      // Paper start - Chunk priority
      public BlockPos getPointInFront(double inFront) {
-@@ -1818,6 +1827,7 @@ public class ServerPlayer extends Player {
- 
+@@ -1893,6 +1902,7 @@ public class ServerPlayer extends Player {
+
              this.onUpdateAbilities();
              this.updateEffectVisibility();
 +            this.updateInventory(gameMode); // Nabulus

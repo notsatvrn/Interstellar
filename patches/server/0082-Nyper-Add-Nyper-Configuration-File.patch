@@ -203,10 +203,10 @@ index 0000000000000000000000000000000000000000..d4193a29d8c051c7dd9db4d9a850fe31
 +
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 1bf19965d12514dee34545235bfbadc0b74ddc8b..10084ea1fd45c70694f8652f387e2171fa98ac36 100644
+index a5d6d7e85..2f306f857 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -6,10 +6,8 @@ import com.mojang.authlib.GameProfile;
+@@ -6,10 +6,7 @@ import com.mojang.authlib.GameProfile;
  import com.mojang.authlib.GameProfileRepository;
  import com.mojang.authlib.minecraft.MinecraftSessionService;
  import com.mojang.datafixers.DataFixer;
@@ -214,15 +214,14 @@ index 1bf19965d12514dee34545235bfbadc0b74ddc8b..10084ea1fd45c70694f8652f387e2171
 -import java.io.BufferedWriter;
 -import java.io.IOException;
 -import java.io.InputStreamReader;
-+
 +import java.io.*;
  import java.net.InetAddress;
  import java.net.Proxy;
  import java.nio.charset.StandardCharsets;
-@@ -224,6 +222,16 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         io.papermc.paper.brigadier.PaperBrigadierProviderImpl.INSTANCE.getClass(); // init PaperBrigadierProvider
-         // Paper end
- 
+@@ -278,6 +275,16 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         dev.mrfishcakes.crunchy.config.CrunchyConfig.registerCommands();
+         // Crunchy end
+
 +        // Nyper start
 +        try {
 +            de.nycode.nyper.NyperConfig.init((File) options.valueOf("nyper-settings"));
@@ -237,25 +236,25 @@ index 1bf19965d12514dee34545235bfbadc0b74ddc8b..10084ea1fd45c70694f8652f387e2171
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index ec29277943b65b66942be1cab8a1063bf7f14303..d0327ada3cab741921908c62b33834b0a0eca6bb 100644
+index bb920e1f8..72d58fb76 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -892,6 +892,7 @@ public final class CraftServer implements Server {
- 
-         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
-         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
+@@ -928,6 +928,7 @@ public final class CraftServer implements Server {
+         tk.galaxiamc.graphene.GrapheneConfig.init((File) console.options.valueOf("graphene-settings")); // Graphene
+         me.titaniumtown.JettPackConfig.init((File) console.options.valueOf("jettpack-settings")); // JettPack
+         dev.mrfishcakes.crunchy.config.CrunchyConfig.init((File) console.options.valueOf("crunchy-settings")); // Crunchy
 +        de.nycode.nyper.NyperConfig.init((File) console.options.valueOf("nyper-settings")); // Nyper
          for (ServerLevel world : this.console.getAllLevels()) {
-             world.serverLevelData.setDifficulty(config.difficulty);
-             world.setSpawnSettings(config.spawnMonsters, config.spawnAnimals);
+             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
+             world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index c16c5e30c497a0ac58b600b33d318148badd3650..3b67ce3608e58b2fa66c979141f47fab8d02f81e 100644
+index 33b3a511e..dfb6ab40e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -160,6 +160,14 @@ public class Main {
-                         .defaultsTo(new File[] {})
-                         .describedAs("Jar file");
-                 // Paper end
+@@ -192,6 +192,14 @@ public class Main {
+                         .defaultsTo(new File("crunchy.yml"))
+                         .describedAs("Yml file");
+                 // Crunchy end
 +
 +                // Nyper start
 +                acceptsAll(asList("nyper", "nyper-settings"), "File for nyper settings")
@@ -266,4 +265,4 @@ index c16c5e30c497a0ac58b600b33d318148badd3650..3b67ce3608e58b2fa66c979141f47fab
 +                // Nyper end
              }
          };
- 
+         OptionSet options = null;
