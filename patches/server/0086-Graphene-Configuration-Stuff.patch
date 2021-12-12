@@ -4,7 +4,7 @@ Date: Sun, 12 Dec 2021 19:20:00 +0000
 Subject: [PATCH] Configuration Stuff
 
 diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
-index 5c405c8e9..41076c6e7 100644
+index 5c405c8e9..a4bfbc8ca 100644
 --- a/src/main/java/co/aikar/timings/TimingsExport.java
 +++ b/src/main/java/co/aikar/timings/TimingsExport.java
 @@ -234,8 +234,11 @@ public class TimingsExport extends Thread {
@@ -14,7 +14,8 @@ index 5c405c8e9..41076c6e7 100644
 +            pair("jettpack", mapAsJSON(Bukkit.spigot().getJettPackConfig(), null)), // Jettpack
 +            pair("graphene", mapAsJSON(Bukkit.spigot().getGrapheneConfig(), null)), // Graphene
              pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)), // Pufferfish
-             pair("crunchy", mapAsJSON(Bukkit.spigot().getCrunchyConfig(), null)) // Crunchy
+-            pair("crunchy", mapAsJSON(Bukkit.spigot().getCrunchyConfig(), null)) // Crunchy
++            pair("crunchy", mapAsJSON(Bukkit.spigot().getCrunchyConfig(), null)), // Crunchy
 +            pair("nyper", mapAsJSON(Bukkit.spigot().getNyperConfig(), null)) // Nyper
          ));
 
@@ -27,7 +28,7 @@ index 246d75cf7..d910eaf90 100644
        "spigot.yml",
        "paper.yml",
        "airplane.yml",
-+      "purpur.yml"
++      "purpur.yml",
        "graphene.yml",
        "pufferfish.yml",
        "jettpack.yml",
@@ -62,16 +63,3 @@ index 582dd6e47..b69d9592b 100644
          @Override
          public void restart() {
              org.spigotmc.RestartCommand.restart();
-diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
-index d910eaf90..4f676d028 100644
---- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
-+++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
-@@ -25,7 +25,7 @@ public class ServerConfigurations {
-       "spigot.yml",
-       "paper.yml",
-       "airplane.yml",
--      "purpur.yml"
-+      "purpur.yml",
-       "graphene.yml",
-       "pufferfish.yml",
-       "jettpack.yml",
