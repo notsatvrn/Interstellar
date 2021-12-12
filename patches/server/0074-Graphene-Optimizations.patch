@@ -310,3 +310,126 @@ index 5939aeff0..2672d633a 100644
      }
 
      @Override
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index dc9912b19..f941c9a37 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1020,23 +1020,24 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+
+     // CraftBukkit start
+-    private boolean hasStopped = false;
++    //private boolean hasStopped = false; // Graphene
++    private final java.util.concurrent.atomic.AtomicBoolean hasStopped = new java.util.concurrent.atomic.AtomicBoolean(false); // Graphene
+     public volatile boolean hasFullyShutdown = false; // Paper
+     private boolean hasLoggedStop = false; // Paper
+-    private final Object stopLock = new Object();
++    //private final Object stopLock = new Object();
+     public final boolean hasStopped() {
+-        synchronized (this.stopLock) {
+-            return this.hasStopped;
+-        }
++        return hasStopped.get(); // Graphene
+     }
+     // CraftBukkit end
+
+     public void stopServer() {
+         // CraftBukkit start - prevent double stopping on multiple threads
++        /* // Grpahene
+         synchronized(this.stopLock) {
+             if (this.hasStopped) return;
+             this.hasStopped = true;
+         }
++        */
+         if (!hasLoggedStop && isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper
+         // Paper start - kill main thread, and kill it hard
+         shutdownThread = Thread.currentThread();
+@@ -1413,7 +1414,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     @Override
+     public TickTask wrapRunnable(Runnable runnable) {
+         // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
+-        if (this.hasStopped && Thread.currentThread().equals(shutdownThread)) {
++        if (this.hasStopped.get() && Thread.currentThread().equals(shutdownThread)) { // Graphene
+             runnable.run();
+             runnable = () -> {};
+         }
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index c54a43838..7375f53d6 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -965,7 +965,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+             MutableBoolean mutableboolean = new MutableBoolean();
+
+             do {
+-                boolean isShuttingDown = level.getServer().hasStopped(); // Paper
++                //boolean isShuttingDown = level.getServer().hasStopped(); // Paper
+                 mutableboolean.setFalse();
+                 list.stream().map((playerchunk) -> {
+                     CompletableFuture completablefuture;
+diff --git a/src/main/java/net/minecraft/server/players/OldUsersConverter.java b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+index ade010fe3..03b432f63 100644
+--- a/src/main/java/net/minecraft/server/players/OldUsersConverter.java
++++ b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.level.storage.LevelResource;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+
+ public class OldUsersConverter {
+
+@@ -330,7 +331,7 @@ public class OldUsersConverter {
+             }
+
+             try {
+-                final String[] astring = (String[]) list.toArray(new String[list.size()]);
++                final String[] astring = (String[]) list.toArray(ArrayConstants.STREMPTY);
+                 ProfileLookupCallback profilelookupcallback = new ProfileLookupCallback() {
+                     public void onProfileLookupSucceeded(GameProfile gameprofile) {
+                         minecraftServer.getProfileCache().add(gameprofile);
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 72d58fb76..cf40d133b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -243,6 +243,7 @@ import org.bukkit.util.permissions.DefaultPermissions;
+ import org.yaml.snakeyaml.Yaml;
+ import org.yaml.snakeyaml.constructor.SafeConstructor;
+ import org.yaml.snakeyaml.error.MarkedYAMLException;
++import me.jellysquid.mods.lithium.common.util.ArrayConstants; // Graphene
+
+ import net.md_5.bungee.api.chat.BaseComponent; // Spigot
+
+@@ -1577,7 +1578,7 @@ public final class CraftServer implements Server {
+                     commands = ImmutableList.of(section.getString(key));
+                 }
+
+-                result.put(key, commands.toArray(new String[commands.size()]));
++                result.put(key, commands.toArray(ArrayConstants.STREMPTY); // Graphene
+             }
+         }
+
+@@ -2025,7 +2026,7 @@ public final class CraftServer implements Server {
+
+         players.addAll(this.getOnlinePlayers());
+
+-        return players.toArray(new OfflinePlayer[players.size()]);
++        return players.toArray(new OfflinePlayer[0]);
+     }
+
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+index 049d750d3..29dd25894 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -175,10 +175,6 @@ public final class WeakCollection<T> implements Collection<T> {
+     }
+
+     private Collection<T> toCollection() {
+-        ArrayList<T> collection = new ArrayList<T>();
+-        for (T value : this) {
+-            collection.add(value);
+-        }
+-        return collection;
++        return new ArrayList<>(this); // Graphene
+     }
+ }
