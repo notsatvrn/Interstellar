@@ -16,6 +16,7 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - [Pufferfish](https://github.com/pufferfish-gg/Pufferfish)
 - [Crunchy](https://github.com/MrFishCakes/Crunchy)
 - [Utopia](https://github.com/bortexel/utopia)
+- [Slice](https://github.com/Cryptite/Slice)
 - [KTP](https://github.com/lynxplay/ktp)
 - [Nyper](https://github.com/NyCodeGHG/Nyper)
 - [Nabulus](https://github.com/FroobWorld/Nabulus)
