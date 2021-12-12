@@ -400,3 +400,57 @@ index 16553adf6..891ab04c7 100644
          if (!TimingsManager.url.endsWith("/")) {
              TimingsManager.url += "/";
          }
+diff --git a/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java b/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
+index 93faf89aa..6325ab58d 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
++++ b/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
+@@ -456,7 +456,7 @@ public class PaperWorldConfig {
+         fixedInhabitedTime = getInt("fixed-chunk-inhabited-time", -1);
+     }
+
+-    public int grassUpdateRate = 1;
++    public int grassUpdateRate = 4;
+     private void grassUpdateRate() {
+         grassUpdateRate = Math.max(0, getInt("grass-spread-tick-rate", grassUpdateRate));
+         log("Grass Spread Tick Rate: " + grassUpdateRate);
+diff --git a/src/main/java/org/spigotmc/SpigotWorldConfig.java b/src/main/java/org/spigotmc/SpigotWorldConfig.java
+index 9ce710864..2b026024b 100644
+--- a/src/main/java/org/spigotmc/SpigotWorldConfig.java
++++ b/src/main/java/org/spigotmc/SpigotWorldConfig.java
+@@ -182,8 +182,8 @@ public class SpigotWorldConfig
+     public int miscActivationRange = 8;
+     // Paper start
+     public int flyingMonsterActivationRange = 32;
+-    public int waterActivationRange = 16;
+-    public int villagerActivationRange = 32;
++    public int waterActivationRange = 12;
++    public int villagerActivationRange = 24;
+     public int wakeUpInactiveAnimals = 4;
+     public int wakeUpInactiveAnimalsEvery = 60*20;
+     public int wakeUpInactiveAnimalsFor = 5*20;
+diff --git a/src/main/java/org/spigotmc/SpigotWorldConfig.java b/src/main/java/org/spigotmc/SpigotWorldConfig.java
+index 2b026024b..8aab9fc14 100644
+--- a/src/main/java/org/spigotmc/SpigotWorldConfig.java
++++ b/src/main/java/org/spigotmc/SpigotWorldConfig.java
+@@ -165,7 +165,7 @@ public class SpigotWorldConfig
+     public byte mobSpawnRange;
+     private void mobSpawnRange()
+     {
+-        this.mobSpawnRange = (byte) getInt( "mob-spawn-range", 8 ); // Paper - Vanilla
++        this.mobSpawnRange = (byte) getInt( "mob-spawn-range", 4 ); // Paper - Vanilla
+         this.log( "Mob Spawn Range: " + this.mobSpawnRange );
+     }
+
+diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
+index 9b18d7d44..6ebb21f23 100644
+--- a/src/main/resources/configurations/bukkit.yml
++++ b/src/main/resources/configurations/bukkit.yml
+@@ -24,7 +24,7 @@ settings:
+     shutdown-message: Server closed
+     minimum-api: none
+ spawn-limits:
+-    monsters: 50
++    monsters: 32
+     animals: 8
+     water-animals: 8
+     water-ambient: 8
