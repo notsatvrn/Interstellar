@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Simon Gardling <titaniumtown@gmail.com>
+Date: Sun, 12 Dec 2021 17:19:00 -0500
+Subject: [PATCH] (VMP) skip entity move if movement is zero
+
+Code originally licensed under the MIT license and created for the VMP project: https://github.com/RelativityMC/VMP-fabric
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 726af8724c7b797fd6f8b4f45929e22ae93273f2..aec6cc5c56951b01e67be7421644248702fa3817 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -924,6 +924,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, i
+     // Paper end - detailed watchdog information
+ 
+     public void move(MoverType movementType, Vec3 movement) {
++        if (movement.equals(Vec3.ZERO)) return; // JettPack - skip if movement is zero
+         // Paper start - detailed watchdog information
+         io.papermc.paper.util.TickThread.ensureTickThread("Cannot move an entity off-main");
+         synchronized (this.posLock) {
