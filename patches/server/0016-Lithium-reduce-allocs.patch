@@ -3,6 +3,8 @@ From: Simon Gardling <titaniumtown@gmail.com>
 Date: Tue, 9 Nov 2021 16:53:39 -0500
 Subject: [PATCH] lithium: reduce allocs
 
+Original code licensed under GNU Lesser General Public License v3.0 and created for the lithium project: https://github.com/CaffeineMC/lithium-fabric/
+Do note I did add allocation reductions that lithium missed.
 
 diff --git a/src/main/java/me/jellysquid/mods/lithium/common/util/ArrayConstants.java b/src/main/java/me/jellysquid/mods/lithium/common/util/ArrayConstants.java
 new file mode 100644

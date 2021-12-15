@@ -66,7 +66,7 @@ index 0000000000000000000000000000000000000000..020368da69b9a492155f6de6297f7473
 +        this.usageMessage = "/pufferfish [reload | version]";
 +        this.setPermission("bukkit.command.pufferfish");
 +    }
-+    
++
 +    public static void init() {
 +        MinecraftServer.getServer().server.getCommandMap().register("pufferfish", "Pufferfish", new PufferfishCommand());
 +    }
@@ -133,10 +133,10 @@ index 0000000000000000000000000000000000000000..f81a4985a24520ab5c7dce0b49a864e0
 +import org.simpleyaml.exceptions.InvalidConfigurationException;
 +
 +public class PufferfishConfig {
-+	
++
 +	private static final YamlFile config = new YamlFile();
 +	private static int updates = 0;
-+	
++
 +	private static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
 +		ConfigurationSection newSection = new MemoryConfiguration();
 +		for (String key : section.getKeys(false)) {
@@ -148,18 +148,18 @@ index 0000000000000000000000000000000000000000..f81a4985a24520ab5c7dce0b49a864e0
 +		}
 +		return newSection;
 +	}
-+	
++
 +	public static ConfigurationSection getConfigCopy() {
 +		return convertToBukkit(config);
 +	}
-+	
++
 +	public static int getUpdates() {
 +		return updates;
 +	}
-+	
++
 +	public static void load() throws IOException {
 +		File configFile = new File("pufferfish.yml");
-+		
++
 +		if (configFile.exists()) {
 +			try {
 +				config.load(configFile);
@@ -167,14 +167,14 @@ index 0000000000000000000000000000000000000000..f81a4985a24520ab5c7dce0b49a864e0
 +				throw new IOException(e);
 +			}
 +		}
-+		
++
 +		getString("info.version", "1.0");
 +		setComment("info",
 +				"Pufferfish Configuration",
 +				"Check out Pufferfish Host for maximum performance server hosting: https://pufferfish.host",
 +				"Join our Discord for support: https://discord.gg/reZw4vQV9H",
 +				"Download new builds at https://ci.pufferfish.host/job/Pufferfish");
-+		
++
 +		for (Method method : PufferfishConfig.class.getDeclaredMethods()) {
 +			if (Modifier.isStatic(method.getModifiers()) && Modifier.isPrivate(method.getModifiers()) && method.getParameterCount() == 0 &&
 +					method.getReturnType() == Void.TYPE && !method.getName().startsWith("lambda")) {
@@ -186,70 +186,70 @@ index 0000000000000000000000000000000000000000..f81a4985a24520ab5c7dce0b49a864e0
 +				}
 +			}
 +		}
-+		
++
 +		updates++;
-+		
++
 +		config.save(configFile);
 +	}
-+	
++
 +	private static void setComment(String key, String... comment) {
 +		if (config.contains(key)) {
 +			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
 +		}
 +	}
-+	
++
 +	private static void ensureDefault(String key, Object defaultValue, String... comment) {
 +		if (!config.contains(key)) {
 +			config.set(key, defaultValue);
 +			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
 +		}
 +	}
-+	
++
 +	private static boolean getBoolean(String key, boolean defaultValue, String... comment) {
 +		return getBoolean(key, null, defaultValue, comment);
 +	}
-+	
++
 +	private static boolean getBoolean(String key, @Nullable String oldKey, boolean defaultValue, String... comment) {
 +		ensureDefault(key, defaultValue, comment);
 +		return config.getBoolean(key, defaultValue);
 +	}
-+	
++
 +	private static int getInt(String key, int defaultValue, String... comment) {
 +		return getInt(key, null, defaultValue, comment);
 +	}
-+	
++
 +	private static int getInt(String key, @Nullable String oldKey, int defaultValue, String... comment) {
 +		ensureDefault(key, defaultValue, comment);
 +		return config.getInt(key, defaultValue);
 +	}
-+	
++
 +	private static double getDouble(String key, double defaultValue, String... comment) {
 +		return getDouble(key, null, defaultValue, comment);
 +	}
-+	
++
 +	private static double getDouble(String key, @Nullable String oldKey, double defaultValue, String... comment) {
 +		ensureDefault(key, defaultValue, comment);
 +		return config.getDouble(key, defaultValue);
 +	}
-+	
++
 +	private static String getString(String key, String defaultValue, String... comment) {
 +		return getOldString(key, null, defaultValue, comment);
 +	}
-+	
++
 +	private static String getOldString(String key, @Nullable String oldKey, String defaultValue, String... comment) {
 +		ensureDefault(key, defaultValue, comment);
 +		return config.getString(key, defaultValue);
 +	}
-+	
++
 +	private static List<String> getStringList(String key, List<String> defaultValue, String... comment) {
 +		return getStringList(key, null, defaultValue, comment);
 +	}
-+	
++
 +	private static List<String> getStringList(String key, @Nullable String oldKey, List<String> defaultValue, String... comment) {
 +		ensureDefault(key, defaultValue, comment);
 +		return config.getStringList(key);
 +	}
-+	
++
 +}
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 index 9412a238aa3538bf958cf3b5ce2be5a9beead90f..f1321ac1ddfa293afffd7c00d9063d9154e6bba6 100644

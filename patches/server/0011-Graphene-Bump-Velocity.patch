@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Sun, 5 Dec 2021 21:24:00 +0000
+Subject: [PATCH] Bump Velocity
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 58830bb3e..d86b7e0d3 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -50,7 +50,7 @@ dependencies {
+ 
+     implementation("net.fabricmc:mapping-io:0.3.0") // Paper - needed to read mappings for stacktrace deobfuscation
+     // Paper start - Use Velocity cipher
+-    implementation("com.velocitypowered:velocity-native:1.1.0-SNAPSHOT") {
++    implementation("com.velocitypowered:velocity-native:1.1.9") {
+         isTransitive = false
+     }
+     // Paper end
