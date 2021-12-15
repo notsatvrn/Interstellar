@@ -5,10 +5,10 @@ Subject: [PATCH] skip event if no listeners
 
 
 diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-index 1366496271c4c7f72d1e5f990e51775b1c371f99..8086f0599be36a31c8b28296a22a160a0d1b0f5c 100644
+index 5463b8be..f4513214 100644
 --- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
 +++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
-@@ -609,6 +609,14 @@ public final class SimplePluginManager implements PluginManager {
+@@ -613,6 +613,14 @@ public final class SimplePluginManager implements PluginManager {
       */
      @Override
      public void callEvent(@NotNull Event event) {
@@ -21,16 +21,16 @@ index 1366496271c4c7f72d1e5f990e51775b1c371f99..8086f0599be36a31c8b28296a22a160a
 +        // JettPack end
 +
          // Paper - replace callEvent by merging to below method
-         if (event.isAsynchronous() && server.isPrimaryThread()) {
-             throw new IllegalStateException(event.getEventName() + " may only be triggered asynchronously.");
-@@ -616,8 +624,8 @@ public final class SimplePluginManager implements PluginManager {
-             throw new IllegalStateException(event.getEventName() + " may only be triggered synchronously.");
+         // KTP start - optimize spigot event bus
+         final boolean isAsync = event.isAsynchronous();
+@@ -624,8 +632,8 @@ public final class SimplePluginManager implements PluginManager {
          }
- 
+         // KTP end - optimize spigot event bus
+
 -        HandlerList handlers = event.getHandlers();
 -        RegisteredListener[] listeners = handlers.getRegisteredListeners();
-+        // HandlerList handlers = event.getHandlers();
-+        // RegisteredListener[] listeners = handlers.getRegisteredListeners();
- 
++        //HandlerList handlers = event.getHandlers();
++        //RegisteredListener[] listeners = handlers.getRegisteredListeners();
+
          for (RegisteredListener registration : listeners) {
              if (!registration.getPlugin().isEnabled()) {
