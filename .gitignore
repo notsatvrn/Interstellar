@@ -52,7 +52,7 @@ manifest.mf
 run/
 
 build-data/
-Graphene-API
-Graphene-MojangAPI
-Graphene-Server
+graphene-api
+graphene-mojangapi
+graphene-server
 *.jar

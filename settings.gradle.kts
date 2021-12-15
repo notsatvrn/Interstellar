@@ -5,5 +5,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Graphene"
-include("Graphene-API", "Graphene-Server")
+rootProject.name = "graphene"
+include("graphene-api", "graphene-server")

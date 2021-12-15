@@ -5,20 +5,19 @@ Subject: [PATCH] Crunchy Branding
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 849126ad..e43072b5 100644
+index 43ce7fe6..f41b9d03 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -40,6 +40,9 @@ dependencies {
-     api("org.apache.logging.log4j:log4j-api:2.14.1") // Paper
-     api("org.slf4j:slf4j-api:1.7.30") // Paper
+@@ -41,6 +41,8 @@ dependencies {
+     api("org.apache.logging.log4j:log4j-api:2.14.1")
+     api("org.slf4j:slf4j-api:1.8.0-beta4")
      api("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") // Purpur
 +    api("com.zaxxer:HikariCP:5.0.0") // Crunchy
-+    api("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") // Crunchy
 +    api("com.h2database:h2:2.0.202") // Crunchy
 
-     implementation("org.ow2.asm:asm:9.1")
-     implementation("org.ow2.asm:asm-commons:9.1")
-@@ -112,5 +115,7 @@ tasks.withType<Javadoc> {
+     implementation("org.ow2.asm:asm:9.2")
+     implementation("org.ow2.asm:asm-commons:9.2")
+@@ -114,5 +116,7 @@ tasks.withType<Javadoc> {
          "https://jd.adventure.kyori.net/text-serializer-legacy/$adventureVersion/",
          "https://jd.adventure.kyori.net/text-serializer-plain/$adventureVersion/",
          // Paper end
