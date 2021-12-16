@@ -41,14 +41,14 @@ index 3e17f6131bf590d7c4a16b79c1c145cb4f565bc9..e1233fa58d068448d0accef7a7f6725f
          this.id = buf.readVarInt();
          this.packedItems = SynchedEntityData.unpack(buf);
 diff --git a/src/main/java/net/minecraft/network/syncher/SynchedEntityData.java b/src/main/java/net/minecraft/network/syncher/SynchedEntityData.java
-index 4df12454001f0de5f358c88d876e34c35a736c42..72c74d2369a36b14f1103aa74b096f50e7990f4d 100644
+index 2e2bfccfc..7c6e9cbe5 100644
 --- a/src/main/java/net/minecraft/network/syncher/SynchedEntityData.java
 +++ b/src/main/java/net/minecraft/network/syncher/SynchedEntityData.java
 @@ -136,6 +136,11 @@ public class SynchedEntityData {
      }
  
      public <T> void set(EntityDataAccessor<T> key, T value) {
-+        //Slice start
++        // Slice start
 +        set(key, value, null);
 +    }
 +
@@ -148,10 +148,10 @@ index 4df12454001f0de5f358c88d876e34c35a736c42..72c74d2369a36b14f1103aa74b096f50
      }
  }
 diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
-index 1c6bf5a3014beaf5f9c1c38aed4cf3225e50b8bb..6e9c5e210270647205499801b235849d20776156 100644
+index 9a7b8d31c..69f377110 100644
 --- a/src/main/java/net/minecraft/server/level/ServerEntity.java
 +++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
-@@ -368,7 +368,19 @@ public class ServerEntity {
+@@ -370,7 +370,19 @@ public class ServerEntity {
          SynchedEntityData datawatcher = this.entity.getEntityData();
  
          if (datawatcher.isDirty()) {
@@ -173,10 +173,10 @@ index 1c6bf5a3014beaf5f9c1c38aed4cf3225e50b8bb..6e9c5e210270647205499801b235849d
  
          if (this.entity instanceof LivingEntity) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 78cb0786e741f8ef8611460dab64d0e2448fb6cf..587411322e75b08b7f6c2f18a22256ff9bf526ad 100644
+index 73637e1be..e9cbca67b 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2953,7 +2953,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, n
+@@ -2965,7 +2965,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, i
          if (event.isCancelled()) {
              return;
          }
@@ -186,10 +186,10 @@ index 78cb0786e741f8ef8611460dab64d0e2448fb6cf..587411322e75b08b7f6c2f18a22256ff
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
-index 51fd9bca61888861b58966a69cd1b63c742c44ca..3ed6e5d0c50c259c3df2b0cf84e2fb7ccf64def3 100644
+index d03b26097..9fdb488ae 100644
 --- a/src/main/java/net/minecraft/world/entity/player/Player.java
 +++ b/src/main/java/net/minecraft/world/entity/player/Player.java
-@@ -633,7 +633,7 @@ public abstract class Player extends LivingEntity {
+@@ -671,7 +671,7 @@ public abstract class Player extends LivingEntity {
      public void increaseScore(int score) {
          int j = this.getScore();
  
@@ -199,15 +199,15 @@ index 51fd9bca61888861b58966a69cd1b63c742c44ca..3ed6e5d0c50c259c3df2b0cf84e2fb7c
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 4ff4143f3a7cd89ef92f4b8882fa3e5addfe0f06..83495f9a7d92cd42c2f367891a0a04870a4a1577 100644
+index 58c250e3b..4981c0073 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -2004,7 +2004,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -2027,7 +2027,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                  this.sendHealthUpdate();
              }
          }
--        this.getHandle().getEntityData().set(LivingEntity.DATA_HEALTH_ID, (float) this.getScaledHealth());
-+        this.getHandle().getEntityData().set(LivingEntity.DATA_HEALTH_ID, (float) this.getScaledHealth(), isDead() ? 0f : 20f); // Slice
+-        this.getHandle().getEntityData().set(net.minecraft.world.entity.LivingEntity.DATA_HEALTH_ID, (float) this.getScaledHealth());
++        this.getHandle().getEntityData().set(net.minecraft.world.entity.LivingEntity.DATA_HEALTH_ID, (float) this.getScaledHealth(), isDead() ? 0f : 20f); // Slice
  
          this.getHandle().maxHealthCache = getMaxHealth();
      }
