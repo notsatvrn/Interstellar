@@ -5,7 +5,7 @@ Subject: [PATCH] Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index e5cba810a..292a16095 100644
+index c2ed65092..4201bbab8 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -19,7 +19,7 @@ repositories {
@@ -13,8 +13,8 @@ index e5cba810a..292a16095 100644
  dependencies {
      // Purpur start
 -    implementation(project(":purpur-api"))
-+    implementation(project(":graphene-api")) // Graphene
-     implementation("io.papermc.paper:paper-mojangapi:1.18-R0.1-SNAPSHOT") {
++    implementation(project(":graphene-api"))
+     implementation("io.papermc.paper:paper-mojangapi:1.18.1-R0.1-SNAPSHOT") {
          exclude("io.papermc.paper", "paper-api")
      }
 @@ -74,7 +74,7 @@ tasks.jar {

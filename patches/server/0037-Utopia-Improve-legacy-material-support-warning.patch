@@ -5,7 +5,7 @@ Subject: [PATCH] Improve legacy material support warning
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
-index 6d5f030b6..4f7abe770 100644
+index 14600a7bc..b1227d790 100644
 --- a/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
 +++ b/src/main/java/org/bukkit/craftbukkit/legacy/CraftLegacy.java
 @@ -27,6 +27,8 @@ import net.minecraft.world.level.block.Blocks;
@@ -28,7 +28,7 @@ index 6d5f030b6..4f7abe770 100644
 @@ -256,7 +259,7 @@ public final class CraftLegacy {
 
      static {
-         if (!net.pl3x.purpur.PurpurConfig.loggerSuppressInitLegacyMaterialError) // Purpur
+         if (!org.purpurmc.purpur.PurpurConfig.loggerSuppressInitLegacyMaterialError) // Purpur
 -        System.err.println("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!");
 +        CraftLegacy.LOGGER.warn("Initializing Legacy Material Support. Unless you have legacy plugins and/or data this is a bug!");
          if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isDebugging()) {

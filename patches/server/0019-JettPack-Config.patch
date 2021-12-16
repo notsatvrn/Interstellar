@@ -129,10 +129,10 @@ index 0000000000000000000000000000000000000000..d81564ed381cff61b978adfa0ab661ac
 +}
 \ No newline at end of file
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 7c4ab5580..7f8b3aa3c 100644
+index bacb8932a..5af2a22a7 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -258,6 +258,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -253,6 +253,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          gg.pufferfish.pufferfish.PufferfishConfig.load(); // Pufferfish
          gg.pufferfish.pufferfish.PufferfishCommand.init(); // Pufferfish
 
@@ -148,25 +148,13 @@ index 7c4ab5580..7f8b3aa3c 100644
          this.setPvpAllowed(dedicatedserverproperties.pvp);
          this.setFlightAllowed(dedicatedserverproperties.allowFlight);
          this.setResourcePack(dedicatedserverproperties.resourcePack, this.getPackHash());
-diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 8fadbe3eb..f1c4e1050 100644
---- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-+++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -926,6 +926,7 @@ public final class CraftServer implements Server {
-         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
-         net.pl3x.purpur.PurpurConfig.init((File) console.options.valueOf("purpur-settings")); // Purpur
-         tk.galaxiamc.graphene.GrapheneConfig.init((File) console.options.valueOf("graphene-settings")); // Graphene
-+        me.titaniumtown.JettPackConfig.init((File) console.options.valueOf("jettpack-settings")); // JettPack
-         for (ServerLevel world : this.console.getAllLevels()) {
-             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
-             world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
 diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
-index 22e9dd17f..f24ae5284 100644
+index c2a045c3e..44a3d8ecb 100644
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -160,9 +160,16 @@ public class Main {
-                         .defaultsTo(new File[] {})
-                         .describedAs("Jar file");
+@@ -176,6 +176,14 @@ public class Main {
+                         .defaultsTo("Unknown Server")
+                         .describedAs("Name");
                  // Paper end
 +
 +                // JettPack start
@@ -178,21 +166,16 @@ index 22e9dd17f..f24ae5284 100644
 +                // JettPack end
              }
          };
--
-         OptionSet options = null;
 
-         // Paper start - preload logger classes to avoid plugins mixing versions
-diff --git a/src/main/java/gg/airplane/compat/ServerConfigurations.java b/src/main/java/gg/airplane/compat/ServerConfigurations.java
-index 321724df6..655ee903a 100644
---- a/src/main/java/gg/airplane/compat/ServerConfigurations.java
-+++ b/src/main/java/gg/airplane/compat/ServerConfigurations.java
-@@ -26,7 +26,8 @@ public class ServerConfigurations {
-       "paper.yml",
-       "airplane.yml",
-       "graphene.yml",
--      "pufferfish.yml"
-+      "pufferfish.yml",
-+      "jettpack.yml"
-     };
-
-     public static Map<String, String> getCleanCopies() throws IOException {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 36597bc37..d1e551048 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -933,6 +933,7 @@ public final class CraftServer implements Server {
+         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
+         org.purpurmc.purpur.PurpurConfig.init((File) console.options.valueOf("purpur-settings")); // Purpur
+         tk.galaxiamc.graphene.GrapheneConfig.init((File) console.options.valueOf("graphene-settings")); // Graphene
++        me.titaniumtown.JettPackConfig.init((File) console.options.valueOf("jettpack-settings")); // JettPack
+         for (ServerLevel world : this.console.getAllLevels()) {
+             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
+             world.setSpawnSettings(world.serverLevelData.getDifficulty() != Difficulty.PEACEFUL && config.spawnMonsters, config.spawnAnimals); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))

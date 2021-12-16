@@ -1,10 +1,10 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: foss-mc <69294560+foss-mc@users.noreply.github.com>
-Date: Mon, 28 Jun 2021 11:44:27 +0000
-Subject: [PATCH] hardcode 1.17.1-R0.1-SNAPSHOT
+From: Satyrn <satyrn@disroot.org>
+Date: Thu, 16 Dec 2021 15:16:30 +0000
+Subject: [PATCH] hardcode 1.18.1-R0.1-SNAPSHOT
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index 070b95c38..e9971f5f7 100644
+index fb87620c7..c5e6a0295 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 @@ -1,29 +1,7 @@
@@ -21,7 +21,7 @@ index 070b95c38..e9971f5f7 100644
      public static String getBukkitVersion() {
 -        String result = "Unknown-Version";
 -
--        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/tk.galaxiamc.graphene/graphene-api/pom.properties"); // Airplane // Purpur // Graphene
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/org.purpurmc.purpur/purpur-api/pom.properties"); // Purpur
 -        Properties properties = new Properties();
 -
 -        if (stream != null) {
@@ -35,6 +35,6 @@ index 070b95c38..e9971f5f7 100644
 -        }
 -
 -        return result;
-+        return "1.17.1-R0.1-SNAPSHOT"; // Patina
++        return "1.18.1-R0.1-SNAPSHOT"; // Graphene
      }
  }
