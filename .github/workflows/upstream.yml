@@ -1,4 +1,4 @@
-name: Upstream
+name: Update Upstream
 on:
   schedule:
     - cron: "*/15 * * * *"
