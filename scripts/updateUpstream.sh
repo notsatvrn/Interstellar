@@ -20,4 +20,3 @@ if [ "$current" != "$upstream" ]; then
 fi
 
 ) || exit 1
-© 2022 GitHub, Inc.
