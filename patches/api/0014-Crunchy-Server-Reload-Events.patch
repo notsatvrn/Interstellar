@@ -4,13 +4,13 @@ Date: Wed, 20 Oct 2021 22:30:55 +0100
 Subject: [PATCH] Server Reload Events
 
 
-diff --git a/src/main/java/dev/mrfishcakes/crunchy/event/PostServerReloadEvent.java b/src/main/java/dev/mrfishcakes/crunchy/event/PostServerReloadEvent.java
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/event/server/PostServerReloadEvent.java b/src/main/java/dev/mrfishcakes/crunchy/event/server/PostServerReloadEvent.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..dbb1aa33171fdb26d0bc87869d1d9fc01dd430e2
+index 0000000000000000000000000000000000000000..025aa2c655af8acfba91b3e1f699e7b1a0f2d8ab
 --- /dev/null
-+++ b/src/main/java/dev/mrfishcakes/crunchy/event/PostServerReloadEvent.java
++++ b/src/main/java/dev/mrfishcakes/crunchy/event/server/PostServerReloadEvent.java
 @@ -0,0 +1,23 @@
-+package dev.mrfishcakes.crunchy.event;
++package dev.mrfishcakes.crunchy.event.server;
 +
 +import org.bukkit.event.Event;
 +import org.bukkit.event.HandlerList;
@@ -33,13 +33,13 @@ index 0000000000000000000000000000000000000000..dbb1aa33171fdb26d0bc87869d1d9fc0
 +    }
 +
 +}
-diff --git a/src/main/java/dev/mrfishcakes/crunchy/event/ServerReloadEvent.java b/src/main/java/dev/mrfishcakes/crunchy/event/ServerReloadEvent.java
+diff --git a/src/main/java/dev/mrfishcakes/crunchy/event/server/ServerReloadEvent.java b/src/main/java/dev/mrfishcakes/crunchy/event/server/ServerReloadEvent.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..4743149fde02fc00f6ae7cf925263497ffce5245
+index 0000000000000000000000000000000000000000..74ae086fdc4ebd86f8b3fdcf0e98b672235427a7
 --- /dev/null
-+++ b/src/main/java/dev/mrfishcakes/crunchy/event/ServerReloadEvent.java
++++ b/src/main/java/dev/mrfishcakes/crunchy/event/server/ServerReloadEvent.java
 @@ -0,0 +1,23 @@
-+package dev.mrfishcakes.crunchy.event;
++package dev.mrfishcakes.crunchy.event.server;
 +
 +import org.bukkit.event.Event;
 +import org.bukkit.event.HandlerList;
