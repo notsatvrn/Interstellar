@@ -13,7 +13,6 @@ Graphene contains patches (on top of Purpur's existing patches) from:
 - [JettPack](https://gitlab.com/Titaniumtown/JettPack/-/tree/main)
 - [Akarin](https://github.com/Akarin-project/Akarin)
 - [Lithium](https://github.com/CaffeineMC/lithium-fabric)
-- [Pufferfish](https://github.com/pufferfish-gg/Pufferfish)
 - [Crunchy](https://github.com/MrFishCakes/Crunchy)
 - [Utopia](https://github.com/bortexel/utopia)
 - [Slice](https://github.com/Cryptite/Slice)
