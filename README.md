@@ -1,4 +1,4 @@
-## Graphene [![Build](https://github.com/GalaxiaMC/Graphene/actions/workflows/build.yml/badge.svg)](https://github.com/GalaxiaMC/Graphene/actions/workflows/build.yml)
+# Graphene [![Build Graphene](https://github.com/GalaxiaMC/Graphene/actions/workflows/build.yml/badge.svg)](https://github.com/GalaxiaMC/Graphene/actions/workflows/build.yml)
 A light, stable, and flexible Minecraft server software.
 
 Graphene is a fork of [Purpur](https://purpurmc.org), designed to be the overall best server software in existence.
