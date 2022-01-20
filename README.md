@@ -1,9 +1,7 @@
-[Purpur]: https://purpur.pl3x.net
-
-## Graphene
+## Graphene [![Build](https://github.com/GalaxiaMC/Graphene/actions/workflows/build.yml/badge.svg)](https://github.com/GalaxiaMC/Graphene/actions/workflows/build.yml)
 A light, stable, and flexible Minecraft server software.
 
-Graphene is a fork of [Purpur], designed to be the overall best server software in existence.
+Graphene is a fork of [Purpur](https://purpurmc.org), designed to be the overall best server software in existence.
 
 Graphene contains patches (on top of Purpur's existing patches) from:
 - [Sugarcane](https://github.com/SugarcaneMC/Sugarcane)
