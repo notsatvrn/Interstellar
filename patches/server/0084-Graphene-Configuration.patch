@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Sun, 12 Dec 2021 19:20:00 +0000
+Subject: [PATCH] Configuration Stuff
+
+diff --git a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
+index f0ec1f394..eac634b86 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
++++ b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
+@@ -24,7 +24,11 @@ public class ServerConfigurations {
+       "bukkit.yml",
+       "spigot.yml",
+       "paper.yml",
+-      "pufferfish.yml"
++      "pufferfish.yml",
++      "graphene.yml"
+     };
+
+     public static Map<String, String> getCleanCopies() throws IOException {

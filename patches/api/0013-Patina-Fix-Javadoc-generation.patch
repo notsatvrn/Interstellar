@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Toffikk <slodkitofik@gmail.com>
+Date: Thu, 17 Jun 2021 14:44:11 +0200
+Subject: [PATCH] Fix Javadoc generation
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 7b5504df1cb4738c742ca14d852e245308d715c7..63c377ab1c6ba90e87008618ecc8e15c1c783f7c 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -111,6 +111,8 @@ tasks.withType<Javadoc> {
+     val options = options as StandardJavadocDocletOptions
+     options.overview = "src/main/javadoc/overview.html"
+     options.isDocFilesSubDirs = true
++    (options as StandardJavadocDocletOptions).encoding = "UTF-8"
++    (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+     options.links(
+         "https://guava.dev/releases/31.0.1-jre/api/docs/",
+         "https://javadoc.io/doc/org.yaml/snakeyaml/1.30/",

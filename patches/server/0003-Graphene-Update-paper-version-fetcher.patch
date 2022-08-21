@@ -1,0 +1,169 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Thu, 9 Dec 2021 02:31:40 +0000
+Subject: [PATCH] Update paper version fetcher
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index fba5dbdb7bcbb55400ef18342c9b54612972a718..1243f35001bb20382d0e764606d4fcbcbbece2cc 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -3,7 +3,10 @@ package com.destroystokyo.paper;
+ import com.destroystokyo.paper.util.VersionFetcher;
+ import com.google.common.base.Charsets;
+ import com.google.common.io.Resources;
+-import com.google.gson.*;
++import com.google.gson.Gson;
++import com.google.gson.JsonArray;
++import com.google.gson.JsonObject;
++import com.google.gson.JsonSyntaxException;
+ import net.kyori.adventure.text.Component;
+ import net.kyori.adventure.text.event.ClickEvent;
+ import net.kyori.adventure.text.format.NamedTextColor;
+@@ -12,19 +15,28 @@ import net.kyori.adventure.text.TextComponent;
+
+ import javax.annotation.Nonnull;
+ import javax.annotation.Nullable;
+-import java.io.*;
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStreamReader;
+ import java.net.HttpURLConnection;
++import java.net.URI;
+ import java.net.URL;
++import java.net.http.HttpClient;
++import java.net.http.HttpRequest;
++import java.net.http.HttpResponse.BodyHandlers;
++import java.time.Duration;
+ import java.util.stream.StreamSupport;
+
+ public class PaperVersionFetcher implements VersionFetcher {
+     private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
+     // Purpur start
+-    private static final String DOWNLOAD_PAGE = "https://purpurmc.org/downloads";
++    private static final String GITHUB_BRANCH_NAME = "ver/1.18.x"; // Graphene
+     private static int distance = -2; public int distance() { return distance; }
+     // Purpur end
+     private static @Nullable String mcVer;
+
++    private static final HttpClient client = HttpClient.newHttpClient(); // Graphene
++
+     @Override
+     public long getCacheTime() {
+         return 720000;
+@@ -33,8 +45,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-Purpur-".length()).split("[-\\s]"); // Purpur
+-        final Component updateMessage = getUpdateStatusMessage("PurpurMC/Purpur", "ver/" + getMinecraftVersion(), parts[0]); // Purpur
++        String[] parts = serverVersion.substring("git-Graphene-".length()).split("[-\\s]"); // Graphene
++        final Component updateMessage = getUpdateStatusMessage("GalaxiaMC/Graphene", GITHUB_BRANCH_NAME, parts[0]); // Graphene
+         final Component history = getHistory();
+
+         return history != null ? Component.join(net.kyori.adventure.text.JoinConfiguration.separator(Component.newline()), history, updateMessage) : updateMessage; // Purpur
+@@ -57,74 +69,47 @@ public class PaperVersionFetcher implements VersionFetcher {
+     }
+
+     private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
+-        //int distance; // Purpur - use field
+-        try {
+-            int jenkinsBuild = Integer.parseInt(versionInfo);
+-            distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
+-        } catch (NumberFormatException ignored) {
+-            versionInfo = versionInfo.replace("\"", "");
+-            distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+-        }
++        // Graphene start
++        versionInfo = versionInfo.replace("\"", "");
++        int distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
+
+-        switch (distance) {
+-            case -1:
+-                return Component.text("* Error obtaining version information", NamedTextColor.RED); // Purpur
+-            case 0:
+-                return Component.text("* You are running the latest version", NamedTextColor.GREEN); // Purpur
+-            case -2:
+-                return Component.text("* Unknown version", NamedTextColor.RED); // Purpur
+-            default:
+-                return Component.text("* You are " + distance + " version(s) behind", NamedTextColor.YELLOW) // Purpur
+-                        .append(Component.newline())
+-                        .append(Component.text("Download the new version at: ")
+-                                .append(Component.text(DOWNLOAD_PAGE, NamedTextColor.GOLD)
+-                                        .hoverEvent(Component.text("Click to open", NamedTextColor.WHITE))
+-                                        .clickEvent(ClickEvent.openUrl(DOWNLOAD_PAGE))));
+-        }
+-    }
+-
+-    private static int fetchDistanceFromSiteApi(int jenkinsBuild, @Nullable String siteApiVersion) {
+-        if (siteApiVersion == null) { return -1; }
+-        try {
+-            try (BufferedReader reader = Resources.asCharSource(
+-                new URL("https://api.purpurmc.org/v2/purpur/" + siteApiVersion), // Purpur
+-                Charsets.UTF_8
+-            ).openBufferedStream()) {
+-                JsonObject json = new Gson().fromJson(reader, JsonObject.class);
+-                int latest = json.getAsJsonObject("builds").getAsJsonPrimitive("latest").getAsInt(); // Purpur
+-                return latest - jenkinsBuild;
+-            } catch (JsonSyntaxException ex) {
+-                ex.printStackTrace();
+-                return -1;
+-            }
+-        } catch (IOException e) {
+-            e.printStackTrace();
+-            return -1;
+-        }
++        return switch (distance) {
++            case -1 -> Component.text("Error obtaining version information", NamedTextColor.YELLOW);
++            case 0 -> Component.text("You are running the latest version", NamedTextColor.GREEN);
++            case -2 -> Component.text("Unknown version", NamedTextColor.YELLOW);
++            default -> Component.text("You are " + distance + " version(s) behind", NamedTextColor.YELLOW);
++        };
++        // Graphene end
+     }
+
+     // Contributed by Techcable <Techcable@outlook.com> in GH-65
+     private static int fetchDistanceFromGitHub(@Nonnull String repo, @Nonnull String branch, @Nonnull String hash) {
+         try {
+-            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
+-            connection.connect();
+-            if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) return -2; // Unknown commit
+-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charsets.UTF_8))) {
+-                JsonObject obj = new Gson().fromJson(reader, JsonObject.class);
++            // Graphene start
++            var request = HttpRequest.newBuilder()
++                .uri(URI.create("https://api.github.com/repos/%s/compare/%s...%s".formatted(repo, branch, hash)))
++                .timeout(Duration.ofSeconds(10))
++                .header("Accept", "application/vnd.github.v3+json")
++                .GET()
++                .build();
++            var response = client.send(request, BodyHandlers.ofString());
++
++            if (response.statusCode() == HttpURLConnection.HTTP_NOT_FOUND) return -2; // Unknown commit
++
++            try {
++                JsonObject obj = new Gson().fromJson(response.body(), JsonObject.class);
+                 String status = obj.get("status").getAsString();
+-                switch (status) {
+-                    case "identical":
+-                        return 0;
+-                    case "behind":
+-                        return obj.get("behind_by").getAsInt();
+-                    default:
+-                        return -1;
+-                }
++                return switch (status) {
++                    case "identical" -> 0;
++                    case "behind" -> obj.get("behind_by").getAsInt();
++                    default -> -1;
++                };
++                // Graphene end
+             } catch (JsonSyntaxException | NumberFormatException e) {
+                 e.printStackTrace();
+                 return -1;
+             }
+-        } catch (IOException e) {
++        } catch (IOException | InterruptedException e) {
+             e.printStackTrace();
+             return -1;
+         }

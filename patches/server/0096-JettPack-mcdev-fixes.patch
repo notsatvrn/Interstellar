@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Simon Gardling <titaniumtown@gmail.com>
+Date: Tue, 11 Jan 2022 23:42:45 -0500
+Subject: [PATCH] mcdev fixes
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/ai/Brain.java b/src/main/java/net/minecraft/world/entity/ai/Brain.java
+index 1730adf15b897fb066f20c51fb97e31e229d361e..587427a752811fcc9b534c8f114a3d8dffe80347 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/Brain.java
++++ b/src/main/java/net/minecraft/world/entity/ai/Brain.java
+@@ -71,16 +71,16 @@ public class Brain<E extends LivingEntity> {
+             }
+
+             public <T> DataResult<Brain<E>> decode(DynamicOps<T> dynamicOps, MapLike<T> mapLike) {
+-                MutableObject<DataResult<ImmutableList.Builder<Brain.MemoryValue<?>>>> mutableObject = new MutableObject<>(DataResult.success(ImmutableList.builder()));
++                MutableObject<DataResult<ImmutableList.Builder<Brain.MemoryValue<?>>>> decode_mutableObject = new MutableObject<>(DataResult.success(ImmutableList.builder())); // JettPack - decomp fix
+                 mapLike.entries().forEach((pair) -> {
+                     DataResult<MemoryModuleType<?>> dataResult = Registry.MEMORY_MODULE_TYPE.byNameCodec().parse(dynamicOps, pair.getFirst());
+                     DataResult<? extends Brain.MemoryValue<?>> dataResult2 = dataResult.flatMap((memoryModuleType) -> {
+                         return this.captureRead(memoryModuleType, dynamicOps, (T)pair.getSecond());
+                     });
+-                    mutableObject.setValue(mutableObject.getValue().apply2(ImmutableList.Builder::add, dataResult2));
++                    decode_mutableObject.setValue(decode_mutableObject.getValue().apply2(ImmutableList.Builder::add, dataResult2)); // JettPack - decomp fix
+                 });
+-                ImmutableList<Brain.MemoryValue<?>> immutableList = mutableObject.getValue().resultOrPartial(Brain.LOGGER::error).map(ImmutableList.Builder::build).orElseGet(ImmutableList::of);
+-                return DataResult.success(new Brain<>(memoryModules, sensors, immutableList, mutableObject::getValue));
++                ImmutableList<Brain.MemoryValue<?>> immutableList = decode_mutableObject.getValue().resultOrPartial(Brain.LOGGER::error).map(ImmutableList.Builder::build).orElseGet(ImmutableList::of); // JettPack - decomp fix
++                return DataResult.success(new Brain<E>(memoryModules, sensors, immutableList, mutableObject::getValue)); // JettPack - decomp fix
+             }
+
+             private <T, U> DataResult<Brain.MemoryValue<U>> captureRead(MemoryModuleType<U> memoryModuleType, DynamicOps<T> dynamicOps, T object) {
+@@ -132,7 +132,7 @@ public class Brain<E extends LivingEntity> {
+
+     Stream<Brain.MemoryValue<?>> memories() {
+         return this.memories.entrySet().stream().map((entry) -> {
+-            return Brain.MemoryValue.createUnchecked(entry.getKey(), entry.getValue());
++            return Brain.MemoryValue.createUnchecked((MemoryModuleType)entry.getKey(), (Optional)entry.getValue()); // JettPack - decomp fix
+         });
+     }
+
+@@ -168,7 +168,7 @@ public class Brain<E extends LivingEntity> {
+     }
+
+     public <U> Optional<U> getMemory(MemoryModuleType<U> type) {
+-        return this.memories.get(type).map(ExpirableValue::getValue);
++        return ((Optional)this.memories.get(type)).map(object -> ((ExpirableValue)object).getValue()); // JettPack - decomp fix
+     }
+
+     public <U> long getTimeUntilExpiry(MemoryModuleType<U> type) {
+@@ -351,7 +351,7 @@ public class Brain<E extends LivingEntity> {
+     }
+
+     public Brain<E> copyWithoutBehaviors() {
+-        Brain<E> brain = new Brain<>(this.memories.keySet(), this.sensors.keySet(), ImmutableList.of(), this.codec);
++        Brain<E> brain = new Brain<E>(this.memories.keySet(), this.sensors. keySet(), ImmutableList.of(), this.codec); // JettPack - decomp fix
+
+         for(Map.Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : this.memories.entrySet()) {
+             MemoryModuleType<?> memoryModuleType = entry.getKey();
+@@ -461,8 +461,8 @@ public class Brain<E extends LivingEntity> {
+         private final MemoryModuleType<U> type;
+         private final Optional<? extends ExpirableValue<U>> value;
+
+-        static <U> Brain.MemoryValue<U> createUnchecked(MemoryModuleType<U> type, Optional<? extends ExpirableValue<?>> data) {
+-            return new Brain.MemoryValue<>(type, data);
++        static <U> Brain.MemoryValue<U> createUnchecked(MemoryModuleType<U> type, Optional<? extends ExpirableValue<U>> data) { // JettPack - decomp fix
++            return new Brain.MemoryValue<U>(type, data); // JettPack - decomp fix
+         }
+
+         MemoryValue(MemoryModuleType<U> type, Optional<? extends ExpirableValue<U>> data) {

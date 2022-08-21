@@ -1,26 +1,26 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Cryptite <cryptite@gmail.com>
-Date: Mon, 18 Oct 2021 08:52:40 -0500
-Subject: [PATCH] World Instance Flag
+Date: Mon, 28 Feb 2022 09:17:28 -0600
+Subject: [PATCH] World Instance flag
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 7c04b1a11..89ec7c1ff 100644
+index 6fbf3e4bdae87d1b8c5d98683f084a9bdcb150da..bccc15d6aad8a07fa41862f5d35587ff7c209e19 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -207,6 +207,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -214,6 +214,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+     public final UUID uuid;
      public boolean hasPhysicsEvent = true; // Paper
      public boolean hasEntityMoveEvent = false; // Paper
-     public boolean hasRidableMoveEvent = false; // Purpur
 +    public boolean instance; // Slice
+     private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
+     public boolean hasRidableMoveEvent = false; // Purpur
      public static Throwable getAddToWorldStackTrace(Entity entity) {
-         return new Throwable(entity + " Added to world at " + new java.util.Date());
-     }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 858e29ad7..135bb95bd 100644
+index 43244a479a112786539a905a22cb12e3cf55b2dd..1a74da56cd7cf8a750cf4aabb3057ae3ea12d9c2 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -1197,6 +1197,18 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1263,6 +1263,18 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          world.noSave = !value;
      }
 
@@ -39,3 +39,4 @@ index 858e29ad7..135bb95bd 100644
      @Override
      public void setDifficulty(Difficulty difficulty) {
          this.getHandle().serverLevelData.setDifficulty(net.minecraft.world.Difficulty.byId(difficulty.getValue()));
+

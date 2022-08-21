@@ -7,16 +7,16 @@ Subject: [PATCH] Fire EntityTargetLivingEntityEvent for
 If cancelled, move to next in list
 
 diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java
-index b5bbcb9fa..6892bfab5 100644
+index c6fc08d13b4cf3141ff31bed99294bdbace1c5e2..b9a65b000fbc0d1ff0aa2c601bdb18c2025ba54b 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java
-@@ -51,9 +51,20 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
-
+@@ -57,9 +57,20 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
+ 
      protected void findTarget() {
          if (this.targetType != Player.class && this.targetType != ServerPlayer.class) {
 -            this.target = this.mob.level.getNearestEntity(this.mob.level.getEntitiesOfClass(this.targetType, this.getTargetSearchArea(this.getFollowDistance()), (entityliving) -> {
 -                return true;
--            }), this.targetConditions, (LivingEntity) this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+-            }), this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
 +            // EMC start
 +            java.util.List<T> list = this.mob.level.getNearbyEntities(this.targetType, this.targetConditions, this.mob, this.getTargetSearchArea(this.getFollowDistance()));
 +            list.sort(java.util.Comparator.comparingDouble(this.mob::distanceToSqr));

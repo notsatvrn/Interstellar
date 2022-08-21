@@ -1,0 +1,112 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Satyrn <satyrn@disroot.org>
+Date: Fri, 10 Dec 2021 21:59:00 +0000
+Subject: [PATCH] optimizations
+
+These optimizations are potentially unstable!
+
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index baec08d7d23bb71e0978f790b2e07ffab93d1c79..0a3732967f43394258670ddab68f9f499d254067 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -3,8 +3,8 @@ package org.bukkit.craftbukkit.entity;
+ import com.google.common.base.Preconditions;
+ import com.google.common.collect.ImmutableSet;
+ import java.util.ArrayList;
+-import java.util.Arrays;
+ import java.util.Collection;
++import java.util.Collections; // Graphene
+ import java.util.Optional;
+ import java.util.Set;
+ import net.minecraft.core.BlockPos;
+@@ -626,7 +626,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+
+     @Override
+     public boolean discoverRecipe(NamespacedKey recipe) {
+-        return this.discoverRecipes(Arrays.asList(recipe)) != 0;
++        return this.discoverRecipes(Collections.singletonList(recipe)) != 0; // Graphene
+     }
+
+     @Override
+@@ -636,7 +636,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+
+     @Override
+     public boolean undiscoverRecipe(NamespacedKey recipe) {
+-        return this.undiscoverRecipes(Arrays.asList(recipe)) != 0;
++        return this.undiscoverRecipes(Collections.singletonList(recipe)) != 0; // Graphene
+     }
+
+     @Override
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 639877369adc3cd3982056a9d0dd2169c8e7ad7e..d4a6535c93e4e1ef4141feecbf35060af6f52b15 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -938,23 +938,24 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+
+     // CraftBukkit start
+-    private boolean hasStopped = false;
++    //private boolean hasStopped = false; // Graphene
++    private final java.util.concurrent.atomic.AtomicBoolean hasStopped = new java.util.concurrent.atomic.AtomicBoolean(false); // Graphene
+     public volatile boolean hasFullyShutdown = false; // Paper
+     private boolean hasLoggedStop = false; // Paper
+-    private final Object stopLock = new Object();
++    //private final Object stopLock = new Object(); // Graphene
+     public final boolean hasStopped() {
+-        synchronized (this.stopLock) {
+-            return this.hasStopped;
+-        }
++        return hasStopped.get(); // Graphene
+     }
+     // CraftBukkit end
+
+     public void stopServer() {
+         // CraftBukkit start - prevent double stopping on multiple threads
++        /* // Graphene
+         synchronized(this.stopLock) {
+             if (this.hasStopped) return;
+             this.hasStopped = true;
+         }
++        */
+         if (!hasLoggedStop && isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper
+         // Paper start - kill main thread, and kill it hard
+         shutdownThread = Thread.currentThread();
+@@ -1384,7 +1385,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     @Override
+     public TickTask wrapRunnable(Runnable runnable) {
+         // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
+-        if (this.hasStopped && Thread.currentThread().equals(shutdownThread)) {
++        if (this.hasStopped.get() && Thread.currentThread().equals(shutdownThread)) { // Graphene
+             runnable.run();
+             runnable = () -> {};
+         }
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index 8952ef65ccfc890f3993b365e6d9c54d01e790b4..96fcb26a282700132c6aaa830d4ecd3ca45563ae 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -948,7 +948,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+             MutableBoolean mutableboolean = new MutableBoolean();
+
+             do {
+-                boolean isShuttingDown = level.getServer().hasStopped(); // Paper
++                //boolean isShuttingDown = level.getServer().hasStopped(); // Paper // Graphene
+                 mutableboolean.setFalse();
+                 list.stream().map((playerchunk) -> {
+                     CompletableFuture completablefuture;
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+index 049d750d3..29dd25894 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -175,10 +175,6 @@ public final class WeakCollection<T> implements Collection<T> {
+     }
+
+     private Collection<T> toCollection() {
+-        ArrayList<T> collection = new ArrayList<T>();
+-        for (T value : this) {
+-            collection.add(value);
+-        }
+-        return collection;
++        return new ArrayList<>(this); // Graphene
+     }
+ }

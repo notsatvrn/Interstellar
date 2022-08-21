@@ -38,9 +38,9 @@ jobs:
       - name: Build
         run: |
           ./gradlew build -x test --stacktrace --no-daemon
-          ./gradlew paperclipJar --stacktrace --no-daemon
+          ./gradlew createReobfPaperclipJar --stacktrace --no-daemon
       - name: Archive Paperclip
         uses: actions/upload-artifact@v2
         with:
           name: Graphene
-          path: build/libs/Graphene-${{ steps.mcver.outputs.mcver }}-R0.1-SNAPSHOT.jar
+          path: build/libs/graphene-paperclip-${{ steps.mcver.outputs.mcver }}-R0.1-SNAPSHOT-reobf.jar

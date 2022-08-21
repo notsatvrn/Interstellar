@@ -4,6 +4,7 @@ A light, stable, and flexible Minecraft server software.
 Graphene is a fork of [Purpur](https://purpurmc.org), designed to be the overall best server software in existence.
 
 Graphene contains patches (on top of Purpur's existing patches) from:
+- [Parchment](https://github.com/ProjectEdenGG/Parchment)
 - [Sugarcane](https://github.com/SugarcaneMC/Sugarcane)
 - [Origami](https://github.com/Minebench/Origami)
 - [Mirai](https://github.com/etil2jz/Mirai)

@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: lexikiq <noellekiq@gmail.com>
+Date: Mon, 21 Jun 2021 20:47:24 -0400
+Subject: [PATCH] Fix missing CraftMetaSkull serializedProfile
+
+Plugins (ab)using NMS may change the "profile" field using reflections instead of the "setProfile" method, especially if they are targeted towards old Minecraft versions. This fixes the potential discrepancies and NPEs.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java
+index 292ae4a68093b7d939a755e1062cee57da186ab1..4afa90cb68aa31820abce6ab051de405daef6562 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftMetaSkull.java
+@@ -80,6 +80,11 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+ 
+     private void setProfile(GameProfile profile) {
+         this.profile = profile;
++        // Parchment start -- fix NPEs from plugins abusing NMS
++        refreshSerializedProfile();
++    }
++    private void refreshSerializedProfile() {
++        // Parchment end
+         this.serializedProfile = (profile == null) ? null : NbtUtils.writeGameProfile(new CompoundTag(), profile);
+     }
+ 
+@@ -88,6 +93,7 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+         super.applyToItem(tag);
+ 
+         if (this.profile != null) {
++            refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
+             // SPIGOT-6558: Set initial textures
+             tag.put(SKULL_OWNER.NBT, serializedProfile);
+             // Fill in textures
+@@ -243,6 +249,8 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
+         if (meta instanceof CraftMetaSkull) {
+             CraftMetaSkull that = (CraftMetaSkull) meta;
+ 
++            refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
++            that.refreshSerializedProfile(); // Parchment -- fix NPEs from plugins abusing NMS
+             // SPIGOT-5403: equals does not check properties
+             return (this.profile != null ? that.profile != null && this.serializedProfile.equals(that.serializedProfile) : that.profile == null);
+         }
