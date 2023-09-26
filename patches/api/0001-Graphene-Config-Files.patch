@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: BillyGalbreath <blake.galbreath@gmail.com>
+Date: Sun, 12 Jun 2022 10:57:51 -0500
+Subject: [PATCH] Graphene: Config Files
+
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index aaef58468a3c31f35e5067ed4263e9dd3fbddddd..4d19abd017152d50a2c8ffc203dbe545d7723970 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2133,6 +2133,13 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+         }
+         // Purpur end
+ 
++        // Graphene start
++        @NotNull
++        public org.bukkit.configuration.file.YamlConfiguration getGrapheneConfig() {
++            throw new UnsupportedOperationException("Not supported yet.");
++        }
++        // Graphene end
++
+         /**
+          * Sends the component to the player
+          *

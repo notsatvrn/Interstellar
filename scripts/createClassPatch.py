@@ -6,7 +6,10 @@ import subprocess
 import pathlib
 import shutil
 import os
+from zoneinfo import ZoneInfo
 from datetime import datetime
+
+LOCAL_TZ = ZoneInfo("localtime")
 
 script_path = os.path.realpath(__file__)
 class_dir = str(pathlib.Path(f"{script_path}/../../classes/").resolve())
@@ -45,28 +48,35 @@ def create_strings(paths):
         patches[tlower] = {}
         os.chdir(source_dirs[tlower])
         patches[tlower] = "From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001\n"
-        patches[tlower] += "From: notsatvrn <satvrn@disroot.org>\n"
-        patches[tlower] += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')}\n"
-        patches[tlower] += f"Subject: [PATCH] {type} Classes\n\n"
+        patches[tlower] += "From: satvrn <pastawho@gmail.com>\n"
+        patches[tlower] += f"Date: {datetime.now(tz=LOCAL_TZ).strftime('%a, %d %b %Y %H:%M:%S %z')}\n"
+        patches[tlower] += f"Subject: [PATCH] Graphene {type} Classes\n\n\n"
         real_paths = paths[tlower]["real"]
         patch_paths = paths[tlower]["patch"]
         source_dir = source_dirs[tlower]
         for i, rp in enumerate(real_paths):
-            patch_path = f"{source_dir}/{patch_paths[i]}"
+            patch_path = f"{source_dir}/src/main/java/{patch_paths[i]}"
             root_dir = f"{'/'.join(patch_path.split('/')[:-1])}"
             if not os.path.exists(root_dir):
                 os.makedirs(root_dir)
-            shutil.copy(rp, f"{source_dir}/{patch_paths[i]}")
+            shutil.copy(rp, patch_path)
         subprocess.run(["git", "add", "."])
-        patches[tlower] += subprocess.run(["git", "--no-pager", "diff", "--full-index", "--staged"], stdout=subprocess.PIPE, check=True).stdout.decode("utf-8")
+        result = subprocess.run(["git", "--no-pager", "diff", "--full-index", "--staged"], stdout=subprocess.PIPE, check=True).stdout.decode("utf-8")
+        if result.strip() == "":
+            patches[tlower] = ""
+        else:
+            patches[tlower] += result
     return patches
 
 def create_patches(strings):
     for type in ("API", "Server"):
         tlower = type.lower()
+        if strings[tlower] == "":
+            continue
         os.chdir(patch_dirs[tlower])
-        f = open(f"0001-{type}-Classes.patch", "w")
+        f = open(f"0002-Graphene-{type}-Classes.patch", "w")
         f.write(strings[tlower])
         f.close()
 
-create_patches(create_strings(get_paths()))
+if __name__ == "__main__":
+    create_patches(create_strings(get_paths()))

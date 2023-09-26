@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Mon, 25 Sep 2023 20:56:17 -0700
+Subject: [PATCH] Lithium: math.sine_lut
+
+
+diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
+index 2e6869dccccf9e6cbe1b4078abfebf75c4d424ea..5a923574739a769c0b64836f76748fb07bbe16d3 100644
+--- a/src/main/java/net/minecraft/util/Mth.java
++++ b/src/main/java/net/minecraft/util/Mth.java
+@@ -9,6 +9,7 @@ import net.minecraft.core.Vec3i;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
+ import org.apache.commons.lang3.math.NumberUtils;
++import com.satvrn.graphene.util.math.CompactSineLUT;
+ 
+ public class Mth {
+     private static final long UUID_VERSION = 61440L;
+@@ -39,11 +40,11 @@ public class Mth {
+     private static final double[] COS_TAB = new double[257];
+ 
+     public static float sin(float value) {
+-        return SIN[(int)(value * 10430.378F) & '\uffff'];
++        return CompactSineLUT.sin(value);
+     }
+ 
+     public static float cos(float value) {
+-        return SIN[(int)(value * 10430.378F + 16384.0F) & '\uffff'];
++        return CompactSineLUT.cos(value);
+     }
+ 
+     public static float sqrt(float value) {
