@@ -50,7 +50,7 @@ def create_strings(paths):
         patches[tlower] = "From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001\n"
         patches[tlower] += "From: satvrn <pastawho@gmail.com>\n"
         patches[tlower] += f"Date: {datetime.now(tz=LOCAL_TZ).strftime('%a, %d %b %Y %H:%M:%S %z')}\n"
-        patches[tlower] += f"Subject: [PATCH] Graphene {type} Classes\n\n\n"
+        patches[tlower] += f"Subject: [PATCH] Graphene: {type} Classes\n\n\n"
         real_paths = paths[tlower]["real"]
         patch_paths = paths[tlower]["patch"]
         source_dir = source_dirs[tlower]

@@ -1,16 +1,16 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Mon, 25 Sep 2023 23:10:07 -0700
-Subject: [PATCH] Graphene Server Classes
+Date: Tue, 26 Sep 2023 00:24:07 -0700
+Subject: [PATCH] Graphene: Server Classes
 
 
-diff --git a/src/main/java/com/satvrn/graphene/util/Constants.java b/src/main/java/com/satvrn/graphene/util/Constants.java
+diff --git a/src/main/java/me/jellysquid/mods/lithium/util/Constants.java b/src/main/java/me/jellysquid/mods/lithium/util/Constants.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..1dd06f0add9b34ebd16ed9b5a9372837715340b8
+index 0000000000000000000000000000000000000000..009b710b2d90c6665262b6f7331f96e103e75e24
 --- /dev/null
-+++ b/src/main/java/com/satvrn/graphene/util/Constants.java
++++ b/src/main/java/me/jellysquid/mods/lithium/util/Constants.java
 @@ -0,0 +1,14 @@
-+package com.satvrn.graphene.util;
++package me.jellysquid.mods.lithium.util;
 +
 +/**
 + * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric
@@ -24,14 +24,13 @@ index 0000000000000000000000000000000000000000..1dd06f0add9b34ebd16ed9b5a9372837
 +    public static final int[] INT_EMPTY = new int[0];
 +    public static final int[] INT_ZERO = new int[]{0};
 +}
-\ No newline at end of file
-diff --git a/src/main/java/com/satvrn/graphene/util/math/CompactSineLUT.java b/src/main/java/com/satvrn/graphene/util/math/CompactSineLUT.java
+diff --git a/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java b/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..53c1c0603e8b9af224d86425562d7d37a178864f
+index 0000000000000000000000000000000000000000..d7ade60e3b20326edb50c4c1452176e47d8f2722
 --- /dev/null
-+++ b/src/main/java/com/satvrn/graphene/util/math/CompactSineLUT.java
++++ b/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java
 @@ -0,0 +1,94 @@
-+package com.satvrn.graphene.util;
++package me.jellysquid.mods.lithium.util.math;
 +
 +/**
 + * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric

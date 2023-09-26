@@ -11,5 +11,9 @@ Graphene is a fork of [Purpur](https://purpurmc.org), designed to be the overall
 Patches not labeled "Graphene" were directly grabbed or based on patches from the sources below.
 Please support these developers, without them this project wouldn't be possible!
 
+- [Kaiiju](https://github.com/KaiijuMC/Kaiiju)
+- [Gale](https://github.com/GaleMC/Gale)
+- [Lithium](https://github.com/CaffeineMC/lithium-fabric)
+- [Carpet-Fixes](https://github.com/fxmorin/carpet-fixes)
 - [Patina](https://github.com/PatinaMC/Patina)
 - [KTP](https://github.com/lynxplay/ktp)

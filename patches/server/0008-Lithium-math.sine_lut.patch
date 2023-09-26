@@ -1,21 +1,30 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Mon, 25 Sep 2023 20:56:17 -0700
+Date: Tue, 26 Sep 2023 00:14:22 -0700
 Subject: [PATCH] Lithium: math.sine_lut
 
 
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index 2e6869dccccf9e6cbe1b4078abfebf75c4d424ea..5a923574739a769c0b64836f76748fb07bbe16d3 100644
+index 3af5f3306c830b8983aaba5b4e80cc5c8973f441..458dc20686b9a879bddccd2e6532d9039a6e9492 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
 @@ -9,6 +9,7 @@ import net.minecraft.core.Vec3i;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.Vec3;
  import org.apache.commons.lang3.math.NumberUtils;
-+import com.satvrn.graphene.util.math.CompactSineLUT;
++import me.jellysquid.mods.lithium.util.math.CompactSineLUT;
  
  public class Mth {
      private static final long UUID_VERSION = 61440L;
+@@ -23,7 +24,7 @@ public class Mth {
+     public static final float EPSILON = 1.0E-5F;
+     public static final float SQRT_OF_TWO = sqrt(2.0F);
+     private static final float SIN_SCALE = 10430.378F;
+-    private static final float[] SIN = Util.make(new float[65536], (sineTable) -> {
++    public static final float[] SIN = Util.make(new float[65536], (sineTable) -> {
+         for(int i = 0; i < sineTable.length; ++i) {
+             sineTable[i] = (float)Math.sin((double)i * Math.PI * 2.0D / 65536.0D);
+         }
 @@ -39,11 +40,11 @@ public class Mth {
      private static final double[] COS_TAB = new double[257];
  

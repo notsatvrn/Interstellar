@@ -1,0 +1,353 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martijn Muijsers <martijnmuijsers@live.nl>
+Date: Tue, 29 Nov 2022 15:16:54 +0100
+Subject: [PATCH] Gale: Dev import deobfuscation fixes
+
+License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+Gale - https://galemc.org
+
+diff --git a/src/main/java/net/minecraft/server/network/TextFilterClient.java b/src/main/java/net/minecraft/server/network/TextFilterClient.java
+index 1b617a64f2f7a48a8b505ee87b61a040b80d8cc6..92f56e29ffb7386cbbf7893c000ff330eb997ba5 100644
+--- a/src/main/java/net/minecraft/server/network/TextFilterClient.java
++++ b/src/main/java/net/minecraft/server/network/TextFilterClient.java
+@@ -98,38 +98,44 @@ public class TextFilterClient implements AutoCloseable {
+                     URL uRL2 = getEndpoint(uRI, jsonObject2, "join", "v1/join");
+                     URL uRL3 = getEndpoint(uRI, jsonObject2, "leave", "v1/leave");
+                     TextFilterClient.JoinOrLeaveEncoder joinOrLeaveEncoder = (profile) -> {
+-                        JsonObject jsonObject = new JsonObject();
+-                        jsonObject.addProperty("server", string2);
+-                        jsonObject.addProperty("room", string3);
+-                        jsonObject.addProperty("user_id", profile.getId().toString());
+-                        jsonObject.addProperty("user_display_name", profile.getName());
+-                        return jsonObject;
++                        // Gale start - dev import deobfuscation fixes
++                        JsonObject jsonObject1 = new JsonObject();
++                        jsonObject1.addProperty("server", string2);
++                        jsonObject1.addProperty("room", string3);
++                        jsonObject1.addProperty("user_id", profile.getId().toString());
++                        jsonObject1.addProperty("user_display_name", profile.getName());
++                        return jsonObject1;
++                        // Gale end - dev import deobfuscation fixes
+                     };
+                     TextFilterClient.MessageEncoder messageEncoder;
+                     if (bl) {
+                         messageEncoder = (profile, message) -> {
+-                            JsonObject jsonObject = new JsonObject();
+-                            jsonObject.addProperty("rule", i);
+-                            jsonObject.addProperty("server", string2);
+-                            jsonObject.addProperty("room", string3);
+-                            jsonObject.addProperty("player", profile.getId().toString());
+-                            jsonObject.addProperty("player_display_name", profile.getName());
+-                            jsonObject.addProperty("text", message);
+-                            jsonObject.addProperty("language", "*");
+-                            return jsonObject;
++                            // Gale start - dev import deobfuscation fixes
++                            JsonObject jsonObject1 = new JsonObject();
++                            jsonObject1.addProperty("rule", i);
++                            jsonObject1.addProperty("server", string2);
++                            jsonObject1.addProperty("room", string3);
++                            jsonObject1.addProperty("player", profile.getId().toString());
++                            jsonObject1.addProperty("player_display_name", profile.getName());
++                            jsonObject1.addProperty("text", message);
++                            jsonObject1.addProperty("language", "*");
++                            return jsonObject1;
++                            // Gale end - dev import deobfuscation fixes
+                         };
+                     } else {
+                         String string5 = String.valueOf(i);
+                         messageEncoder = (profile, message) -> {
+-                            JsonObject jsonObject = new JsonObject();
+-                            jsonObject.addProperty("rule_id", string5);
+-                            jsonObject.addProperty("category", string2);
+-                            jsonObject.addProperty("subcategory", string3);
+-                            jsonObject.addProperty("user_id", profile.getId().toString());
+-                            jsonObject.addProperty("user_display_name", profile.getName());
+-                            jsonObject.addProperty("text", message);
+-                            jsonObject.addProperty("language", "*");
+-                            return jsonObject;
++                            // Gale start - dev import deobfuscation fixes
++                            JsonObject jsonObject1 = new JsonObject();
++                            jsonObject1.addProperty("rule_id", string5);
++                            jsonObject1.addProperty("category", string2);
++                            jsonObject1.addProperty("subcategory", string3);
++                            jsonObject1.addProperty("user_id", profile.getId().toString());
++                            jsonObject1.addProperty("user_display_name", profile.getName());
++                            jsonObject1.addProperty("text", message);
++                            jsonObject1.addProperty("language", "*");
++                            return jsonObject1;
++                            // Gale end - dev import deobfuscation fixes
+                         };
+                     }
+ 
+diff --git a/src/main/java/net/minecraft/util/ClassInstanceMultiMap.java b/src/main/java/net/minecraft/util/ClassInstanceMultiMap.java
+index 50a9f33aa31e9273c7c52d4bb2b02f0f884f7ba5..19779298b2b2ecbe30f9308dad1d80379220387a 100644
+--- a/src/main/java/net/minecraft/util/ClassInstanceMultiMap.java
++++ b/src/main/java/net/minecraft/util/ClassInstanceMultiMap.java
+@@ -58,7 +58,7 @@ public class ClassInstanceMultiMap<T> extends AbstractCollection<T> {
+         if (!this.baseClass.isAssignableFrom(type)) {
+             throw new IllegalArgumentException("Don't know how to search for " + type);
+         } else {
+-            List<? extends T> list = this.byClass.computeIfAbsent(type, (typeClass) -> {
++            List list = this.byClass.computeIfAbsent(type, (typeClass) -> { // Gale - dev import deobfuscation fixes
+                 return this.allInstances.stream().filter(typeClass::isInstance).collect(Collectors.toList());
+             });
+             return Collections.unmodifiableCollection(list);
+diff --git a/src/main/java/net/minecraft/util/datafix/fixes/ChunkProtoTickListFix.java b/src/main/java/net/minecraft/util/datafix/fixes/ChunkProtoTickListFix.java
+index 2e650637afede22d314bbe4dd4e91806ce88dcc3..8081a24eb5a533a55cdca3c882ccc61255b8a76c 100644
+--- a/src/main/java/net/minecraft/util/datafix/fixes/ChunkProtoTickListFix.java
++++ b/src/main/java/net/minecraft/util/datafix/fixes/ChunkProtoTickListFix.java
+@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+ import java.util.Collections;
+ import java.util.List;
++import java.util.Map;
+ import java.util.Optional;
+ import java.util.function.Function;
+ import java.util.function.Supplier;
+@@ -51,23 +52,27 @@ public class ChunkProtoTickListFix extends DataFix {
+                 Dynamic<?> dynamic = typedx.get(DSL.remainderFinder());
+                 MutableInt mutableInt = new MutableInt();
+                 Int2ObjectMap<Supplier<ChunkProtoTickListFix.PoorMansPalettedContainer>> int2ObjectMap = new Int2ObjectArrayMap<>();
+-                typedx.getOptionalTyped(opticFinder2).ifPresent((typed) -> {
+-                    typed.getAllTyped(opticFinder3).forEach((typedx) -> {
+-                        Dynamic<?> dynamic = typedx.get(DSL.remainderFinder());
+-                        int i = dynamic.get("Y").asInt(Integer.MAX_VALUE);
++                // Gale start - dev import deobfuscation fixes
++                typedx.getOptionalTyped(opticFinder2).ifPresent((typed2) -> {
++                    typed2.getAllTyped(opticFinder3).forEach((typedx2) -> {
++                        Dynamic<?> dynamic2 = typedx2.get(DSL.remainderFinder());
++                        int i = dynamic2.get("Y").asInt(Integer.MAX_VALUE);
++                        // Gale end - dev import deobfuscation fixes
+                         if (i != Integer.MAX_VALUE) {
+-                            if (typedx.getOptionalTyped(opticFinder5).isPresent()) {
++                            if (typedx2.getOptionalTyped(opticFinder5).isPresent()) { // Gale - dev import deobfuscation fixes
+                                 mutableInt.setValue(Math.min(i, mutableInt.getValue()));
+                             }
+ 
+-                            typedx.getOptionalTyped(opticFinder4).ifPresent((typed) -> {
++                            typedx2.getOptionalTyped(opticFinder4).ifPresent((typed3) -> { // Gale - dev import deobfuscation fixes
+                                 int2ObjectMap.put(i, Suppliers.memoize(() -> {
+-                                    List<? extends Dynamic<?>> list = typed.getOptionalTyped(opticFinder6).map((typedx) -> {
+-                                        return typedx.write().result().map((dynamic) -> {
+-                                            return dynamic.asList(Function.identity());
++                                    // Gale start - dev import deobfuscation fixes
++                                    List<? extends Dynamic<?>> list = typed.getOptionalTyped(opticFinder6).map((typedx3) -> {
++                                        return typedx3.write().result().map((dynamic3) -> {
++                                            return dynamic3.asList(Function.identity());
++                                            // Gale end - dev import deobfuscation fixes
+                                         }).orElse(Collections.emptyList());
+                                     }).orElse(Collections.emptyList());
+-                                    long[] ls = typed.get(DSL.remainderFinder()).get("data").asLongStream().toArray();
++                                    long[] ls = typed3.get(DSL.remainderFinder()).get("data").asLongStream().toArray(); // Gale - dev import deobfuscation fixes
+                                     return new ChunkProtoTickListFix.PoorMansPalettedContainer(list, ls);
+                                 }));
+                             });
+@@ -76,8 +81,10 @@ public class ChunkProtoTickListFix extends DataFix {
+                 });
+                 byte b = mutableInt.getValue().byteValue();
+                 typedx = typedx.update(DSL.remainderFinder(), (dynamicx) -> {
+-                    return dynamicx.update("yPos", (dynamic) -> {
+-                        return dynamic.createByte(b);
++                    // Gale start - dev import deobfuscation fixes
++                    return dynamicx.update("yPos", (dynamic2) -> {
++                        return dynamic2.createByte(b);
++                        // Gale end - dev import deobfuscation fixes
+                     });
+                 });
+                 if (!typedx.getOptionalTyped(opticFinder7).isPresent() && !dynamic.get("fluid_ticks").result().isPresent()) {
+@@ -144,7 +151,7 @@ public class ChunkProtoTickListFix extends DataFix {
+         int n = l >>> 4 & 15;
+         int o = l >>> 8 & 15;
+         String string = function.apply(supplier != null ? supplier.get().get(m, n, o) : null);
+-        return dynamic.createMap(ImmutableMap.builder().put(dynamic.createString("i"), dynamic.createString(string)).put(dynamic.createString("x"), dynamic.createInt(i * 16 + m)).put(dynamic.createString("y"), dynamic.createInt(j * 16 + n)).put(dynamic.createString("z"), dynamic.createInt(k * 16 + o)).put(dynamic.createString("t"), dynamic.createInt(0)).put(dynamic.createString("p"), dynamic.createInt(0)).build());
++        return dynamic.createMap((Map) ImmutableMap.builder().put(dynamic.createString("i"), dynamic.createString(string)).put(dynamic.createString("x"), dynamic.createInt(i * 16 + m)).put(dynamic.createString("y"), dynamic.createInt(j * 16 + n)).put(dynamic.createString("z"), dynamic.createInt(k * 16 + o)).put(dynamic.createString("t"), dynamic.createInt(0)).put(dynamic.createString("p"), dynamic.createInt(0)).build()); // Gale - dev import deobfuscation fixes
+     }
+ 
+     public static final class PoorMansPalettedContainer {
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java b/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java
+index 915c1cbcc0ecf634cc76f02bba53dc82d22be698..0c05aa0d0938b19453f45adf5931c88713e3b227 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java
+@@ -154,7 +154,7 @@ public class SurfaceRules {
+ 
+         @Override
+         public SurfaceRules.SurfaceRule apply(SurfaceRules.Context context) {
+-            return context.system::getBand;
++            return (x, y, z) -> context.system.getBand(x, y, z); // Gale - dev import deobfuscation fixes
+         }
+     }
+ 
+@@ -176,10 +176,10 @@ public class SurfaceRules {
+         }
+ 
+         @Override
+-        public SurfaceRules.Condition apply(final SurfaceRules.Context context) {
++        public SurfaceRules.Condition apply(final SurfaceRules.Context givenContext) { // Gale - dev import deobfuscation fixes
+             class BiomeCondition extends SurfaceRules.LazyYCondition {
+                 BiomeCondition() {
+-                    super(context);
++                    super(givenContext); // Gale - dev import deobfuscation fixes
+                 }
+ 
+                 @Override
+@@ -494,12 +494,14 @@ public class SurfaceRules {
+         }
+ 
+         @Override
+-        public SurfaceRules.Condition apply(final SurfaceRules.Context context) {
+-            final NormalNoise normalNoise = context.randomState.getOrCreateNoise(this.noise);
++        // Gale start - dev import deobfuscation fixes
++        public SurfaceRules.Condition apply(final SurfaceRules.Context givenContext) {
++            final NormalNoise normalNoise = givenContext.randomState.getOrCreateNoise(this.noise);
++            // Gale end - dev import deobfuscation fixes
+ 
+             class NoiseThresholdCondition extends SurfaceRules.LazyXZCondition {
+                 NoiseThresholdCondition() {
+-                    super(context);
++                    super(givenContext); // Gale - dev import deobfuscation fixes
+                 }
+ 
+                 @Override
+@@ -622,12 +624,12 @@ public class SurfaceRules {
+         }
+ 
+         @Override
+-        public SurfaceRules.Condition apply(final SurfaceRules.Context context) {
++        public SurfaceRules.Condition apply(final SurfaceRules.Context givenContext) { // Gale - dev import deobfuscation fixes
+             final boolean bl = this.surfaceType == CaveSurface.CEILING;
+ 
+             class StoneDepthCondition extends SurfaceRules.LazyYCondition {
+                 StoneDepthCondition() {
+-                    super(context);
++                    super(givenContext); // Gale - dev import deobfuscation fixes
+                 }
+ 
+                 @Override
+@@ -699,26 +701,32 @@ public class SurfaceRules {
+         }
+ 
+         @Override
+-        public SurfaceRules.Condition apply(final SurfaceRules.Context context) {
+-            final int i = this.trueAtAndBelow().resolveY(context.context);
+-            final int j = this.falseAtAndAbove().resolveY(context.context);
+-            final PositionalRandomFactory positionalRandomFactory = context.randomState.getOrCreateRandomFactory(this.randomName());
++        // Gale start - dev import deobfuscation fixes
++        public SurfaceRules.Condition apply(final SurfaceRules.Context givenContext) {
++            final int i = this.trueAtAndBelow().resolveY(givenContext.context);
++            final int j = this.falseAtAndAbove().resolveY(givenContext.context);
++            final PositionalRandomFactory positionalRandomFactory = givenContext.randomState.getOrCreateRandomFactory(this.randomName());
++            // Gale end - dev import deobfuscation fixes
+ 
+             class VerticalGradientCondition extends SurfaceRules.LazyYCondition {
+                 VerticalGradientCondition() {
+-                    super(context);
++                    super(givenContext); // Gale - dev import deobfuscation fixes
+                 }
+ 
+                 @Override
+                 protected boolean compute() {
+-                    int i = this.context.blockY;
+-                    if (i <= i) {
++                    // Gale start - dev import deobfuscation fixes
++                    int i2 = this.context.blockY;
++                    if (i2 <= i) {
++                        // Gale end - dev import deobfuscation fixes
+                         return true;
+-                    } else if (i >= j) {
++                    } else if (i2 >= j) { // Gale - dev import deobfuscation fixes
+                         return false;
+                     } else {
+-                        double d = Mth.map((double)i, (double)i, (double)j, 1.0D, 0.0D);
+-                        RandomSource randomSource = positionalRandomFactory.at(this.context.blockX, i, this.context.blockZ);
++                        // Gale start - dev import deobfuscation fixes
++                        double d = Mth.map((double)i2, (double)i, (double)j, 1.0D, 0.0D);
++                        RandomSource randomSource = positionalRandomFactory.at(this.context.blockX, i2, this.context.blockZ);
++                        // Gale end - dev import deobfuscation fixes
+                         return (double)randomSource.nextFloat() < d;
+                     }
+                 }
+@@ -739,10 +747,10 @@ public class SurfaceRules {
+         }
+ 
+         @Override
+-        public SurfaceRules.Condition apply(final SurfaceRules.Context context) {
++        public SurfaceRules.Condition apply(final SurfaceRules.Context givenContext) { // Gale - dev import deobfuscation fixes
+             class WaterCondition extends SurfaceRules.LazyYCondition {
+                 WaterCondition() {
+-                    super(context);
++                    super(givenContext); // Gale - dev import deobfuscation fixes
+                 }
+ 
+                 @Override
+@@ -766,10 +774,10 @@ public class SurfaceRules {
+         }
+ 
+         @Override
+-        public SurfaceRules.Condition apply(final SurfaceRules.Context context) {
++        public SurfaceRules.Condition apply(final SurfaceRules.Context givenContext) { // Gale - dev import deobfuscation fixes
+             class YCondition extends SurfaceRules.LazyYCondition {
+                 YCondition() {
+-                    super(context);
++                    super(givenContext); // Gale - dev import deobfuscation fixes
+                 }
+ 
+                 @Override
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java b/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java
+index 8d40205f56a7b204a65505f9e1b4e20000221755..a6434f2c2d1ddb33e7c51d0a099fd127d8a785e6 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java
+@@ -113,13 +113,15 @@ public class Blender {
+             MutableDouble mutableDouble3 = new MutableDouble(Double.POSITIVE_INFINITY);
+             this.heightAndBiomeBlendingData.forEach((chunkPos, data) -> {
+                 data.iterateHeights(QuartPos.fromSection(ChunkPos.getX(chunkPos)), QuartPos.fromSection(ChunkPos.getZ(chunkPos)), (biomeX, biomeZ, height) -> {
+-                    double d = Mth.length((double)(i - biomeX), (double)(j - biomeZ));
+-                    if (!(d > (double)HEIGHT_BLENDING_RANGE_CELLS)) {
+-                        if (d < mutableDouble3.doubleValue()) {
+-                            mutableDouble3.setValue(d);
++                    // Gale start - dev import deobfuscation fixes
++                    double distance = Mth.length((double)(i - biomeX), (double)(j - biomeZ));
++                    if (!(distance > (double)HEIGHT_BLENDING_RANGE_CELLS)) {
++                        if (distance < mutableDouble3.doubleValue()) {
++                            mutableDouble3.setValue(distance);
+                         }
+ 
+-                        double e = 1.0D / (d * d * d * d);
++                        double e = 1.0D / (distance * distance * distance * distance);
++                        // Gale end - dev import deobfuscation fixes
+                         mutableDouble2.add(height * e);
+                         mutableDouble.add(e);
+                     }
+@@ -156,13 +158,15 @@ public class Blender {
+             MutableDouble mutableDouble3 = new MutableDouble(Double.POSITIVE_INFINITY);
+             this.densityBlendingData.forEach((chunkPos, data) -> {
+                 data.iterateDensities(QuartPos.fromSection(ChunkPos.getX(chunkPos)), QuartPos.fromSection(ChunkPos.getZ(chunkPos)), j - 1, j + 1, (biomeX, halfSectionY, biomeZ, collidableBlockDensity) -> {
+-                    double d = Mth.length((double)(i - biomeX), (double)((j - halfSectionY) * 2), (double)(k - biomeZ));
+-                    if (!(d > 2.0D)) {
+-                        if (d < mutableDouble3.doubleValue()) {
+-                            mutableDouble3.setValue(d);
++                    // Gale start - dev import deobfuscation fixes
++                    double distance = Mth.length((double)(i - biomeX), (double)((j - halfSectionY) * 2), (double)(k - biomeZ));
++                    if (!(distance > 2.0D)) {
++                        if (distance < mutableDouble3.doubleValue()) {
++                            mutableDouble3.setValue(distance);
+                         }
+ 
+-                        double e = 1.0D / (d * d * d * d);
++                        double e = 1.0D / (distance * distance * distance * distance);
++                        // Gale end - dev import deobfuscation fixes
+                         mutableDouble2.add(collidableBlockDensity * e);
+                         mutableDouble.add(e);
+                     }
+@@ -317,8 +321,10 @@ public class Blender {
+                 double f = (double)offsetZ + 0.5D + SHIFT_NOISE.getValue((double)offsetZ, (double)offsetX, (double)y) * 4.0D;
+                 return distanceGetter.getDistance(d, e, f) < 4.0D;
+             };
+-            Stream.of(GenerationStep.Carving.values()).map(chunk::getOrCreateCarvingMask).forEach((mask) -> {
+-                mask.setAdditionalMask(mask);
++            // Gale start - dev import deobfuscation fixes
++            Stream.of(GenerationStep.Carving.values()).map(chunk::getOrCreateCarvingMask).forEach((carvingMask) -> {
++                carvingMask.setAdditionalMask(mask);
++                // Gale end - dev import deobfuscation fixes
+             });
+         }
+     }

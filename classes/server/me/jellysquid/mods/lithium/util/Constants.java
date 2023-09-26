@@ -1,4 +1,4 @@
-package com.satvrn.graphene.util;
+package me.jellysquid.mods.lithium.util;
 
 /**
  * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric

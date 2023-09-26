@@ -7,10 +7,10 @@ License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
 Gale - https://galemc.org
 
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index 9084754103e948a02e68ee82336047e48e741438..2e6869dccccf9e6cbe1b4078abfebf75c4d424ea 100644
+index 33ace08d15bbcad66c09c7bd65dd03e784246e8f..3af5f3306c830b8983aaba5b4e80cc5c8973f441 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
-@@ -151,14 +151,26 @@ public class Mth {
+@@ -155,14 +155,26 @@ public class Mth {
          return Math.floorMod(dividend, divisor);
      }
  
@@ -40,10 +40,10 @@ index 9084754103e948a02e68ee82336047e48e741438..2e6869dccccf9e6cbe1b4078abfebf75
          return a % b == 0;
      }
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java b/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java
-index 8d40205f56a7b204a65505f9e1b4e20000221755..fe4a27e9e8265fc60e1db6dd070f91b212904e30 100644
+index a6434f2c2d1ddb33e7c51d0a099fd127d8a785e6..a7972d196c354ff175728f2b8e99590181c65451 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/blending/Blender.java
-@@ -139,7 +139,7 @@ public class Blender {
+@@ -141,7 +141,7 @@ public class Blender {
      private static double heightToOffset(double height) {
          double d = 1.0D;
          double e = height + 0.5D;
