@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Tue, 26 Sep 2023 03:13:22 -0700
+Subject: [PATCH] Akarin: Swaps the predicate order of collision
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index f98cf2ce53b6fac6f6ea4147505958fd93aaad7e..7ba1d5f213901b1ac4e95bbd4dd315ecd9602bb6 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -2096,8 +2096,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+     public void playerTouch(Player player) {}
+ 
+     public void push(Entity entity) {
++        if (entity.noPhysics || this.noPhysics) return; // Akarin - Test this earlier
+         if (!this.isPassengerOfSameVehicle(entity)) {
+-            if (!entity.noPhysics && !this.noPhysics) {
++            if (true || !entity.noPhysics && !this.noPhysics) { // Akarin - Moved up
+                 if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper
+                 double d0 = entity.getX() - this.getX();
+                 double d1 = entity.getZ() - this.getZ();

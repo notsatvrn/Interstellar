@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Thu, 16 Sep 2021 20:39:45 -0400
+Date: Tue, 26 Sep 2023 02:22:53 -0700
 Subject: [PATCH] Graphene: Build Changes
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index ffee77918e7390c810010e057d088c2967d1e7b0..6c6c77a1bdae31f17129b93dd37576a8c4e2a196 100644
+index ffee77918e7390c810010e057d088c2967d1e7b0..c62ce740928a47030a3ae4ca16015f16b243ec65 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -14,7 +14,7 @@ val alsoShade: Configuration by configurations.creating
@@ -17,12 +17,13 @@ index ffee77918e7390c810010e057d088c2967d1e7b0..6c6c77a1bdae31f17129b93dd37576a8
      implementation("io.papermc.paper:paper-mojangapi:${project.version}") {
          exclude("io.papermc.paper", "paper-api")
      }
-@@ -60,6 +60,15 @@ dependencies {
+@@ -60,6 +60,16 @@ dependencies {
      implementation("org.mozilla:rhino-engine:1.7.14") // Purpur
      implementation("dev.omega24:upnp4j:1.0") // Purpur
  
 +    // Graphene start
 +    implementation("it.unimi.dsi:fastutil:8.5.12")
++    implementation("org.apache.commons:commons-rng-core:1.5")
 +
 +    implementation("org.jocl:jocl:2.0.5")
 +
@@ -33,7 +34,7 @@ index ffee77918e7390c810010e057d088c2967d1e7b0..6c6c77a1bdae31f17129b93dd37576a8
      testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
      testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
      testImplementation("org.hamcrest:hamcrest:2.2")
-@@ -80,7 +89,7 @@ tasks.jar {
+@@ -80,7 +90,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
