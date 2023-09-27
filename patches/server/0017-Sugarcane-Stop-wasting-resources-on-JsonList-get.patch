@@ -42,7 +42,7 @@ index 5c38df8170033dbfee267520991a3cc3285d219e..1fe593e26bd56a7ba2466af9f19219e2
              //ichatmutablecomponent = Component.translatable("multiplayer.disconnect.not_whitelisted"); // Paper
              //event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(org.spigotmc.SpigotConfig.whitelistMessage)); // Spigot // Paper - Adventure - moved to isWhitelisted
 diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
-index 9b225dc7ab3505e846c9bf555b580a25c44e1bad..d7f7b326c5a37f83a006fdba7478bdf910770b8b 100644
+index f6dfb9b9656442e2cec0f9e99c181494c073d7b8..7c8ee40d7f8ff7c1921eae5af35f44512b809a8a 100644
 --- a/src/main/java/net/minecraft/server/players/StoredUserList.java
 +++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
 @@ -74,9 +74,14 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {

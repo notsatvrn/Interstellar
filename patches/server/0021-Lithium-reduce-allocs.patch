@@ -108,19 +108,6 @@ index 0ee04fe6ff6a4d09754f326526ae04fe7226bab2..dd7388df0535c75d801cb3da6c9a8680
 +        reserve = me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // Lithium - reduce allocs
      }
  }
-diff --git a/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java b/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java
-index 733134401fcba393053c7a2dfa1d0d44f8f79ff5..a626d6ccd6ea4e3ecdb9a9d9645736809534e141 100644
---- a/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java
-+++ b/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java
-@@ -70,7 +70,7 @@ public class LeavesFix extends DataFix {
-             OpticFinder<?> opticFinder3 = DSL.typeFinder(type3);
-             return this.fixTypeEverywhereTyped("Leaves fix", type, (typed) -> {
-                 return typed.updateTyped(opticFinder, (typedx) -> {
--                    int[] is = new int[]{0};
-+                    int[] is = me.jellysquid.mods.lithium.util.Constants.INT_ZERO; // Lithium - reduce allocs
-                     Typed<?> typed2 = typedx.updateTyped(opticFinder2, (typed) -> {
-                         Int2ObjectMap<LeavesFix.LeavesSection> int2ObjectMap = new Int2ObjectOpenHashMap<>(typed.getAllTyped(opticFinder3).stream().map((typedx) -> {
-                             return new LeavesFix.LeavesSection(typedx, this.getInputSchema());
 diff --git a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
 index 71f8cea4a33b30fdafa41714a424b3092a3a7cd0..df14d1bca7d83e96e72d4455101175361feda0fc 100644
 --- a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java

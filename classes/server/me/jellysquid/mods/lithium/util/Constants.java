@@ -9,10 +9,12 @@ package me.jellysquid.mods.lithium.util;
  * Pre-initialized constants to avoid unnecessary allocations.
  */
 public final class Constants {
-    public static final int[] BYTE_EMPTY = new int[0];
+    public static final byte[] BYTE_EMPTY = new byte[0];
 
     public static final int[] INT_EMPTY = new int[0];
     public static final int[] INT_ZERO = new int[]{0};
+    public static final int[] INT_ONE = new int[]{1};
+    public static final int[] INT_TWO = new int[]{2};
 
-    public static final int[] LONG_EMPTY = new int[0];
+    public static final long[] LONG_EMPTY = new long[0];
 }

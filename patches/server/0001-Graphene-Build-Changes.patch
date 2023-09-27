@@ -5,7 +5,7 @@ Subject: [PATCH] Graphene: Build Changes
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index ffee77918e7390c810010e057d088c2967d1e7b0..c62ce740928a47030a3ae4ca16015f16b243ec65 100644
+index ffee77918e7390c810010e057d088c2967d1e7b0..7d7fd3956d38ea2ef4439607c85cf7492091f30e 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -14,7 +14,7 @@ val alsoShade: Configuration by configurations.creating
@@ -17,24 +17,7 @@ index ffee77918e7390c810010e057d088c2967d1e7b0..c62ce740928a47030a3ae4ca16015f16
      implementation("io.papermc.paper:paper-mojangapi:${project.version}") {
          exclude("io.papermc.paper", "paper-api")
      }
-@@ -60,6 +60,16 @@ dependencies {
-     implementation("org.mozilla:rhino-engine:1.7.14") // Purpur
-     implementation("dev.omega24:upnp4j:1.0") // Purpur
- 
-+    // Graphene start
-+    implementation("it.unimi.dsi:fastutil:8.5.12")
-+    implementation("org.apache.commons:commons-rng-core:1.5")
-+
-+    implementation("org.jocl:jocl:2.0.5")
-+
-+    compileOnly("org.projectlombok:lombok:1.18.30")
-+    annotationProcessor("org.projectlombok:lombok:1.18.30")
-+    // Graphene end
-+
-     testImplementation("io.github.classgraph:classgraph:4.8.47") // Paper - mob goal test
-     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-     testImplementation("org.hamcrest:hamcrest:2.2")
-@@ -80,7 +90,7 @@ tasks.jar {
+@@ -80,7 +80,7 @@ tasks.jar {
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
@@ -91,7 +74,7 @@ index b02b0bd6aa9243e84b172203533762860840b1b8..9d6d095d92cfce85ef8827b23164ba34
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index fb87620c742ff7912f5e8ccd2a7930dd605576d9..8ccb0263680bd4d0bb762be487ed75173db411e0 100644
+index fb87620c742ff7912f5e8ccd2a7930dd605576d9..6cb53bb12c2724523360b2f0432bdf38f90ee45d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 @@ -11,7 +11,7 @@ public final class Versioning {
@@ -99,7 +82,7 @@ index fb87620c742ff7912f5e8ccd2a7930dd605576d9..8ccb0263680bd4d0bb762be487ed7517
          String result = "Unknown-Version";
  
 -        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/org.purpurmc.purpur/purpur-api/pom.properties"); // Purpur
-+        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/com.satvrn.graphene/graphene-api/pom.properties"); // Purpur // Graphene
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/me.satvrn.graphene/graphene-api/pom.properties"); // Purpur // Graphene
          Properties properties = new Properties();
  
          if (stream != null) {

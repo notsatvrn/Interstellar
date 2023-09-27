@@ -1,15 +1,15 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Tue, 26 Sep 2023 00:24:07 -0700
+Date: Wed, 27 Sep 2023 02:07:40 -0700
 Subject: [PATCH] Graphene: Server Classes
 
 
 diff --git a/src/main/java/me/jellysquid/mods/lithium/util/Constants.java b/src/main/java/me/jellysquid/mods/lithium/util/Constants.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..009b710b2d90c6665262b6f7331f96e103e75e24
+index 0000000000000000000000000000000000000000..776292a6910a027d10ed53745b429c773e4f3f74
 --- /dev/null
 +++ b/src/main/java/me/jellysquid/mods/lithium/util/Constants.java
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,20 @@
 +package me.jellysquid.mods.lithium.util;
 +
 +/**
@@ -21,8 +21,14 @@ index 0000000000000000000000000000000000000000..009b710b2d90c6665262b6f7331f96e1
 + * Pre-initialized constants to avoid unnecessary allocations.
 + */
 +public final class Constants {
++    public static final byte[] BYTE_EMPTY = new byte[0];
++
 +    public static final int[] INT_EMPTY = new int[0];
 +    public static final int[] INT_ZERO = new int[]{0};
++    public static final int[] INT_ONE = new int[]{1};
++    public static final int[] INT_TWO = new int[]{2};
++
++    public static final long[] LONG_EMPTY = new long[0];
 +}
 diff --git a/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java b/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java
 new file mode 100644
@@ -122,5 +128,107 @@ index 0000000000000000000000000000000000000000..d7ade60e3b20326edb50c4c1452176e4
 +        // Fetch the corresponding value from the LUT and invert the sign bit as needed
 +        // This directly manipulate the sign bit on the float bits to simplify logic
 +        return Float.intBitsToFloat(SIN_INT[pos] ^ neg);
++    }
++}
+diff --git a/src/main/java/me/satvrn/random/XorwowRandom.java b/src/main/java/me/satvrn/random/XorwowRandom.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e4362c922aec04b594d880a60c636b310a79a145
+--- /dev/null
++++ b/src/main/java/me/satvrn/random/XorwowRandom.java
+@@ -0,0 +1,64 @@
++package me.satvrn.random;
++
++import java.util.concurrent.atomic.AtomicLong;
++import java.util.Random;
++
++public class XorwowRandom extends Random {
++    static class RandomHelper {
++        static final long multiplier = 0x5DEECE66DL;
++        static final long mask = (1L << 48) - 1;
++        static long seedUniquifier() {
++            for (;;) {
++                long current = seedUniquifier.get();
++                long next = current * 1181783497276652981L;
++                if (seedUniquifier.compareAndSet(current, next)) {
++                    return next;
++                }
++            }
++        }
++        static final AtomicLong seedUniquifier = new AtomicLong(8682522807148012L);
++        static long initialScramble(long seed) {
++            return (seed ^ multiplier) & mask;
++        }
++    
++        static long createSeed() {
++            return initialScramble(seedUniquifier() ^ System.nanoTime());
++        }
++    }
++
++    public long x = RandomHelper.createSeed();
++    public long y = 362436069L;
++    public long z = 521288629L;
++    public long w = 88675123L;
++    public long v = 5783321L;
++    public long d = 6615241L;
++
++    public XorwowRandom() {
++        super();
++    }
++
++    public XorwowRandom(long seed) {
++        super(seed);
++    }
++
++    @Override
++    public long nextLong() {
++        long t = (x ^ (x >> 2));
++        x = y;
++        y = z;
++        z = w;
++        w = v;
++        v = (v ^ (v << 4)) ^ (t ^ (t << 1));
++        return (d += 362437) + v;
++    }
++
++    @Override
++    public void setSeed(long seed) {
++        x = seed;
++        y = 362436069L;
++        z = 521288629L;
++        w = 88675123L;
++        v = 5783321L;
++        d = 6615241L;
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..937fd6d3b162c34aa9109223e1771d2ab79d83cb
+--- /dev/null
++++ b/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java
+@@ -0,0 +1,25 @@
++package me.steinborn.krypton.mod.shared.network.util;
++
++/**
++ * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
++ * No changes have been made.
++ */
++
++/**
++ * Maps VarInt byte sizes to a lookup table corresponding to the number of bits in the integer,
++ * from zero to 32.
++ */
++public class VarIntUtil {
++    private static final int[] VARINT_EXACT_BYTE_LENGTHS = new int[33];
++
++    static {
++        for (int i = 0; i <= 32; ++i) {
++            VARINT_EXACT_BYTE_LENGTHS[i] = (int) Math.ceil((31d - (i - 1)) / 7d);
++        }
++        VARINT_EXACT_BYTE_LENGTHS[32] = 1; // Special case for 0.
++    }
++
++    public static int getVarIntLength(int value) {
++        return VARINT_EXACT_BYTE_LENGTHS[Integer.numberOfLeadingZeros(value)];
 +    }
 +}

@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Wed, 27 Sep 2023 01:50:11 -0700
+Subject: [PATCH] Graphene: use xorwow random
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
+index 5408cbc21fc7577a6100b5a1ca0463e899d2df8b..6f11fdcb78512097e667d07c993202cfcecf89c3 100644
+--- a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
++++ b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
+@@ -16,7 +16,7 @@ import java.util.UUID;
+ 
+ public class PaperLootableInventoryData {
+ 
+-    private static final Random RANDOM = new Random();
++    private static final Random RANDOM = new me.satvrn.random.XorwowRandom(); // Graphene
+ 
+     private long lastFill = -1;
+     private long nextRefill = -1;
+diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+index f0bbc48e2df1da42e4bf9f7113451738b986fbbf..8d40b01a4492ed45918c99e0b59a60f4570e6c32 100644
+--- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -50,7 +50,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+     static final Logger LOGGER = LogUtils.getLogger();
+     private static final int MAX_TICKS_BEFORE_LOGIN = 600;
+     private static final Component DISCONNECT_UNEXPECTED_QUERY = Component.translatable("multiplayer.disconnect.unexpected_query_response");
+-    private static final RandomSource RANDOM = new org.bukkit.craftbukkit.util.RandomSourceWrapper(new java.util.Random()); // Paper - This is called across threads, make safe
++    private static final RandomSource RANDOM = new org.bukkit.craftbukkit.util.RandomSourceWrapper(new me.satvrn.random.XorwowRandom()); // Paper - This is called across threads, make safe // Graphene
+     private final byte[] challenge;
+     final MinecraftServer server;
+     public final Connection connection;
+diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+index 8d385708df97d47881929d4352f1b90286aad1a2..b01737a053199b5ef0fd2af311b1b07fb0485687 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -792,7 +792,7 @@ public class LevelChunk extends ChunkAccess {
+             if (this.needsDecoration) {
+                 //try (co.aikar.timings.Timing ignored = this.level.timings.chunkLoadPopulate.startTiming()) { // Paper // Purpur
+                 this.needsDecoration = false;
+-                java.util.Random random = new java.util.Random();
++                java.util.Random random = new me.satvrn.random.XorwowRandom(); // Graphene
+                 random.setSeed(this.level.getSeed());
+                 long xRand = random.nextLong() / 2L * 2L + 1L;
+                 long zRand = random.nextLong() / 2L * 2L + 1L;
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
+index 9248769e6d357f6eec68945fd7700e79b2942c41..cda60df8cd2261b9d6f0c80462a7912310e40d17 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
+@@ -28,6 +28,7 @@ import org.slf4j.Logger;
+ 
+ public class RegionFile implements AutoCloseable {
+ 
++    private static final java.util.Random RANDOM = new me.satvrn.random.XorwowRandom(); // Graphene
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final int SECTOR_BYTES = 4096;
+     @VisibleForTesting
+@@ -108,7 +109,7 @@ public class RegionFile implements AutoCloseable {
+     }
+ 
+     private void backupRegionFile() {
+-        Path backup = this.regionFile.getParent().resolve(this.regionFile.getFileName() + "." + new java.util.Random().nextLong() + ".backup");
++        Path backup = this.regionFile.getParent().resolve(this.regionFile.getFileName() + "." + RANDOM.nextLong() + ".backup"); // Graphene
+         this.backupRegionFile(backup);
+     }
+ 

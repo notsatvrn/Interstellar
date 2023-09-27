@@ -5,26 +5,10 @@ Subject: [PATCH] Lithium: math.fast_util
 
 
 diff --git a/src/main/java/net/minecraft/core/AxisCycle.java b/src/main/java/net/minecraft/core/AxisCycle.java
-index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..ae7b8494abc90e9d09dda74e78bb84688ab312e6 100644
+index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720befca74f7 100644
 --- a/src/main/java/net/minecraft/core/AxisCycle.java
 +++ b/src/main/java/net/minecraft/core/AxisCycle.java
-@@ -1,6 +1,15 @@
- package net.minecraft.core;
- 
- public enum AxisCycle {
-+    // Lithium start - math.fast_util
-+    static {
-+        assert Direction.Axis.X.ordinal() == 0;
-+        assert Direction.Axis.Y.ordinal() == 1;
-+        assert Direction.Axis.Z.ordinal() == 2;
-+        assert Direction.Axis.values().length == 3;
-+    }
-+    // Lithium end
-+
-     NONE {
-         @Override
-         public int cycle(int x, int y, int z, Direction.Axis axis) {
-@@ -35,7 +44,19 @@ public enum AxisCycle {
+@@ -35,7 +35,19 @@ public enum AxisCycle {
  
          @Override
          public Direction.Axis cycle(Direction.Axis axis) {
@@ -45,7 +29,7 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..ae7b8494abc90e9d09dda74e78bb8468
          }
  
          @Override
-@@ -56,7 +77,19 @@ public enum AxisCycle {
+@@ -56,7 +68,19 @@ public enum AxisCycle {
  
          @Override
          public Direction.Axis cycle(Direction.Axis axis) {
@@ -66,6 +50,22 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..ae7b8494abc90e9d09dda74e78bb8468
          }
  
          @Override
+@@ -65,6 +89,15 @@ public enum AxisCycle {
+         }
+     };
+ 
++    // Lithium start - math.fast_util
++    static {
++        assert Direction.Axis.X.ordinal() == 0;
++        assert Direction.Axis.Y.ordinal() == 1;
++        assert Direction.Axis.Z.ordinal() == 2;
++        assert Direction.Axis.values().length == 3;
++    }
++    // Lithium end
++
+     public static final Direction.Axis[] AXIS_VALUES = Direction.Axis.values();
+     public static final AxisCycle[] VALUES = values();
+ 
 diff --git a/src/main/java/net/minecraft/core/Direction.java b/src/main/java/net/minecraft/core/Direction.java
 index b805e57d5a67d77d226cd8154e970050e2e8ef4a..4c2018ef24f4bbd3eb25f526d30ac997cabca5dd 100644
 --- a/src/main/java/net/minecraft/core/Direction.java

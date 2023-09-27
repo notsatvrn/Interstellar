@@ -5,7 +5,7 @@ Subject: [PATCH] Patina: hardcode 1.20.2-R0.1-SNAPSHOT
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index 8ccb0263680bd4d0bb762be487ed75173db411e0..96b4d99898f13c0840192f28a785a34e4b56d26f 100644
+index 6cb53bb12c2724523360b2f0432bdf38f90ee45d..96b4d99898f13c0840192f28a785a34e4b56d26f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 @@ -9,21 +9,6 @@ import org.bukkit.Bukkit;
@@ -14,7 +14,7 @@ index 8ccb0263680bd4d0bb762be487ed75173db411e0..96b4d99898f13c0840192f28a785a34e
      public static String getBukkitVersion() {
 -        String result = "Unknown-Version";
 -
--        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/com.satvrn.graphene/graphene-api/pom.properties"); // Purpur // Graphene
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/me.satvrn.graphene/graphene-api/pom.properties"); // Purpur // Graphene
 -        Properties properties = new Properties();
 -
 -        if (stream != null) {

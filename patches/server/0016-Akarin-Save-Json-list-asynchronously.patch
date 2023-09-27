@@ -5,7 +5,7 @@ Subject: [PATCH] Akarin: Save Json list asynchronously
 
 
 diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
-index 09fc086548b9d0f97849f56f41e3a5be87f5091a..9b225dc7ab3505e846c9bf555b580a25c44e1bad 100644
+index 09fc086548b9d0f97849f56f41e3a5be87f5091a..f6dfb9b9656442e2cec0f9e99c181494c073d7b8 100644
 --- a/src/main/java/net/minecraft/server/players/StoredUserList.java
 +++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
 @@ -143,6 +143,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
@@ -30,7 +30,7 @@ index 09fc086548b9d0f97849f56f41e3a5be87f5091a..9b225dc7ab3505e846c9bf555b580a25
          }
 -
 +        } catch (IOException e) { // Akarin - Save json list async
-+            StoredUserList.LOGGER.warn("Failed to save " + this.c, e); // Akarin - Save json list async
++            StoredUserList.LOGGER.warn("Failed to save " + this.file, e); // Akarin - Save json list async
 +        }
 +        }; // Akarin - Save json list async
 +        io.papermc.paper.util.MCUtil.scheduleAsyncTask(runnable); // Akarin - Save json list async
