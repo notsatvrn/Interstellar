@@ -1,0 +1,130 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Tue, 26 Sep 2023 20:09:46 -0700
+Subject: [PATCH] Krypton: network.microopt
+
+
+diff --git a/src/main/java/net/minecraft/network/Utf8String.java b/src/main/java/net/minecraft/network/Utf8String.java
+index 7b39060cde0ec31c4adf36960b33cefcd5138527..72504694d57c43970143973a0f38a296fd8c99b2 100644
+--- a/src/main/java/net/minecraft/network/Utf8String.java
++++ b/src/main/java/net/minecraft/network/Utf8String.java
+@@ -31,6 +31,8 @@ public class Utf8String {
+     }
+ 
+     public static void write(ByteBuf buf, CharSequence string, int length) {
++        // Krypton start - optimized version
++        /*
+         if (string.length() > length) {
+             throw new EncoderException("String too big (was " + string.length() + " characters, max " + length + ")");
+         } else {
+@@ -51,5 +53,22 @@ public class Utf8String {
+             }
+ 
+         }
++        */
++        // Krypton end
++
++        // Krypton start - network.microopt
++        // Mojang _almost_ gets it right, but stumbles at the finish line...
++        if (string.length() > length) {
++            throw new EncoderException("String too big (was " + string.length() + " characters, max " + length + ")");
++        }
++        int utf8Bytes = ByteBufUtil.utf8Bytes(string);
++        int maxBytesPermitted = ByteBufUtil.utf8MaxBytes(length);
++        if (utf8Bytes > maxBytesPermitted) {
++            throw new EncoderException("String too big (was " + utf8Bytes + " bytes encoded, max " + maxBytesPermitted + ")");
++        } else {
++            VarInts.write(buf, utf8Bytes);
++            buf.writeCharSequence(string, StandardCharsets.UTF_8);
++        }
++        // Krypton end
+     }
+ }
+diff --git a/src/main/java/net/minecraft/network/VarInt.java b/src/main/java/net/minecraft/network/VarInt.java
+index 18d5a22ad3ef4cb279475531dbc2c65e07c69929..f65ba361f61105e9895b77dc50db461f81a5a240 100644
+--- a/src/main/java/net/minecraft/network/VarInt.java
++++ b/src/main/java/net/minecraft/network/VarInt.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.network;
+ 
+ import io.netty.buffer.ByteBuf;
++import me.steinborn.krypton.mod.shared.network.util.VarIntUtil; // Krypton - network.microopt
+ 
+ public class VarInt {
+     private static final int MAX_VARINT_SIZE = 5;
+@@ -9,6 +10,8 @@ public class VarInt {
+     private static final int DATA_BITS_PER_BYTE = 7;
+ 
+     public static int getByteSize(int i) {
++        // Krypton start - optimized version
++        /*
+         for(int j = 1; j < 5; ++j) {
+             if ((i & -1 << j * 7) == 0) {
+                 return j;
+@@ -16,6 +19,10 @@ public class VarInt {
+         }
+ 
+         return 5;
++        */
++        // Krypton end
++
++        return VarIntUtil.getVarIntLength(i); // Krypton - network.microopt
+     }
+ 
+     public static boolean hasContinuationBit(byte b) {
+@@ -39,6 +46,8 @@ public class VarInt {
+     }
+ 
+     public static ByteBuf write(ByteBuf buf, int i) {
++        // Krypton start - optimized version
++        /*
+         while((i & -128) != 0) {
+             buf.writeByte(i & 127 | 128);
+             i >>>= 7;
+@@ -46,5 +55,46 @@ public class VarInt {
+ 
+         buf.writeByte(i);
+         return buf;
++        */
++        // Krypton end
++
++        // Krypton start - network.microopt
++        // Peel the one and two byte count cases explicitly as they are the most common VarInt sizes
++        // that the server will send, to improve inlining.
++        if ((i & (0xFFFFFFFF << 7)) == 0) {
++            buf.writeByte(i);
++        } else if ((i & (0xFFFFFFFF << 14)) == 0) {
++            int w = (i & 0x7F | 0x80) << 8 | (i >>> 7);
++            buf.writeShort(w);
++        } else {
++            writeVarIntFull(buf, i);
++        }
++
++        return buf;
++        // Krypton end
++    }
++
++    // Krypton start - network.microopt
++    private static void writeVarIntFull(ByteBuf buf, int i) {
++        // See https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
++        if ((i & (0xFFFFFFFF << 7)) == 0) {
++            buf.writeByte(i);
++        } else if ((i & (0xFFFFFFFF << 14)) == 0) {
++            int w = (i & 0x7F | 0x80) << 8 | (i >>> 7);
++            buf.writeShort(w);
++        } else if ((i & (0xFFFFFFFF << 21)) == 0) {
++            int w = (i & 0x7F | 0x80) << 16 | ((i >>> 7) & 0x7F | 0x80) << 8 | (i >>> 14);
++            buf.writeMedium(w);
++        } else if ((i & (0xFFFFFFFF << 28)) == 0) {
++            int w = (i & 0x7F | 0x80) << 24 | (((i >>> 7) & 0x7F | 0x80) << 16)
++                    | ((i >>> 14) & 0x7F | 0x80) << 8 | (i >>> 21);
++            buf.writeInt(w);
++        } else {
++            int w = (i & 0x7F | 0x80) << 24 | ((i >>> 7) & 0x7F | 0x80) << 16
++                    | ((i >>> 14) & 0x7F | 0x80) << 8 | ((i >>> 21) & 0x7F | 0x80);
++            buf.writeInt(w);
++            buf.writeByte(i >>> 28);
++        }
+     }
++    // Krypton end
+ }

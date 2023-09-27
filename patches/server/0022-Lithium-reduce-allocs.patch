@@ -1,0 +1,167 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Wed, 27 Sep 2023 00:21:16 -0700
+Subject: [PATCH] Lithium: reduce allocs
+
+
+diff --git a/src/main/java/net/minecraft/nbt/ByteArrayTag.java b/src/main/java/net/minecraft/nbt/ByteArrayTag.java
+index 06648f9751fd8a322d0809ffebf6a544596ee1a4..4fbc2d7dc3c808804ea15dba67d90479a90ed7e3 100644
+--- a/src/main/java/net/minecraft/nbt/ByteArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/ByteArrayTag.java
+@@ -175,7 +175,7 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
+     }
+ 
+     public void clear() {
+-        this.data = new byte[0];
++        this.data = me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // lithium - reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/nbt/CompoundTag.java b/src/main/java/net/minecraft/nbt/CompoundTag.java
+index 84fc2adf591f02a14862f7c1cd645c2efde55c3d..b453e4247ec30ea54bf976e27c69d7684225079c 100644
+--- a/src/main/java/net/minecraft/nbt/CompoundTag.java
++++ b/src/main/java/net/minecraft/nbt/CompoundTag.java
+@@ -416,7 +416,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, ByteArrayTag.TYPE, var3));
+         }
+ 
+-        return new byte[0];
++        return me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // lithium - reduce allocs
+     }
+ 
+     public int[] getIntArray(String key) {
+@@ -428,7 +428,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, IntArrayTag.TYPE, var3));
+         }
+ 
+-        return new int[0];
++        return me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // lithium - reduce allocs
+     }
+ 
+     public long[] getLongArray(String key) {
+@@ -440,7 +440,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, LongArrayTag.TYPE, var3));
+         }
+ 
+-        return new long[0];
++        return me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // lithium - reduce allocs
+     }
+ 
+     public CompoundTag getCompound(String key) {
+diff --git a/src/main/java/net/minecraft/nbt/IntArrayTag.java b/src/main/java/net/minecraft/nbt/IntArrayTag.java
+index ff13d67151c50ea11a45117e524c7524e2b1a202..31acbee3c875272d50b7eb5426d6b9785946ef08 100644
+--- a/src/main/java/net/minecraft/nbt/IntArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/IntArrayTag.java
+@@ -186,7 +186,7 @@ public class IntArrayTag extends CollectionTag<IntTag> {
+     }
+ 
+     public void clear() {
+-        this.data = new int[0];
++        this.data = me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // lithium - reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/nbt/ListTag.java b/src/main/java/net/minecraft/nbt/ListTag.java
+index 0ef36f5cfebf60c491d021b77b55c393f26feab5..17303595a07c5f0efa7c86a3b9b2aa38dbc37099 100644
+--- a/src/main/java/net/minecraft/nbt/ListTag.java
++++ b/src/main/java/net/minecraft/nbt/ListTag.java
+@@ -261,7 +261,7 @@ public class ListTag extends CollectionTag<Tag> {
+             }
+         }
+ 
+-        return new int[0];
++        return me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithium - reduce allocs
+     }
+ 
+     public long[] getLongArray(int index) {
+@@ -272,7 +272,7 @@ public class ListTag extends CollectionTag<Tag> {
+             }
+         }
+ 
+-        return new long[0];
++        return me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // Lithium - reduce allocs
+     }
+ 
+     public double getDouble(int index) {
+diff --git a/src/main/java/net/minecraft/nbt/LongArrayTag.java b/src/main/java/net/minecraft/nbt/LongArrayTag.java
+index 3604e22f593275140d706c296355ee06ca8ec888..1135ae2598b06fd2760866472d62a32b59582b82 100644
+--- a/src/main/java/net/minecraft/nbt/LongArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/LongArrayTag.java
+@@ -190,7 +190,7 @@ public class LongArrayTag extends CollectionTag<LongTag> {
+ 
+     @Override
+     public void clear() {
+-        this.data = new long[0];
++        this.data = me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // Lithium - reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/util/MemoryReserve.java b/src/main/java/net/minecraft/util/MemoryReserve.java
+index 0ee04fe6ff6a4d09754f326526ae04fe7226bab2..dd7388df0535c75d801cb3da6c9a8680a884d80a 100644
+--- a/src/main/java/net/minecraft/util/MemoryReserve.java
++++ b/src/main/java/net/minecraft/util/MemoryReserve.java
+@@ -11,6 +11,6 @@ public class MemoryReserve {
+     }
+ 
+     public static void release() {
+-        reserve = new byte[0];
++        reserve = me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // Lithium - reduce allocs
+     }
+ }
+diff --git a/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java b/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java
+index 733134401fcba393053c7a2dfa1d0d44f8f79ff5..a626d6ccd6ea4e3ecdb9a9d9645736809534e141 100644
+--- a/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java
++++ b/src/main/java/net/minecraft/util/datafix/fixes/LeavesFix.java
+@@ -70,7 +70,7 @@ public class LeavesFix extends DataFix {
+             OpticFinder<?> opticFinder3 = DSL.typeFinder(type3);
+             return this.fixTypeEverywhereTyped("Leaves fix", type, (typed) -> {
+                 return typed.updateTyped(opticFinder, (typedx) -> {
+-                    int[] is = new int[]{0};
++                    int[] is = me.jellysquid.mods.lithium.util.Constants.INT_ZERO; // Lithium - reduce allocs
+                     Typed<?> typed2 = typedx.updateTyped(opticFinder2, (typed) -> {
+                         Int2ObjectMap<LeavesFix.LeavesSection> int2ObjectMap = new Int2ObjectOpenHashMap<>(typed.getAllTyped(opticFinder3).stream().map((typedx) -> {
+                             return new LeavesFix.LeavesSection(typedx, this.getInputSchema());
+diff --git a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
+index 71f8cea4a33b30fdafa41714a424b3092a3a7cd0..df14d1bca7d83e96e72d4455101175361feda0fc 100644
+--- a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
++++ b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
+@@ -192,7 +192,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
+ 
+     @Override
+     public boolean onClick(net.minecraft.world.InteractionHand hand) {
+-        return shoot(getRider(), hand == net.minecraft.world.InteractionHand.MAIN_HAND ? new int[]{1} : new int[]{2});
++        return shoot(getRider(), hand == net.minecraft.world.InteractionHand.MAIN_HAND ? me.jellysquid.mods.lithium.util.Constants.INT_ONE : me.jellysquid.mods.lithium.util.Constants.INT_TWO); // lithium - reduce allocs
+     }
+ 
+     public boolean shoot(@Nullable Player rider, int[] heads) {
+diff --git a/src/main/java/net/minecraft/world/level/block/ComposterBlock.java b/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
+index 596b77306f690a2298835f0f0fea1abee2a7c85d..27a5acc8069488af555031087dc3b6844f1a5ec1 100644
+--- a/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
+@@ -443,7 +443,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.DOWN ? new int[]{0} : new int[0];
++            return side == Direction.DOWN ? me.jellysquid.mods.lithium.util.Constants.INT_ZERO : me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithium - reduce allocs
+         }
+ 
+         @Override
+@@ -492,7 +492,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.UP ? new int[]{0} : new int[0];
++            return side == Direction.UP ? me.jellysquid.mods.lithium.util.Constants.INT_ZERO : me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithium - reduce allocs
+         }
+ 
+         @Override
+@@ -534,7 +534,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return new int[0];
++            return me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithium - reduce allocs
+         }
+ 
+         @Override
