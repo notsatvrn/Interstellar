@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Wed, 27 Sep 2023 02:07:40 -0700
+Date: Wed, 27 Sep 2023 16:30:06 -0700
 Subject: [PATCH] Graphene: Server Classes
 
 
@@ -201,6 +201,107 @@ index 0000000000000000000000000000000000000000..e4362c922aec04b594d880a60c636b31
 +    }
 +}
 \ No newline at end of file
+diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/VarintByteDecoder.java b/src/main/java/me/steinborn/krypton/mod/shared/network/VarintByteDecoder.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..11445c550eda939d83a68d967b63aca240439f1e
+--- /dev/null
++++ b/src/main/java/me/steinborn/krypton/mod/shared/network/VarintByteDecoder.java
+@@ -0,0 +1,65 @@
++package me.steinborn.krypton.mod.shared.network;
++
++/**
++ * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
++ * No changes have been made.
++ */
++
++import io.netty.util.ByteProcessor;
++
++public class VarintByteDecoder implements ByteProcessor {
++
++    private static final int MAXIMUM_VARINT_BYTE_SIZE = Boolean.getBoolean("krypton.permit-oversized-packets")
++            ? 5 : 3;
++
++    private int readVarint;
++    private int bytesRead;
++    private DecodeResult result = DecodeResult.TOO_SHORT;
++
++    @Override
++    public boolean process(byte k) {
++        if (k == 0 && bytesRead == 0) {
++            // tentatively say it's invalid, but there's a possibility of redemption
++            result = DecodeResult.RUN_OF_ZEROES;
++            return true;
++        }
++        if (result == DecodeResult.RUN_OF_ZEROES) {
++            return false;
++        }
++        readVarint |= (k & 0x7F) << bytesRead++ * 7;
++        if (bytesRead > MAXIMUM_VARINT_BYTE_SIZE) {
++            result = DecodeResult.TOO_BIG;
++            return false;
++        }
++        if ((k & 0x80) != 128) {
++            result = DecodeResult.SUCCESS;
++            return false;
++        }
++        return true;
++    }
++
++    public int getReadVarint() {
++        return readVarint;
++    }
++
++    public int getBytesRead() {
++        return bytesRead;
++    }
++
++    public DecodeResult getResult() {
++        return result;
++    }
++
++    public void reset() {
++        readVarint = 0;
++        bytesRead = 0;
++        result = DecodeResult.TOO_SHORT;
++    }
++
++    public enum DecodeResult {
++        SUCCESS,
++        TOO_SHORT,
++        TOO_BIG,
++        RUN_OF_ZEROES
++    }
++}
+diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/QuietDecoderException.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/QuietDecoderException.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..6609ba7357deaaaf7ad5f3ffea0c615cd66342fb
+--- /dev/null
++++ b/src/main/java/me/steinborn/krypton/mod/shared/network/util/QuietDecoderException.java
+@@ -0,0 +1,24 @@
++package me.steinborn.krypton.mod.shared.network.util;
++
++/**
++ * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
++ * No changes have been made.
++ */
++
++import io.netty.handler.codec.DecoderException;
++
++/**
++ * A special-purpose exception thrown when we want to indicate an error decoding but do not want
++ * to see a large stack trace in logs.
++ */
++public class QuietDecoderException extends DecoderException {
++
++    public QuietDecoderException(String message) {
++        super(message);
++    }
++
++    @Override
++    public synchronized Throwable fillInStackTrace() {
++        return this;
++    }
++}
 diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..937fd6d3b162c34aa9109223e1771d2ab79d83cb
@@ -231,4 +332,23 @@ index 0000000000000000000000000000000000000000..937fd6d3b162c34aa9109223e1771d2a
 +    public static int getVarIntLength(int value) {
 +        return VARINT_EXACT_BYTE_LENGTHS[Integer.numberOfLeadingZeros(value)];
 +    }
++}
+diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/WellKnownExceptions.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/WellKnownExceptions.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..356c6d859ce440d92a8e1d84faf67ce594bb5406
+--- /dev/null
++++ b/src/main/java/me/steinborn/krypton/mod/shared/network/util/WellKnownExceptions.java
+@@ -0,0 +1,13 @@
++package me.steinborn.krypton.mod.shared.network.util;
++
++/**
++ * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
++ * No changes have been made.
++ */
++
++public enum WellKnownExceptions {
++    ;
++
++    public static final QuietDecoderException BAD_LENGTH_CACHED = new QuietDecoderException("Bad packet length");
++    public static final QuietDecoderException VARINT_BIG_CACHED = new QuietDecoderException("VarInt too big");
 +}

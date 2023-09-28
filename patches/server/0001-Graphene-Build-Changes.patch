@@ -26,6 +26,19 @@ index ffee77918e7390c810010e057d088c2967d1e7b0..7d7fd3956d38ea2ef4439607c85cf749
              "Implementation-Vendor" to date, // Paper
              "Specification-Title" to "Bukkit",
              "Specification-Version" to project.version,
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 07665c89af795d76fab5fb70b4ecc7e8be68cab2..48f83699a94fba6dce951aedfd29240bac0a3f93 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -593,7 +593,7 @@ public class Metrics {
+             boolean logFailedRequests = config.getBoolean("logFailedRequests", false);
+             // Only start Metrics, if it's enabled in the config
+             if (config.getBoolean("enabled", true)) {
+-                Metrics metrics = new Metrics("Purpur", serverUUID, logFailedRequests, Bukkit.getLogger()); // Purpur
++                Metrics metrics = new Metrics("Graphene", serverUUID, logFailedRequests, Bukkit.getLogger()); // Purpur // Graphene
+ 
+                 metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
+                     String minecraftVersion = Bukkit.getVersion();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..444f71211ea97260664718c421fb9d15885f5a73 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
@@ -60,6 +73,19 @@ index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..444f71211ea97260664718c421fb9d15
  
          switch (distance) {
              case -1:
+diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+index 3cb56595822799926a8141e60a42f5d1edfc6de5..793e564b5127e12b7ae3040ddf6470d7b6b3602d 100644
+--- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
++++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+@@ -17,7 +17,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+     @Override
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder
+-                .appName("Purpur") // Purpur
++                .appName("Graphene") // Purpur // Graphene
+                 .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
+                 .completer(new ConsoleCommandCompleter(this.server))
+                 .option(LineReader.Option.COMPLETE_IN_WORD, true);
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 index b02b0bd6aa9243e84b172203533762860840b1b8..9d6d095d92cfce85ef8827b23164ba3472c5cc3f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
