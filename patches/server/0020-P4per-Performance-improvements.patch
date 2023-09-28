@@ -1,0 +1,296 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: acrylic-style <me@acrylicstyle.xyz>
+Date: Sat, 5 Jun 2021 00:24:27 +0900
+Subject: [PATCH] P4per: Performance improvements
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+index fd841c62c659a427dd08da5dbdf0e2e625391bc0..d88d9a802de73316567690009ecc208ae10040fa 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
++++ b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+@@ -39,7 +39,7 @@ public class PaperGameProfileRepository extends YggdrasilGameProfileRepository {
+ 
+         // Some things were not found.... Proceed to look up.
+         if (!unfoundNames.isEmpty()) {
+-            String[] namesArr = unfoundNames.toArray(new String[unfoundNames.size()]);
++            String[] namesArr = unfoundNames.toArray(new String[0]); // P4per - use non-pre-sized array
+             super.findProfilesByNames(namesArr, new PreProfileLookupCallback(callback));
+         }
+     }
+diff --git a/src/main/java/com/mojang/brigadier/CommandDispatcher.java b/src/main/java/com/mojang/brigadier/CommandDispatcher.java
+index 429a48cdbd30ac76046cd46a74309d4ece931802..4ecbef13e1270f0dd6f9d1d585945465c98554af 100644
+--- a/src/main/java/com/mojang/brigadier/CommandDispatcher.java
++++ b/src/main/java/com/mojang/brigadier/CommandDispatcher.java
+@@ -453,7 +453,7 @@ public class CommandDispatcher<S> {
+     public String[] getAllUsage(final CommandNode<S> node, final S source, final boolean restricted) {
+         final ArrayList<String> result = new ArrayList<>();
+         this.getAllUsage(node, source, result, "", restricted);
+-        return result.toArray(new String[result.size()]);
++        return result.toArray(new String[0]); // P4per - use non-pre-sized array
+     }
+ 
+     private void getAllUsage(final CommandNode<S> node, final S source, final ArrayList<String> result, final String prefix, final boolean restricted) {
+diff --git a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+index e94224ed280247ee69dfdff8dc960f2b8729be33..e0350646987e9ab22c2b795a6cda6e4fcc14547e 100644
+--- a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
++++ b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+@@ -75,7 +75,7 @@ public class PaperPluginsCommand extends BukkitCommand {
+         this.description = "Gets a list of plugins running on the server";
+         this.usageMessage = "/plugins";
+         this.setPermission("bukkit.command.plugins");
+-        this.setAliases(Arrays.asList("pl"));
++        this.setAliases(Collections.singletonList("pl")); // P4per - use singletonList
+     }
+ 
+     private static <T> List<Component> formatProviders(TreeMap<String, PluginProvider<T>> plugins, @NotNull CommandSender sender) { // Purpur
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 9c4cec7cf323f6768a89358fa1a11b53ce335cd4..32c940bc48b421cf50f8a9caa0998f0ec5898a48 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -889,23 +889,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+ 
+     // CraftBukkit start
+-    private boolean hasStopped = false;
++    private final java.util.concurrent.atomic.AtomicBoolean hasStopped = new java.util.concurrent.atomic.AtomicBoolean(false); // P4per - use AtomicBoolean
+     public volatile boolean hasFullyShutdown = false; // Paper
+     private boolean hasLoggedStop = false; // Paper
+-    private final Object stopLock = new Object();
++    //private final Object stopLock = new Object();
+     public final boolean hasStopped() {
+-        synchronized (this.stopLock) {
+-            return this.hasStopped;
+-        }
++        return hasStopped.get(); // P4per
+     }
+     // CraftBukkit end
+ 
+     public void stopServer() {
+         // CraftBukkit start - prevent double stopping on multiple threads
+-        synchronized(this.stopLock) {
+-            if (this.hasStopped) return;
+-            this.hasStopped = true;
+-        }
++        // P4per start
++        //synchronized(stopLock) {
++            if (hasStopped.get()) return;
++            hasStopped.set(true);
++        //}
++        // P4per end
+         if (!hasLoggedStop && isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper
+         // Paper start - kill main thread, and kill it hard
+         shutdownThread = Thread.currentThread();
+@@ -1302,7 +1302,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     @Override
+     public TickTask wrapRunnable(Runnable runnable) {
+         // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
+-        if (this.hasStopped && Thread.currentThread().equals(shutdownThread)) {
++        if (this.hasStopped.get() && Thread.currentThread().equals(shutdownThread)) { // P4per
+             runnable.run();
+             runnable = () -> {};
+         }
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index ef654df11d946cb9560fa05dae86ba727832106e..f9cb0f7f9d42683234b69265fa87d540d0b1bf3a 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -1833,16 +1833,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
+             ServerPlayer entityplayer = (ServerPlayer) iterator.next();
+ 
+             if (entityplayer != null && entityplayer.level() == this && entityplayer.getId() != entityId) {
+-                double d0 = (double) pos.getX() - entityplayer.getX();
+-                double d1 = (double) pos.getY() - entityplayer.getY();
+-                double d2 = (double) pos.getZ() - entityplayer.getZ();
+-
+                 // CraftBukkit start
+                 if (entityhuman != null && !entityplayer.getBukkitEntity().canSee(entityhuman.getBukkitEntity())) {
+                     continue;
+                 }
+                 // CraftBukkit end
+ 
++                // P4per - moved from above
++                double d0 = (double) pos.getX() - entityplayer.getX();
++                double d1 = (double) pos.getY() - entityplayer.getY();
++                double d2 = (double) pos.getZ() - entityplayer.getZ();
++
+                 if (d0 * d0 + d1 * d1 + d2 * d2 < 1024.0D) {
+                     entityplayer.connection.send(new ClientboundBlockDestructionPacket(entityId, pos, progress));
+                 }
+diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+index 01bf3a48d96ab2a255925b64c19d9bac9ca2bb8a..8eac8c2d68c7fae2db1548a11ca6b57993963056 100644
+--- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
++++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+@@ -968,9 +968,7 @@ public class ServerPlayer extends Player {
+         if (this.shouldDropLoot() && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) { // Paper - preserve this check from vanilla
+         // SPIGOT-5071: manually add player loot tables (SPIGOT-5195 - ignores keepInventory rule)
+         this.dropFromLootTable(damageSource, this.lastHurtByPlayerTime > 0);
+-        for (org.bukkit.inventory.ItemStack item : this.drops) {
+-            loot.add(item);
+-        }
++        loot.addAll(this.drops); // P4per - bulk add
+         this.drops.clear(); // SPIGOT-5188: make sure to clear
+         } // Paper
+ 
+diff --git a/src/main/java/net/minecraft/server/players/OldUsersConverter.java b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+index ce43cb0152ba07c6c21e08142d65813d47c3b63b..9781fd44e2c1151519306737ea4ccba939e8cd7c 100644
+--- a/src/main/java/net/minecraft/server/players/OldUsersConverter.java
++++ b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+@@ -329,7 +329,7 @@ public class OldUsersConverter {
+             }
+ 
+             try {
+-                final String[] astring = (String[]) list.toArray(new String[list.size()]);
++                final String[] astring = (String[]) list.toArray(new String[0]); // P4per - use non-pre-sized array
+                 ProfileLookupCallback profilelookupcallback = new ProfileLookupCallback() {
+                     public void onProfileLookupSucceeded(GameProfile gameprofile) {
+                         minecraftServer.getProfileCache().add(gameprofile);
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java b/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
+index 4063aed1a3f0bfd7351c1ec2e9684e4991cb5285..1fe9ffddf5c58e8222a7c1841bc37d147c627d71 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
+@@ -441,7 +441,7 @@ public abstract class AbstractArrow extends Projectile {
+                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
+                         CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(entityplayer, (Collection) this.piercedAndKilledEntities);
+                     } else if (!entity.isAlive() && this.shotFromCrossbow()) {
+-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(entityplayer, (Collection) Arrays.asList(entity));
++                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(entityplayer, java.util.Collections.singletonList(entity)); // P4per - use singletonList
+                     }
+                 }
+             }
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
+index 0425151e688966442340ea1cf892aff34ffe0791..7b08fc575226a340bf1300c54342a93a3af3fced 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
+@@ -161,7 +161,7 @@ public class BrushableBlockEntity extends BlockEntity {
+                 entityitem.setDeltaMovement(Vec3.ZERO);
+                 // CraftBukkit start
+                 org.bukkit.block.Block bblock = CraftBlock.at(this.level, this.worldPosition);
+-                CraftEventFactory.handleBlockDropItemEvent(bblock, bblock.getState(), (ServerPlayer) player, Arrays.asList(entityitem));
++                CraftEventFactory.handleBlockDropItemEvent(bblock, bblock.getState(), (ServerPlayer) player, java.util.Collections.singletonList(entityitem)); // P4per - use singletonList
+                 // CraftBukkit end
+                 this.item = ItemStack.EMPTY;
+             }
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java
+index b0901efbaed533bade4b0eb130875aef3c6cd420..26ff1538f455e9b8f7ae5e4e31edcd3e879f4d47 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java
+@@ -51,7 +51,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
+ 
+         @Override
+         public List<ItemStack> getContents() {
+-            return Arrays.asList(book);
++            return java.util.Collections.singletonList(book); // P4per - use singletonList
+         }
+ 
+         @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 9d6d095d92cfce85ef8827b23164ba3472c5cc3f..e139b6d0e2b71c004029ffd14a5d896d7a987b59 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1745,7 +1745,7 @@ public final class CraftServer implements Server {
+                     commands = ImmutableList.of(section.getString(key));
+                 }
+ 
+-                result.put(key, commands.toArray(new String[commands.size()]));
++                result.put(key, commands.toArray(new String[0])); // P4per - use non-pre-sized array
+             }
+         }
+ 
+@@ -2271,7 +2271,7 @@ public final class CraftServer implements Server {
+ 
+         players.addAll(this.getOnlinePlayers());
+ 
+-        return players.toArray(new OfflinePlayer[players.size()]);
++        return players.toArray(new OfflinePlayer[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 52b48e40c3ee5f483c6cb04409459cf25abc3f0d..3ff066551b82409b966939b8c3c477279061a6c8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -1975,7 +1975,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public String[] getGameRules() {
+-        return CraftWorld.getGameRulesNMS().keySet().toArray(new String[CraftWorld.getGameRulesNMS().size()]);
++        return CraftWorld.getGameRulesNMS().keySet().toArray(new String[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index cf124ad445fd5e8adb1114aca5113e274d950a4a..11cc543411f3ea7e8c33723944e2b3977338cbdc 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -674,7 +674,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public boolean discoverRecipe(NamespacedKey recipe) {
+-        return this.discoverRecipes(Arrays.asList(recipe)) != 0;
++        return this.discoverRecipes(java.util.Collections.singletonList(recipe)) != 0; // P4per - use singletonList
+     }
+ 
+     @Override
+@@ -684,7 +684,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public boolean undiscoverRecipe(NamespacedKey recipe) {
+-        return this.undiscoverRecipes(Arrays.asList(recipe)) != 0;
++        return this.undiscoverRecipes(java.util.Collections.singletonList(recipe)) != 0; // P4per - use singletonList
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java b/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
+index 0f70be614f8f5350ad558d0ae645cdf0027e1e76..1c0595c949fec1d478b2a6f209ab6e3821d27f0a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
+@@ -164,7 +164,7 @@ public final class CraftChatMessage {
+                 this.appendNewComponent(message.length());
+             }
+ 
+-            this.output = this.list.toArray(new Component[this.list.size()]);
++            this.output = this.list.toArray(new Component[0]); // P4per - use non-pre-sized array
+         }
+ 
+         private void appendNewComponent(int index) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+index bbacf58740f3faea0d555e4012fe2b15fb46ed50..21ce234fe049bff4f631873dd04900884405f53b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -173,10 +173,6 @@ public final class WeakCollection<T> implements Collection<T> {
+     }
+ 
+     private Collection<T> toCollection() {
+-        ArrayList<T> collection = new ArrayList<T>();
+-        for (T value : this) {
+-            collection.add(value);
+-        }
+-        return collection;
++        return new ArrayList<>(this); // P4per - just clone
+     }
+ }
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
+index 35f4d51dd84f3c3e5121598353dceda97a753bfe..7222441daf99b8a0970dfbd4c6ca00f91f197fc6 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
+@@ -30,7 +30,7 @@ public class FactoryItemMaterialTest extends AbstractTestingBase {
+ 
+             list.add(material);
+         }
+-        materials = list.toArray(new Material[list.size()]);
++        materials = list.toArray(new Material[0]); // P4per - use non-pre-sized array
+     }
+ 
+     static String name(Enum<?> from, Enum<?> to) {
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java
+index 3b2eb2ec17a028fa6d7127ff4e541ec5110a463a..0086e471624f73173ea944eed2b1c52d6d3dd6d6 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java
+@@ -323,7 +323,7 @@ public class ItemStackTest extends AbstractTestingBase {
+             possibleMaterials.put(meta.getClass(), material);
+ 
+         }
+-        COMPOUND_MATERIALS = possibleMaterials.values().toArray(new Material[possibleMaterials.size()]);
++        COMPOUND_MATERIALS = possibleMaterials.values().toArray(new Material[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @ParameterizedTest(name = "[{index}]:{" + ItemStackTest.NAME_PARAMETER + "}")

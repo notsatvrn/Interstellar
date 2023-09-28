@@ -21,3 +21,4 @@ Please support these developers, without them this project wouldn't be possible!
 - [Patina](https://github.com/PatinaMC/Patina)
 - [Akarin](https://github.com/Akarin-project/Akarin)
 - [KTP](https://github.com/lynxplay/ktp)
+- [P4per](https://github.com/acrylic-style/P4per)

@@ -5,7 +5,7 @@ Subject: [PATCH] Lithium: entity.fast_retrieval
 
 
 diff --git a/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java b/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java
-index ee692b49c62f36287bf9d008861f5d47e0e42c00..f69e1813109053575d1ff217243b60f8e2b8eb83 100644
+index ee692b49c62f36287bf9d008861f5d47e0e42c00..69a1d99638338979d8e6d75b0974e306e9daba7b 100644
 --- a/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java
 +++ b/src/main/java/net/minecraft/world/level/entity/EntitySectionStorage.java
 @@ -41,24 +41,77 @@ public class EntitySectionStorage<T extends EntityAccess> {

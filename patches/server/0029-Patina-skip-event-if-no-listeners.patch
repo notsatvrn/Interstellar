@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: foss-mc <69294560+foss-mc@users.noreply.github.com>
+Date: Fri, 31 Mar 2023 21:50:06 +0800
+Subject: [PATCH] Patina: skip event if no listeners
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
+index 760535e1d6335cf07b6222525610a11318d2596f..9e359b32ddaa92aaa3da1ffcf659f61488b2f2ce 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
+@@ -36,6 +36,10 @@ class PaperEventManager {
+ 
+     // SimplePluginManager
+     public void callEvent(@NotNull Event event) {
++        HandlerList handlers = event.getHandlers();
++        RegisteredListener[] listeners = handlers.getRegisteredListeners();
++        if (listeners.length == 0) return; // Patina - skip event if no listeners
++
+         // KTP start - Optimise spigot event bus
+         if (event.asynchronous() != net.kyori.adventure.util.TriState.NOT_SET) {
+         final boolean onPrimaryThread = this.server.isPrimaryThread();
+@@ -48,8 +52,7 @@ class PaperEventManager {
+         // KTP stop - Optimise spigot event bus
+         }
+ 
+-        HandlerList handlers = event.getHandlers();
+-        RegisteredListener[] listeners = handlers.getRegisteredListeners();
++        // Patina - moved up
+ 
+         for (RegisteredListener registration : listeners) {
+             if (!registration.getPlugin().isEnabled()) {
