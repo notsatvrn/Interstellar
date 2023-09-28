@@ -1,18 +1,19 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Wed, 27 Sep 2023 19:38:55 -0700
-Subject: [PATCH] Krypton: change Netty PooledByteBufAllocator arena size
+Subject: [PATCH] Graphene (krypton): change Netty PooledByteBufAllocator arena
+ size
 
 
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
-index ec268189b19b6fa5c4521f96ce211a531db35ec5..dd77139e5fa2873cd52e19a8e5e77da8cad30ef3 100644
+index ec268189b19b6fa5c4521f96ce211a531db35ec5..751ef8c1738c87e533715f279565b32deee2a575 100644
 --- a/src/main/java/net/minecraft/server/Main.java
 +++ b/src/main/java/net/minecraft/server/Main.java
 @@ -73,6 +73,21 @@ import org.bukkit.configuration.file.YamlConfiguration;
  
  public class Main {
  
-+    // Krypton start - change Netty PooledByteBufAllocator arena size
++    // Graphene start - krypton: change Netty PooledByteBufAllocator arena size
 +    static {
 +        // By default, Netty allocates 16MiB arenas for the PooledByteBufAllocator. This is too much
 +        // memory for Minecraft, which imposes a maximum packet size of 2MiB! We'll use 4MiB as a more
@@ -25,7 +26,7 @@ index ec268189b19b6fa5c4521f96ce211a531db35ec5..dd77139e5fa2873cd52e19a8e5e77da8
 +            System.setProperty("io.netty.allocator.maxOrder", "9");
 +        }
 +    }
-+    // Krypton end
++    // Graphene end
 +
      private static final Logger LOGGER = LogUtils.getLogger();
  

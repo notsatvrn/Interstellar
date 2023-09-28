@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Tue, 26 Sep 2023 13:46:25 -0700
-Subject: [PATCH] Lithium: math.fast_util
+Subject: [PATCH] Graphene (lithium): math.fast_util
 
 
 diff --git a/src/main/java/net/minecraft/core/AxisCycle.java b/src/main/java/net/minecraft/core/AxisCycle.java
-index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720befca74f7 100644
+index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..8c72da8e2a4fd2891e6cfce1cf07fe83825b88c0 100644
 --- a/src/main/java/net/minecraft/core/AxisCycle.java
 +++ b/src/main/java/net/minecraft/core/AxisCycle.java
 @@ -35,7 +35,19 @@ public enum AxisCycle {
@@ -13,8 +13,8 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720b
          @Override
          public Direction.Axis cycle(Direction.Axis axis) {
 -            return AXIS_VALUES[Math.floorMod(axis.ordinal() + 1, 3)];
-+            //return AXIS_VALUES[Math.floorMod(axis.ordinal() + 1, 3)]; // Lithium - math.fast_util
-+            // Lithium start - math.fast_util
++            //return AXIS_VALUES[Math.floorMod(axis.ordinal() + 1, 3)]; // Graphene - lithum: math.fast_util
++            // Graphene start - lithum: math.fast_util
 +            switch (axis.ordinal()) {
 +                case 0: //X
 +                    return Direction.Axis.Y;
@@ -25,7 +25,7 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720b
 +            }
 +
 +            throw new IllegalArgumentException();
-+            // Lithium end
++            // Graphene end
          }
  
          @Override
@@ -34,8 +34,8 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720b
          @Override
          public Direction.Axis cycle(Direction.Axis axis) {
 -            return AXIS_VALUES[Math.floorMod(axis.ordinal() - 1, 3)];
-+            //return AXIS_VALUES[Math.floorMod(axis.ordinal() - 1, 3)]; // Lithium - math.fast_util
-+            // Lithium start - math.fast_util
++            //return AXIS_VALUES[Math.floorMod(axis.ordinal() - 1, 3)]; // Graphene - lithum: math.fast_util
++            // Graphene start - lithum: math.fast_util
 +            switch (axis.ordinal()) {
 +                case 0: //X
 +                    return Direction.Axis.Z;
@@ -46,7 +46,7 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720b
 +            }
 +
 +            throw new IllegalArgumentException();
-+            // Lithium end
++            // Graphene end
          }
  
          @Override
@@ -54,20 +54,20 @@ index b5d8a60dc78a76c0a55bfc30cc49d26857bd914a..869bc08558cdafb3af57039c81b4720b
          }
      };
  
-+    // Lithium start - math.fast_util
++    // Graphene start - lithum: math.fast_util
 +    static {
 +        assert Direction.Axis.X.ordinal() == 0;
 +        assert Direction.Axis.Y.ordinal() == 1;
 +        assert Direction.Axis.Z.ordinal() == 2;
 +        assert Direction.Axis.values().length == 3;
 +    }
-+    // Lithium end
++    // Graphene end
 +
      public static final Direction.Axis[] AXIS_VALUES = Direction.Axis.values();
      public static final AxisCycle[] VALUES = values();
  
 diff --git a/src/main/java/net/minecraft/core/Direction.java b/src/main/java/net/minecraft/core/Direction.java
-index b805e57d5a67d77d226cd8154e970050e2e8ef4a..4c2018ef24f4bbd3eb25f526d30ac997cabca5dd 100644
+index b805e57d5a67d77d226cd8154e970050e2e8ef4a..b65042705d73603e32d9cd52f531a3baf3e5f604 100644
 --- a/src/main/java/net/minecraft/core/Direction.java
 +++ b/src/main/java/net/minecraft/core/Direction.java
 @@ -197,7 +197,7 @@ public enum Direction implements StringRepresentable {
@@ -75,7 +75,7 @@ index b805e57d5a67d77d226cd8154e970050e2e8ef4a..4c2018ef24f4bbd3eb25f526d30ac997
  
      public Direction getOpposite() {
 -        return from3DDataValue(this.oppositeIndex);
-+        return BY_3D_DATA[this.oppositeIndex]; // Lithium - math.fast_util
++        return BY_3D_DATA[this.oppositeIndex]; // Graphene - lithum: math.fast_util
      }
  
      public Direction getClockWise(Direction.Axis axis) {
@@ -84,26 +84,26 @@ index b805e57d5a67d77d226cd8154e970050e2e8ef4a..4c2018ef24f4bbd3eb25f526d30ac997
  
      public static Direction getRandom(RandomSource random) {
 -        return Util.getRandom(VALUES, random);
-+        return BY_3D_DATA[random.nextInt(BY_3D_DATA.length)]; // Lithium - math.fast_util
++        return BY_3D_DATA[random.nextInt(BY_3D_DATA.length)]; // Graphene - lithum: math.fast_util
      }
  
      public static Direction getNearest(double x, double y, double z) {
 diff --git a/src/main/java/net/minecraft/world/phys/AABB.java b/src/main/java/net/minecraft/world/phys/AABB.java
-index 5c70aa2ce1a9e89c8c271201b6755ea1325058ac..ba50f2fc48b33d4e242d64f06455db78ce498778 100644
+index 5c70aa2ce1a9e89c8c271201b6755ea1325058ac..2ab17893b7dddbd1e9bae86c13d5ff976306bc09 100644
 --- a/src/main/java/net/minecraft/world/phys/AABB.java
 +++ b/src/main/java/net/minecraft/world/phys/AABB.java
 @@ -8,6 +8,15 @@ import net.minecraft.util.Mth;
  import net.minecraft.world.level.levelgen.structure.BoundingBox;
  
  public class AABB {
-+    // Lithium start - math.fast_util
++    // Graphene start - lithum: math.fast_util
 +    static {
 +        assert Direction.Axis.X.ordinal() == 0;
 +        assert Direction.Axis.Y.ordinal() == 1;
 +        assert Direction.Axis.Z.ordinal() == 2;
 +        assert Direction.Axis.values().length == 3;
 +    }
-+    // Lithium end
++    // Graphene end
 +
      private static final double EPSILON = 1.0E-7D;
      public final double minX;
@@ -113,8 +113,8 @@ index 5c70aa2ce1a9e89c8c271201b6755ea1325058ac..ba50f2fc48b33d4e242d64f06455db78
  
      public double min(Direction.Axis axis) {
 -        return axis.choose(this.minX, this.minY, this.minZ);
-+        //return axis.choose(this.minX, this.minY, this.minZ); // Lithium - math.fast_util
-+        // Lithium start - math.fast_util
++        //return axis.choose(this.minX, this.minY, this.minZ); // Graphene - lithum: math.fast_util
++        // Graphene start - lithum: math.fast_util
 +        switch (axis.ordinal()) {
 +            case 0: //X
 +                return this.minX;
@@ -125,13 +125,13 @@ index 5c70aa2ce1a9e89c8c271201b6755ea1325058ac..ba50f2fc48b33d4e242d64f06455db78
 +        }
 +
 +        throw new IllegalArgumentException();
-+        // Lithium end
++        // Graphene end
      }
  
      public double max(Direction.Axis axis) {
 -        return axis.choose(this.maxX, this.maxY, this.maxZ);
-+        //return axis.choose(this.maxX, this.maxY, this.maxZ); // Lithium - math.fast_util
-+        // Lithium start - math.fast_util
++        //return axis.choose(this.maxX, this.maxY, this.maxZ); // Graphene - lithum: math.fast_util
++        // Graphene start - lithum: math.fast_util
 +        switch (axis.ordinal()) {
 +            case 0: //X
 +                return this.maxX;
@@ -142,7 +142,7 @@ index 5c70aa2ce1a9e89c8c271201b6755ea1325058ac..ba50f2fc48b33d4e242d64f06455db78
 +        }
 +
 +        throw new IllegalArgumentException();
-+        // Lithium end
++        // Graphene end
      }
  
      @Override

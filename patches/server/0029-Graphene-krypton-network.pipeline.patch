@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Wed, 27 Sep 2023 16:29:07 -0700
-Subject: [PATCH] Krypton: network.pipeline
+Subject: [PATCH] Graphene (krypton): network.pipeline
 
 
 diff --git a/src/main/java/net/minecraft/network/Varint21FrameDecoder.java b/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
-index 1f71357a4caef4b2cbff95b560d0f3df268b3621..f2d87fac465d306d0267936b460f8231857115c2 100644
+index 1f71357a4caef4b2cbff95b560d0f3df268b3621..bbf7d078240dfa2ccf81c6078d4aaad04105e1c0 100644
 --- a/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
 +++ b/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
 @@ -1,23 +1,36 @@
@@ -13,37 +13,37 @@ index 1f71357a4caef4b2cbff95b560d0f3df268b3621..f2d87fac465d306d0267936b460f8231
  
  import io.netty.buffer.ByteBuf;
 -import io.netty.buffer.Unpooled;
-+//import io.netty.buffer.Unpooled; // Krypton - unneeded now
++//import io.netty.buffer.Unpooled; // Graphene - krypton: unneeded now
  import io.netty.channel.ChannelHandlerContext;
  import io.netty.handler.codec.ByteToMessageDecoder;
 -import io.netty.handler.codec.CorruptedFrameException;
-+//import io.netty.handler.codec.CorruptedFrameException; // Krypton - unneeded now
++//import io.netty.handler.codec.CorruptedFrameException; // Graphene - krypton: unneeded now
  import java.util.List;
  import javax.annotation.Nullable;
  
-+// Krypton start - network.pipeline
++// Graphene start - krypton: network.pipeline
 +import me.steinborn.krypton.mod.shared.network.VarintByteDecoder;
 +import static me.steinborn.krypton.mod.shared.network.util.WellKnownExceptions.BAD_LENGTH_CACHED;
 +import static me.steinborn.krypton.mod.shared.network.util.WellKnownExceptions.VARINT_BIG_CACHED;
-+// Krypton end
++// Graphene end
 +
  public class Varint21FrameDecoder extends ByteToMessageDecoder {
-+    // Krypton start - unneeded now
++    // Graphene start - krypton: unneeded now
 +    /*
      private static final int MAX_VARINT21_BYTES = 3;
      private final ByteBuf helperBuf = Unpooled.directBuffer(3);
      @Nullable
      private final BandwidthDebugMonitor monitor;
 +    */
-+    // Krypton end
-+    private final VarintByteDecoder reader = new VarintByteDecoder(); // Krypton - network.pipeline
++    // Graphene end
++    private final VarintByteDecoder reader = new VarintByteDecoder(); // Graphene - krypton: network.pipeline
  
      public Varint21FrameDecoder(@Nullable BandwidthDebugMonitor packetSizeLogger) {
 -        this.monitor = packetSizeLogger;
-+        //this.monitor = packetSizeLogger; // Krypton - unneeded now
++        //this.monitor = packetSizeLogger; // Graphene - krypton: unneeded now
      }
  
-+    // Krypton start - unneeded now
++    // Graphene start - krypton: unneeded now
 +    /*
      protected void handlerRemoved0(ChannelHandlerContext channelHandlerContext) {
          this.helperBuf.release();
@@ -53,10 +53,10 @@ index 1f71357a4caef4b2cbff95b560d0f3df268b3621..f2d87fac465d306d0267936b460f8231
          throw new CorruptedFrameException("length wider than 21-bit");
      }
 +    */
-+    // Krypton end
++    // Graphene end
  
      protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
-+        // Krypton start - Use optimized Velocity varint decoder that reduces bounds checking
++        // Graphene start - krypton: Use optimized Velocity varint decoder that reduces bounds checking
 +        /*
          // Paper start - if channel is not active just discard the packet
          if (!channelHandlerContext.channel().isActive()) {
@@ -66,9 +66,9 @@ index 1f71357a4caef4b2cbff95b560d0f3df268b3621..f2d87fac465d306d0267936b460f8231
              }
          }
 +        */
-+        // Krypton end
++        // Graphene end
 +
-+        // Krypton start - network.pipeline
++        // Graphene start - krypton: network.pipeline
 +        if (!channelHandlerContext.channel().isActive()) {
 +            byteBuf.clear();
 +            return;
@@ -110,23 +110,23 @@ index 1f71357a4caef4b2cbff95b560d0f3df268b3621..f2d87fac465d306d0267936b460f8231
 +            byteBuf.clear();
 +            throw VARINT_BIG_CACHED;
 +        }
-+        // Krypton end
++        // Graphene end
      }
  }
 diff --git a/src/main/java/net/minecraft/server/network/LegacyQueryHandler.java b/src/main/java/net/minecraft/server/network/LegacyQueryHandler.java
-index 8f4a964a0863b1be834c1ea1e3d49092516f9258..db6e6e78656fc41966b81ebaa6cb1a014bd2cba7 100644
+index 8f4a964a0863b1be834c1ea1e3d49092516f9258..b5f3f199c9bb3c1054170f9046544a6dbc75746f 100644
 --- a/src/main/java/net/minecraft/server/network/LegacyQueryHandler.java
 +++ b/src/main/java/net/minecraft/server/network/LegacyQueryHandler.java
 @@ -24,6 +24,13 @@ public class LegacyQueryHandler extends ChannelInboundHandlerAdapter {
      public void channelRead(ChannelHandlerContext channelhandlercontext, Object object) {
          ByteBuf bytebuf = (ByteBuf) object;
  
-+        // Krypton start - network.pipeline
++        // Graphene start - krypton: network.pipeline
 +        if (!channelhandlercontext.channel().isActive()) {
 +            bytebuf.clear();
 +            return;
 +        }
-+        // Krypton end
++        // Graphene end
 +
          // Paper start - Make legacy ping handler more reliable
          if (this.buf != null) {

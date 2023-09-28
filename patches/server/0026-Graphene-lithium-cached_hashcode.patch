@@ -1,30 +1,30 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Wed, 27 Sep 2023 02:18:41 -0700
-Subject: [PATCH] Lithium: cached_hashcode
+Subject: [PATCH] Graphene (lithium): cached_hashcode
 
 
 diff --git a/src/main/java/net/minecraft/world/level/block/Block.java b/src/main/java/net/minecraft/world/level/block/Block.java
-index 65504432a13df45e895cf6ca885627014444563a..05d90667a428db1d2e10041933349587c84d000c 100644
+index 65504432a13df45e895cf6ca885627014444563a..0cae5b647863d5765c5ad7d8e04907bedf1c66b3 100644
 --- a/src/main/java/net/minecraft/world/level/block/Block.java
 +++ b/src/main/java/net/minecraft/world/level/block/Block.java
 @@ -659,11 +659,19 @@ public class Block extends BlockBehaviour implements ItemLike {
          private final BlockState first;
          private final BlockState second;
          private final Direction direction;
-+        private int hash; // Lithium - cached_hashcode
++        private int hash; // Graphene - lithum: cached_hashcode
  
          public BlockStatePairKey(BlockState self, BlockState other, Direction facing) {
              this.first = self;
              this.second = other;
              this.direction = facing;
 +
-+            // Lithium start - cached_hashcode
++            // Graphene start - lithum: cached_hashcode
 +            int i = this.first.hashCode();
 +            i = 31 * i + this.second.hashCode();
 +            i = 31 * i + this.direction.hashCode();
 +            this.hash = i;
-+            // Lithium end
++            // Graphene end
          }
  
          public boolean equals(Object object) {
@@ -37,7 +37,7 @@ index 65504432a13df45e895cf6ca885627014444563a..05d90667a428db1d2e10041933349587
 -            i = 31 * i + this.second.hashCode();
 -            i = 31 * i + this.direction.hashCode();
 -            return i;
-+            return this.hash; // Lithium - cached_hashcode
++            return this.hash; // Graphene - lithum: cached_hashcode
          }
      }
  }
