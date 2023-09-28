@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.util.math;
 
 /**
  * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric
- * No changes have been made (except for switching mappings).
+ * No changes made beyond changing mappings.
  */
 
 import net.minecraft.util.Mth;

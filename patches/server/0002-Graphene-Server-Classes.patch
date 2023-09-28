@@ -1,15 +1,351 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Wed, 27 Sep 2023 16:30:06 -0700
+Date: Thu, 28 Sep 2023 14:33:15 -0700
 Subject: [PATCH] Graphene: Server Classes
 
 
+diff --git a/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTable.java b/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..201f07e9d364b25fdd7245ce9f4ab9d7e916d77d
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTable.java
+@@ -0,0 +1,232 @@
++package me.jellysquid.mods.lithium.state;
++
++/**
++ * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric
++ * No changes made beyond changing mappings.
++ */
++
++import com.google.common.collect.Table;
++import it.unimi.dsi.fastutil.Hash;
++import it.unimi.dsi.fastutil.HashCommon;
++import org.apache.commons.lang3.ArrayUtils;
++import org.jetbrains.annotations.NotNull;
++
++import java.util.Collection;
++import java.util.Map;
++import java.util.Set;
++
++import static it.unimi.dsi.fastutil.HashCommon.arraySize;
++
++public class FastImmutableTable<R, C, V> implements Table<R, C, V> {
++    private R[] rowKeys;
++    private int[] rowIndices;
++    private final int rowMask;
++
++    private C[] colKeys;
++    private int[] colIndices;
++    private final int colMask;
++    private final int colCount;
++
++    private V[] values;
++    private final int size;
++
++    @SuppressWarnings("unchecked")
++    public FastImmutableTable(Table<R, C, V> table, FastImmutableTableCache<R, C, V> cache) {
++        if (cache == null) {
++            throw new IllegalArgumentException("Cache must not be null");
++        }
++
++        float loadFactor = Hash.DEFAULT_LOAD_FACTOR;
++
++        Set<R> rowKeySet = table.rowKeySet();
++        Set<C> colKeySet = table.columnKeySet();
++
++        int rowCount = rowKeySet.size();
++        this.colCount = colKeySet.size();
++
++        int rowN = arraySize(rowCount, loadFactor);
++        int colN = arraySize(this.colCount, loadFactor);
++
++        this.rowMask = rowN - 1;
++        this.rowKeys = (R[]) new Object[rowN];
++        this.rowIndices = new int[rowN];
++
++        this.colMask = colN - 1;
++        this.colKeys = (C[]) new Object[colN];
++        this.colIndices = new int[colN];
++
++        this.createIndex(this.colKeys, this.colIndices, this.colMask, colKeySet);
++        this.createIndex(this.rowKeys, this.rowIndices, this.rowMask, rowKeySet);
++
++        this.values = (V[]) new Object[rowCount * this.colCount];
++
++        for (Cell<R, C, V> cell : table.cellSet()) {
++            int colIdx = this.getIndex(this.colKeys, this.colIndices, this.colMask, cell.getColumnKey());
++            int rowIdx = this.getIndex(this.rowKeys, this.rowIndices, this.rowMask, cell.getRowKey());
++
++            if (colIdx < 0 || rowIdx < 0) {
++                throw new IllegalStateException("Missing index for " + cell);
++            }
++
++            this.values[this.colCount * rowIdx + colIdx] = cell.getValue();
++        }
++
++        this.size = table.size();
++
++        this.rowKeys = cache.dedupRows(this.rowKeys);
++        this.rowIndices = cache.dedupIndices(this.rowIndices);
++
++        this.colIndices = cache.dedupIndices(this.colIndices);
++        this.colKeys = cache.dedupColumns(this.colKeys);
++
++        this.values = cache.dedupValues(this.values);
++    }
++
++    private <T> void createIndex(T[] keys, int[] indices, int mask, Collection<T> iterable) {
++        int index = 0;
++
++        for (T obj : iterable) {
++            int i = this.find(keys, mask, obj);
++
++            if (i < 0) {
++                int pos = -i - 1;
++
++                keys[pos] = obj;
++                indices[pos] = index++;
++            }
++        }
++    }
++
++    private <T> int getIndex(T[] keys, int[] indices, int mask, T key) {
++        int pos = this.find(keys, mask, key);
++
++        if (pos < 0) {
++            return -1;
++        }
++
++        return indices[pos];
++    }
++
++    @Override
++    public boolean contains(Object rowKey, Object columnKey) {
++        return this.get(rowKey, columnKey) != null;
++    }
++
++    @Override
++    public boolean containsRow(Object rowKey) {
++        return this.find(this.rowKeys, this.rowMask, rowKey) >= 0;
++    }
++
++    @Override
++    public boolean containsColumn(Object columnKey) {
++        return this.find(this.colKeys, this.colMask, columnKey) >= 0;
++    }
++
++    @Override
++    public boolean containsValue(Object value) {
++        return ArrayUtils.contains(this.values, value);
++    }
++
++    @Override
++    public V get(Object rowKey, Object columnKey) {
++        final int row = this.getIndex(this.rowKeys, this.rowIndices, this.rowMask, rowKey);
++        final int col = this.getIndex(this.colKeys, this.colIndices, this.colMask, columnKey);
++
++        if (row < 0 || col < 0) {
++            return null;
++        }
++
++        return this.values[this.colCount * row + col];
++    }
++
++    @Override
++    public boolean isEmpty() {
++        return this.size() == 0;
++    }
++
++    @Override
++    public int size() {
++        return this.size;
++    }
++
++    @Override
++    public void clear() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V put(R rowKey, C columnKey, V val) {
++        throw new UnsupportedOperationException();
++    }
++
++    private <T> int find(T[] key, int mask, T value) {
++        T curr;
++        int pos;
++        // The starting point.
++        if ((curr = key[pos = HashCommon.mix(value.hashCode()) & mask]) == null) {
++            return -(pos + 1);
++        }
++        if (value.equals(curr)) {
++            return pos;
++        }
++        // There's always an unused entry.
++        while (true) {
++            if ((curr = key[pos = pos + 1 & mask]) == null) {
++                return -(pos + 1);
++            }
++            if (value.equals(curr)) {
++                return pos;
++            }
++        }
++    }
++
++    @Override
++    public void putAll(@NotNull Table<? extends R, ? extends C, ? extends V> table) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public V remove(Object rowKey, Object columnKey) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Map<C, V> row(R rowKey) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Map<R, V> column(C columnKey) {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Set<Cell<R, C, V>> cellSet() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Set<R> rowKeySet() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Set<C> columnKeySet() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Collection<V> values() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Map<R, Map<C, V>> rowMap() {
++        throw new UnsupportedOperationException();
++    }
++
++    @Override
++    public @NotNull Map<C, Map<R, V>> columnMap() {
++        throw new UnsupportedOperationException();
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTableCache.java b/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTableCache.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..05f629b40b1c5368f62941aa224fe94bcd2d2c2d
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTableCache.java
+@@ -0,0 +1,44 @@
++package me.jellysquid.mods.lithium.state;
++
++/**
++ * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric
++ * No changes made beyond changing mappings.
++ */
++
++import it.unimi.dsi.fastutil.Hash;
++import it.unimi.dsi.fastutil.ints.IntArrays;
++import it.unimi.dsi.fastutil.objects.ObjectArrays;
++import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
++
++public class FastImmutableTableCache<R, C, V> {
++    private final ObjectOpenCustomHashSet<R[]> rows;
++    private final ObjectOpenCustomHashSet<C[]> columns;
++    private final ObjectOpenCustomHashSet<V[]> values;
++
++    private final ObjectOpenCustomHashSet<int[]> indices;
++
++    @SuppressWarnings("unchecked")
++    public FastImmutableTableCache() {
++        this.rows = new ObjectOpenCustomHashSet<>((Hash.Strategy<R[]>) ObjectArrays.HASH_STRATEGY);
++        this.columns = new ObjectOpenCustomHashSet<>((Hash.Strategy<C[]>) ObjectArrays.HASH_STRATEGY);
++        this.values = new ObjectOpenCustomHashSet<>((Hash.Strategy<V[]>) ObjectArrays.HASH_STRATEGY);
++
++        this.indices = new ObjectOpenCustomHashSet<>(IntArrays.HASH_STRATEGY);
++    }
++
++    public synchronized V[] dedupValues(V[] values) {
++        return this.values.addOrGet(values);
++    }
++
++    public synchronized R[] dedupRows(R[] rows) {
++        return this.rows.addOrGet(rows);
++    }
++
++    public synchronized C[] dedupColumns(C[] columns) {
++        return this.columns.addOrGet(columns);
++    }
++
++    public synchronized int[] dedupIndices(int[] ints) {
++        return this.indices.addOrGet(ints);
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/lithium/state/StatePropertyTableCache.java b/src/main/java/me/jellysquid/mods/lithium/state/StatePropertyTableCache.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..96241d5f301eaba574c7d374de106f11c32bcfb1
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/lithium/state/StatePropertyTableCache.java
+@@ -0,0 +1,42 @@
++package me.jellysquid.mods.lithium.state;
++
++/**
++ * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric
++ * No changes made beyond changing mappings.
++ */
++
++import net.minecraft.world.level.block.Block;
++import net.minecraft.world.level.block.state.BlockState;
++import net.minecraft.world.level.material.Fluid;
++import net.minecraft.world.level.material.FluidState;
++import net.minecraft.world.level.block.state.properties.Property;
++
++/**
++ * Many of the column and row key arrays in block state tables will be duplicated, leading to an unnecessary waste of
++ * memory. Since we have very limited options for trying to construct more optimized table types without throwing
++ * maintainability or mod compatibility out the window, this class acts as a dirty way to find and de-duplicate arrays
++ * after we construct our table types.
++ * <p>
++ * While this global cache does not provide the ability to remove or clear entries from it, the reality is that it
++ * shouldn't matter because block state tables are only initialized once and remain loaded for the entire lifetime of
++ * the game. Even in the event of classloader pre-boot shenanigans, we still shouldn't leak memory as our cache will be
++ * dropped along with the rest of the loaded classes when the class loader is reaped.
++ */
++public class StatePropertyTableCache {
++    public static final FastImmutableTableCache<Property<?>, Comparable<?>, BlockState> BLOCK_STATE_TABLE =
++            new FastImmutableTableCache<>();
++
++    public static final FastImmutableTableCache<Property<?>, Comparable<?>, FluidState> FLUID_STATE_TABLE =
++            new FastImmutableTableCache<>();
++
++    @SuppressWarnings("unchecked")
++    public static <S, O> FastImmutableTableCache<Property<?>, Comparable<?>, S> getTableCache(O owner) {
++        if (owner instanceof Block) {
++            return (FastImmutableTableCache<Property<?>, Comparable<?>, S>) BLOCK_STATE_TABLE;
++        } else if (owner instanceof Fluid) {
++            return (FastImmutableTableCache<Property<?>, Comparable<?>, S>) FLUID_STATE_TABLE;
++        } else {
++            throw new IllegalArgumentException("");
++        }
++    }
++}
 diff --git a/src/main/java/me/jellysquid/mods/lithium/util/Constants.java b/src/main/java/me/jellysquid/mods/lithium/util/Constants.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..776292a6910a027d10ed53745b429c773e4f3f74
+index 0000000000000000000000000000000000000000..0734e2f576206e4ed3c9eceba4031000d6f21125
 --- /dev/null
 +++ b/src/main/java/me/jellysquid/mods/lithium/util/Constants.java
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,26 @@
 +package me.jellysquid.mods.lithium.util;
 +
 +/**
@@ -23,16 +359,22 @@ index 0000000000000000000000000000000000000000..776292a6910a027d10ed53745b429c77
 +public final class Constants {
 +    public static final byte[] BYTE_EMPTY = new byte[0];
 +
-+    public static final int[] INT_EMPTY = new int[0];
-+    public static final int[] INT_ZERO = new int[]{0};
++    public static final int[] INT_EMPTY = new int[0]; // lithium: ArrayConstants.java
++    public static final int[] INT_ZERO = new int[]{0}; // lithium: ArrayConstants.java
 +    public static final int[] INT_ONE = new int[]{1};
 +    public static final int[] INT_TWO = new int[]{2};
 +
 +    public static final long[] LONG_EMPTY = new long[0];
++
++    public static final String[] STRING_EMPTY = new String[0];
++    public static final Object[] OBJECT_EMPTY = new Object[0];
++    public static final org.bukkit.entity.Entity[] BUKKIT_ENTITY_EMPTY = new org.bukkit.entity.Entity[0];
++    public static final net.minecraft.world.entity.Entity[] ENTITY_EMPTY = new net.minecraft.world.entity.Entity[0];
++    public static final java.nio.file.LinkOption[] LINKOPTION_EMPTY = new java.nio.file.LinkOption[0];
 +}
 diff --git a/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java b/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..d7ade60e3b20326edb50c4c1452176e47d8f2722
+index 0000000000000000000000000000000000000000..1b0665e3992f5d6a32953289038d51e6d27cf278
 --- /dev/null
 +++ b/src/main/java/me/jellysquid/mods/lithium/util/math/CompactSineLUT.java
 @@ -0,0 +1,94 @@
@@ -40,7 +382,7 @@ index 0000000000000000000000000000000000000000..d7ade60e3b20326edb50c4c1452176e4
 +
 +/**
 + * Credits to the CaffeineMC team for the original code (from Lithium): https://github.com/CaffeineMC/lithium-fabric
-+ * No significant changes have been made.
++ * No changes made beyond changing mappings.
 + */
 +
 +import net.minecraft.util.Mth;
@@ -130,80 +472,43 @@ index 0000000000000000000000000000000000000000..d7ade60e3b20326edb50c4c1452176e4
 +        return Float.intBitsToFloat(SIN_INT[pos] ^ neg);
 +    }
 +}
-diff --git a/src/main/java/me/satvrn/random/XorwowRandom.java b/src/main/java/me/satvrn/random/XorwowRandom.java
+diff --git a/src/main/java/me/satvrn/random/FastRandom.java b/src/main/java/me/satvrn/random/FastRandom.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e4362c922aec04b594d880a60c636b310a79a145
+index 0000000000000000000000000000000000000000..f4d18dee6098183a4902b7657e4c7bacf8b72044
 --- /dev/null
-+++ b/src/main/java/me/satvrn/random/XorwowRandom.java
-@@ -0,0 +1,64 @@
++++ b/src/main/java/me/satvrn/random/FastRandom.java
+@@ -0,0 +1,28 @@
 +package me.satvrn.random;
 +
-+import java.util.concurrent.atomic.AtomicLong;
 +import java.util.Random;
 +
-+public class XorwowRandom extends Random {
-+    static class RandomHelper {
-+        static final long multiplier = 0x5DEECE66DL;
-+        static final long mask = (1L << 48) - 1;
-+        static long seedUniquifier() {
-+            for (;;) {
-+                long current = seedUniquifier.get();
-+                long next = current * 1181783497276652981L;
-+                if (seedUniquifier.compareAndSet(current, next)) {
-+                    return next;
-+                }
-+            }
-+        }
-+        static final AtomicLong seedUniquifier = new AtomicLong(8682522807148012L);
-+        static long initialScramble(long seed) {
-+            return (seed ^ multiplier) & mask;
-+        }
-+    
-+        static long createSeed() {
-+            return initialScramble(seedUniquifier() ^ System.nanoTime());
-+        }
-+    }
++import net.minecraft.world.level.levelgen.RandomSupport;
++import net.minecraft.world.level.levelgen.Xoroshiro128PlusPlus;
 +
-+    public long x = RandomHelper.createSeed();
-+    public long y = 362436069L;
-+    public long z = 521288629L;
-+    public long w = 88675123L;
-+    public long v = 5783321L;
-+    public long d = 6615241L;
++public class FastRandom extends Random {
++    private Xoroshiro128PlusPlus source;
 +
-+    public XorwowRandom() {
++    public FastRandom() {
 +        super();
 +    }
 +
-+    public XorwowRandom(long seed) {
++    public FastRandom(long seed) {
 +        super(seed);
 +    }
 +
 +    @Override
 +    public long nextLong() {
-+        long t = (x ^ (x >> 2));
-+        x = y;
-+        y = z;
-+        z = w;
-+        w = v;
-+        v = (v ^ (v << 4)) ^ (t ^ (t << 1));
-+        return (d += 362437) + v;
++        return this.source.nextLong();
 +    }
 +
 +    @Override
 +    public void setSeed(long seed) {
-+        x = seed;
-+        y = 362436069L;
-+        z = 521288629L;
-+        w = 88675123L;
-+        v = 5783321L;
-+        d = 6615241L;
++        this.source = new Xoroshiro128PlusPlus(RandomSupport.upgradeSeedTo128bit(seed));
 +    }
 +}
-\ No newline at end of file
 diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/VarintByteDecoder.java b/src/main/java/me/steinborn/krypton/mod/shared/network/VarintByteDecoder.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..11445c550eda939d83a68d967b63aca240439f1e
+index 0000000000000000000000000000000000000000..86b0fa44450b8d0ad48f36b4450b57cd10ff3a05
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/mod/shared/network/VarintByteDecoder.java
 @@ -0,0 +1,65 @@
@@ -211,7 +516,7 @@ index 0000000000000000000000000000000000000000..11445c550eda939d83a68d967b63aca2
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
-+ * No changes have been made.
++ * No changes made beyond changing mappings.
 + */
 +
 +import io.netty.util.ByteProcessor;
@@ -274,7 +579,7 @@ index 0000000000000000000000000000000000000000..11445c550eda939d83a68d967b63aca2
 +}
 diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/QuietDecoderException.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/QuietDecoderException.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6609ba7357deaaaf7ad5f3ffea0c615cd66342fb
+index 0000000000000000000000000000000000000000..249b6d68df764d75549fa7612f268c78533e0f42
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/mod/shared/network/util/QuietDecoderException.java
 @@ -0,0 +1,24 @@
@@ -282,7 +587,7 @@ index 0000000000000000000000000000000000000000..6609ba7357deaaaf7ad5f3ffea0c615c
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
-+ * No changes have been made.
++ * No changes made beyond changing mappings.
 + */
 +
 +import io.netty.handler.codec.DecoderException;
@@ -304,7 +609,7 @@ index 0000000000000000000000000000000000000000..6609ba7357deaaaf7ad5f3ffea0c615c
 +}
 diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..937fd6d3b162c34aa9109223e1771d2ab79d83cb
+index 0000000000000000000000000000000000000000..33e1b12cdbc9d5a58a11a86398b7c46c5230e1bd
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/mod/shared/network/util/VarIntUtil.java
 @@ -0,0 +1,25 @@
@@ -312,7 +617,7 @@ index 0000000000000000000000000000000000000000..937fd6d3b162c34aa9109223e1771d2a
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
-+ * No changes have been made.
++ * No changes made beyond changing mappings.
 + */
 +
 +/**
@@ -335,7 +640,7 @@ index 0000000000000000000000000000000000000000..937fd6d3b162c34aa9109223e1771d2a
 +}
 diff --git a/src/main/java/me/steinborn/krypton/mod/shared/network/util/WellKnownExceptions.java b/src/main/java/me/steinborn/krypton/mod/shared/network/util/WellKnownExceptions.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..356c6d859ce440d92a8e1d84faf67ce594bb5406
+index 0000000000000000000000000000000000000000..6f4255b28c25e1668ec292b94b4b52989854ce21
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/mod/shared/network/util/WellKnownExceptions.java
 @@ -0,0 +1,13 @@
@@ -343,7 +648,7 @@ index 0000000000000000000000000000000000000000..356c6d859ce440d92a8e1d84faf67ce5
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
-+ * No changes have been made.
++ * No changes made beyond changing mappings.
 + */
 +
 +public enum WellKnownExceptions {

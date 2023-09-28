@@ -2,7 +2,7 @@ package me.steinborn.krypton.mod.shared.network;
 
 /**
  * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
- * No changes have been made.
+ * No changes made beyond changing mappings.
  */
 
 import io.netty.util.ByteProcessor;
