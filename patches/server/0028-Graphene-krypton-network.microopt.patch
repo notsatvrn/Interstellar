@@ -41,19 +41,21 @@ index 7b39060cde0ec31c4adf36960b33cefcd5138527..783cd68b7db5a952085068561ff22c4a
      }
  }
 diff --git a/src/main/java/net/minecraft/network/VarInt.java b/src/main/java/net/minecraft/network/VarInt.java
-index 18d5a22ad3ef4cb279475531dbc2c65e07c69929..a69895ce07a1e9210601336ad6c036d8a2b8195f 100644
+index 18d5a22ad3ef4cb279475531dbc2c65e07c69929..06d35230679aa3ee7df72945ae6847f1e0011448 100644
 --- a/src/main/java/net/minecraft/network/VarInt.java
 +++ b/src/main/java/net/minecraft/network/VarInt.java
-@@ -1,6 +1,7 @@
- package net.minecraft.network;
- 
+@@ -3,12 +3,18 @@ package net.minecraft.network;
  import io.netty.buffer.ByteBuf;
-+import me.steinborn.krypton.mod.shared.network.util.VarIntUtil; // Graphene - krypton: network.microopt
  
  public class VarInt {
++    // Graphene start - now unused
++    /*
      private static final int MAX_VARINT_SIZE = 5;
-@@ -9,6 +10,8 @@ public class VarInt {
+     private static final int DATA_BITS_MASK = 127;
+     private static final int CONTINUATION_BIT_MASK = 128;
      private static final int DATA_BITS_PER_BYTE = 7;
++    */
++    // Graphene end
  
      public static int getByteSize(int i) {
 +        // Graphene start - krypton: optimized version
@@ -61,18 +63,18 @@ index 18d5a22ad3ef4cb279475531dbc2c65e07c69929..a69895ce07a1e9210601336ad6c036d8
          for(int j = 1; j < 5; ++j) {
              if ((i & -1 << j * 7) == 0) {
                  return j;
-@@ -16,6 +19,10 @@ public class VarInt {
+@@ -16,6 +22,10 @@ public class VarInt {
          }
  
          return 5;
 +        */
 +        // Graphene end
 +
-+        return VarIntUtil.getVarIntLength(i); // Graphene - krypton: network.microopt
++        return me.steinborn.krypton.network.util.VarIntUtil.getVarIntLength(i); // Graphene - krypton: network.microopt
      }
  
      public static boolean hasContinuationBit(byte b) {
-@@ -39,6 +46,8 @@ public class VarInt {
+@@ -39,6 +49,8 @@ public class VarInt {
      }
  
      public static ByteBuf write(ByteBuf buf, int i) {
@@ -81,7 +83,7 @@ index 18d5a22ad3ef4cb279475531dbc2c65e07c69929..a69895ce07a1e9210601336ad6c036d8
          while((i & -128) != 0) {
              buf.writeByte(i & 127 | 128);
              i >>>= 7;
-@@ -46,5 +55,46 @@ public class VarInt {
+@@ -46,5 +58,46 @@ public class VarInt {
  
          buf.writeByte(i);
          return buf;

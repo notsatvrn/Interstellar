@@ -5,7 +5,7 @@ Subject: [PATCH] Graphene (krypton): network.pipeline
 
 
 diff --git a/src/main/java/net/minecraft/network/Varint21FrameDecoder.java b/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
-index 1f71357a4caef4b2cbff95b560d0f3df268b3621..bbf7d078240dfa2ccf81c6078d4aaad04105e1c0 100644
+index 1f71357a4caef4b2cbff95b560d0f3df268b3621..12477cca9838528dc3bc637fe22a675989e95672 100644
 --- a/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
 +++ b/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
 @@ -1,23 +1,36 @@
@@ -13,22 +13,22 @@ index 1f71357a4caef4b2cbff95b560d0f3df268b3621..bbf7d078240dfa2ccf81c6078d4aaad0
  
  import io.netty.buffer.ByteBuf;
 -import io.netty.buffer.Unpooled;
-+//import io.netty.buffer.Unpooled; // Graphene - krypton: unneeded now
++//import io.netty.buffer.Unpooled; // Graphene - now unused
  import io.netty.channel.ChannelHandlerContext;
  import io.netty.handler.codec.ByteToMessageDecoder;
 -import io.netty.handler.codec.CorruptedFrameException;
-+//import io.netty.handler.codec.CorruptedFrameException; // Graphene - krypton: unneeded now
++//import io.netty.handler.codec.CorruptedFrameException; // Graphene - now unused
  import java.util.List;
  import javax.annotation.Nullable;
  
 +// Graphene start - krypton: network.pipeline
-+import me.steinborn.krypton.mod.shared.network.VarintByteDecoder;
-+import static me.steinborn.krypton.mod.shared.network.util.WellKnownExceptions.BAD_LENGTH_CACHED;
-+import static me.steinborn.krypton.mod.shared.network.util.WellKnownExceptions.VARINT_BIG_CACHED;
++import me.steinborn.krypton.network.VarintByteDecoder;
++import static me.steinborn.krypton.network.util.WellKnownExceptions.BAD_LENGTH_CACHED;
++import static me.steinborn.krypton.network.util.WellKnownExceptions.VARINT_BIG_CACHED;
 +// Graphene end
 +
  public class Varint21FrameDecoder extends ByteToMessageDecoder {
-+    // Graphene start - krypton: unneeded now
++    // Graphene start - now unused
 +    /*
      private static final int MAX_VARINT21_BYTES = 3;
      private final ByteBuf helperBuf = Unpooled.directBuffer(3);
@@ -40,10 +40,10 @@ index 1f71357a4caef4b2cbff95b560d0f3df268b3621..bbf7d078240dfa2ccf81c6078d4aaad0
  
      public Varint21FrameDecoder(@Nullable BandwidthDebugMonitor packetSizeLogger) {
 -        this.monitor = packetSizeLogger;
-+        //this.monitor = packetSizeLogger; // Graphene - krypton: unneeded now
++        //this.monitor = packetSizeLogger; // Graphene - now unused
      }
  
-+    // Graphene start - krypton: unneeded now
++    // Graphene start - now unused
 +    /*
      protected void handlerRemoved0(ChannelHandlerContext channelHandlerContext) {
          this.helperBuf.release();
