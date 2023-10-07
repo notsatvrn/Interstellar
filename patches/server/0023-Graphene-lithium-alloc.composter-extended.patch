@@ -256,10 +256,10 @@ index 533a348acb53c8e7590f3d81c19e53a655101713..5328c82969ba21258c32bb3c58f38052
                  JsonReader jsonreader = new JsonReader(Files.newBufferedReader(this.playerSavePath, StandardCharsets.UTF_8));
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index f9cb0f7f9d42683234b69265fa87d540d0b1bf3a..86cbefcd6b5c100719721f9b3c9aeff922f0b486 100644
+index 25e4222b3ab5943517ce1423c57288ee7d4f1a92..d60283ad2b7e99498fdae19103377779c3bf1c15 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1409,7 +1409,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1410,7 +1410,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
  
      public static List<Entity> getCurrentlyTickingEntities() {
          Entity ticking = currentlyTickingEntity.get();
@@ -585,7 +585,7 @@ index 16d2aa4556bc9f32a2def7f9ca282aa3fa23fb87..e8029de509f476bc206b62c11199dafd
  
          @Nullable
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index e139b6d0e2b71c004029ffd14a5d896d7a987b59..8646622a676c31920d7bf53e0de04c24f4eb95be 100644
+index 88d81422b207cd853d5ee1e6ccf45a2f2cd77947..ea1d5cfc73072b5ef36e257d29120c13f95c5a4b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1745,7 +1745,7 @@ public final class CraftServer implements Server {
