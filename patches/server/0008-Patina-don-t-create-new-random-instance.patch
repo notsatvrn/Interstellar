@@ -5,10 +5,10 @@ Subject: [PATCH] Patina: don't create new random instance
 
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 99cf8ce63316e127a5ee84cdd96df80d440dc0c3..01bf3a48d96ab2a255925b64c19d9bac9ca2bb8a 100644
+index 8d6adc26ee59c1e7e9403731032f5dc11be80b9d..fb345970f53e4f407c42c7fb22f05f7783605880 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-@@ -448,7 +448,7 @@ public class ServerPlayer extends Player {
+@@ -449,7 +449,7 @@ public class ServerPlayer extends Player {
              long l = k * k;
              int i1 = l > 2147483647L ? Integer.MAX_VALUE : (int) l;
              int j1 = this.getCoprime(i1);
@@ -17,7 +17,7 @@ index 99cf8ce63316e127a5ee84cdd96df80d440dc0c3..01bf3a48d96ab2a255925b64c19d9bac
  
              for (int l1 = 0; l1 < i1; ++l1) {
                  int i2 = (k1 + j1 * l1) % i1;
-@@ -485,7 +485,7 @@ public class ServerPlayer extends Player {
+@@ -486,7 +486,7 @@ public class ServerPlayer extends Player {
              long l = k * k;
              int i1 = l > 2147483647L ? Integer.MAX_VALUE : (int) l;
              int j1 = this.getCoprime(i1);
