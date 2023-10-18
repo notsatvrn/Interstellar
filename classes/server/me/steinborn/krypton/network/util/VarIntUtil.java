@@ -1,4 +1,4 @@
-package me.steinborn.krypton.mod.shared.network.util;
+package me.steinborn.krypton.network.util;
 
 /**
  * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton

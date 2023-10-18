@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
-Date: Thu, 28 Sep 2023 15:46:08 -0700
+Date: Wed, 18 Oct 2023 09:06:03 -0700
 Subject: [PATCH] Graphene: Server Classes
 
 
@@ -508,11 +508,11 @@ index 0000000000000000000000000000000000000000..f4d18dee6098183a4902b7657e4c7bac
 +}
 diff --git a/src/main/java/me/steinborn/krypton/network/VarintByteDecoder.java b/src/main/java/me/steinborn/krypton/network/VarintByteDecoder.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..86b0fa44450b8d0ad48f36b4450b57cd10ff3a05
+index 0000000000000000000000000000000000000000..1211d9859199fa0566700e5f689fc83b23889cfe
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/network/VarintByteDecoder.java
 @@ -0,0 +1,65 @@
-+package me.steinborn.krypton.mod.shared.network;
++package me.steinborn.krypton.network;
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
@@ -579,11 +579,11 @@ index 0000000000000000000000000000000000000000..86b0fa44450b8d0ad48f36b4450b57cd
 +}
 diff --git a/src/main/java/me/steinborn/krypton/network/util/QuietDecoderException.java b/src/main/java/me/steinborn/krypton/network/util/QuietDecoderException.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..249b6d68df764d75549fa7612f268c78533e0f42
+index 0000000000000000000000000000000000000000..d55a91fb21521b246de8e751d71fffb7ac59f648
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/network/util/QuietDecoderException.java
 @@ -0,0 +1,24 @@
-+package me.steinborn.krypton.mod.shared.network.util;
++package me.steinborn.krypton.network.util;
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
@@ -609,11 +609,11 @@ index 0000000000000000000000000000000000000000..249b6d68df764d75549fa7612f268c78
 +}
 diff --git a/src/main/java/me/steinborn/krypton/network/util/VarIntUtil.java b/src/main/java/me/steinborn/krypton/network/util/VarIntUtil.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..33e1b12cdbc9d5a58a11a86398b7c46c5230e1bd
+index 0000000000000000000000000000000000000000..4243c1401405ff4868ab063cc95ba1c3a5feae3e
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/network/util/VarIntUtil.java
 @@ -0,0 +1,25 @@
-+package me.steinborn.krypton.mod.shared.network.util;
++package me.steinborn.krypton.network.util;
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
@@ -640,11 +640,11 @@ index 0000000000000000000000000000000000000000..33e1b12cdbc9d5a58a11a86398b7c46c
 +}
 diff --git a/src/main/java/me/steinborn/krypton/network/util/WellKnownExceptions.java b/src/main/java/me/steinborn/krypton/network/util/WellKnownExceptions.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6f4255b28c25e1668ec292b94b4b52989854ce21
+index 0000000000000000000000000000000000000000..d89b86166f56b9932be8b220b2382d96113aa8f7
 --- /dev/null
 +++ b/src/main/java/me/steinborn/krypton/network/util/WellKnownExceptions.java
 @@ -0,0 +1,13 @@
-+package me.steinborn.krypton.mod.shared.network.util;
++package me.steinborn.krypton.network.util;
 +
 +/**
 + * Credits to the Andrew Steinborn for the original code (from Krypton): https://github.com/astei/krypton
