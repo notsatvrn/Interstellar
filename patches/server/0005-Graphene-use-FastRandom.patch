@@ -31,10 +31,10 @@ index f0bbc48e2df1da42e4bf9f7113451738b986fbbf..76196110aca0e2ff4f0b95feca547ad2
      final MinecraftServer server;
      public final Connection connection;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 8d385708df97d47881929d4352f1b90286aad1a2..cddf64b06b975f834a2b1b7f18dcb4f8e738a066 100644
+index 220e1dbf70e7d51ea69d964eb7e84f55aa5a32d7..e7bb94325a35360285815e241db59ee3133b61d5 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -792,7 +792,7 @@ public class LevelChunk extends ChunkAccess {
+@@ -802,7 +802,7 @@ public class LevelChunk extends ChunkAccess {
              if (this.needsDecoration) {
                  //try (co.aikar.timings.Timing ignored = this.level.timings.chunkLoadPopulate.startTiming()) { // Paper // Purpur
                  this.needsDecoration = false;

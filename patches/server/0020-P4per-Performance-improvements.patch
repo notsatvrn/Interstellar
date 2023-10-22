@@ -44,10 +44,10 @@ index e94224ed280247ee69dfdff8dc960f2b8729be33..e0350646987e9ab22c2b795a6cda6e4f
  
      private static <T> List<Component> formatProviders(TreeMap<String, PluginProvider<T>> plugins, @NotNull CommandSender sender) { // Purpur
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 9c4cec7cf323f6768a89358fa1a11b53ce335cd4..32c940bc48b421cf50f8a9caa0998f0ec5898a48 100644
+index bc0dfdad161936d1881066f61de02e6c9a7ed8a7..49d56708e05e21f440c24bbedc51922184d4e001 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -889,23 +889,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -891,23 +891,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      }
  
      // CraftBukkit start
@@ -80,7 +80,7 @@ index 9c4cec7cf323f6768a89358fa1a11b53ce335cd4..32c940bc48b421cf50f8a9caa0998f0e
          if (!hasLoggedStop && isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper
          // Paper start - kill main thread, and kill it hard
          shutdownThread = Thread.currentThread();
-@@ -1302,7 +1302,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1304,7 +1304,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      @Override
      public TickTask wrapRunnable(Runnable runnable) {
          // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
@@ -90,10 +90,10 @@ index 9c4cec7cf323f6768a89358fa1a11b53ce335cd4..32c940bc48b421cf50f8a9caa0998f0e
              runnable = () -> {};
          }
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index db3c7b914a301005ba7fa92c7c042777b2fbda72..25e4222b3ab5943517ce1423c57288ee7d4f1a92 100644
+index f86d6d6625f2ea6c4fce02fd19ffb9ac7cd64925..30363fbf3f08f6bc81da7fe08bc67f87c81da29a 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1834,16 +1834,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1850,16 +1850,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
              ServerPlayer entityplayer = (ServerPlayer) iterator.next();
  
              if (entityplayer != null && entityplayer.level() == this && entityplayer.getId() != entityId) {
@@ -116,7 +116,7 @@ index db3c7b914a301005ba7fa92c7c042777b2fbda72..25e4222b3ab5943517ce1423c57288ee
                      entityplayer.connection.send(new ClientboundBlockDestructionPacket(entityId, pos, progress));
                  }
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index fb345970f53e4f407c42c7fb22f05f7783605880..350f6d06ca449ff7349eee764038d7cb175918bb 100644
+index d712eb74989fc4d0209a47cdf45cf702083d68fe..48c2ea88ee4f0a320ebd4ddeb633e1218d080020 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -969,9 +969,7 @@ public class ServerPlayer extends Player {
@@ -183,10 +183,10 @@ index b0901efbaed533bade4b0eb130875aef3c6cd420..26ff1538f455e9b8f7ae5e4e31edcd3e
  
          @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 3261cad57793980883eb87f272dfca0ce66837db..88d81422b207cd853d5ee1e6ccf45a2f2cd77947 100644
+index 38dad09c7b010c0b2997937a34ec49bed75befc3..fc16ec37fe3d00daa1eb626bbca9b0eac3348182 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1745,7 +1745,7 @@ public final class CraftServer implements Server {
+@@ -1750,7 +1750,7 @@ public final class CraftServer implements Server {
                      commands = ImmutableList.of(section.getString(key));
                  }
  
@@ -195,7 +195,7 @@ index 3261cad57793980883eb87f272dfca0ce66837db..88d81422b207cd853d5ee1e6ccf45a2f
              }
          }
  
-@@ -2271,7 +2271,7 @@ public final class CraftServer implements Server {
+@@ -2276,7 +2276,7 @@ public final class CraftServer implements Server {
  
          players.addAll(this.getOnlinePlayers());
  

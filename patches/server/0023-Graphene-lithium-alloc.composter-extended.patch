@@ -226,10 +226,10 @@ index 8a68baf6bd46b59cf57c94ffe5651d47a7cae99c..f2e104d4f5937c4fec50fb0f35d6a0c7
      private static final FormattedText TEXT_NULL = FormattedText.of("null");
      private final String key;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 32c940bc48b421cf50f8a9caa0998f0ec5898a48..4dd492dfa05578b9fbc1de06b8fb110d863fe402 100644
+index 49d56708e05e21f440c24bbedc51922184d4e001..9624df42f7eb53c5411280242cead768bcc601ac 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1351,10 +1351,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1353,10 +1353,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      private Optional<ServerStatus.Favicon> loadStatusIcon() {
          Optional<Path> optional = Optional.of(this.getFile("server-icon.png").toPath()).filter((path) -> {
@@ -256,10 +256,10 @@ index 533a348acb53c8e7590f3d81c19e53a655101713..5328c82969ba21258c32bb3c58f38052
                  JsonReader jsonreader = new JsonReader(Files.newBufferedReader(this.playerSavePath, StandardCharsets.UTF_8));
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 25e4222b3ab5943517ce1423c57288ee7d4f1a92..d60283ad2b7e99498fdae19103377779c3bf1c15 100644
+index 30363fbf3f08f6bc81da7fe08bc67f87c81da29a..a5f9963b8df7aad184de7fa78196cdffe1369c37 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1410,7 +1410,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1426,7 +1426,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
  
      public static List<Entity> getCurrentlyTickingEntities() {
          Entity ticking = currentlyTickingEntity.get();
@@ -269,7 +269,7 @@ index 25e4222b3ab5943517ce1423c57288ee7d4f1a92..d60283ad2b7e99498fdae19103377779
          return ret;
      }
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index f82789dd6dc0ef89bd8146a98343b450da31965e..c1788665384ada26bd7af4740868e9c98a7c886a 100644
+index 49606c57afdd9c445f03792ada7558b6c5d656c7..29628b0c1c2538d70764297243af082e6611193d 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -793,13 +793,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
@@ -288,7 +288,7 @@ index f82789dd6dc0ef89bd8146a98343b450da31965e..c1788665384ada26bd7af4740868e9c9
              return;
          }
          // Paper end
-@@ -3263,7 +3263,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+@@ -3264,7 +3264,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
          // Paper start
          if (!org.bukkit.Bukkit.isPrimaryThread()) {
              if (this.recipeSpamPackets.addAndGet(io.papermc.paper.configuration.GlobalConfiguration.get().spamLimiter.recipeSpamIncrement) > io.papermc.paper.configuration.GlobalConfiguration.get().spamLimiter.recipeSpamLimit) {
@@ -382,7 +382,7 @@ index 0ee04fe6ff6a4d09754f326526ae04fe7226bab2..ba1e54cb2d1eef942854439b36fae3c9
      }
  }
 diff --git a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
-index 71f8cea4a33b30fdafa41714a424b3092a3a7cd0..41f2ee6b1e00a6185aa3d7f7de43a0bc37cf4584 100644
+index c94a1b75593ad01e7f79fdc84818ea8ec269e124..8746e134fb2a4db75ea7dd53a53e0218698eaf03 100644
 --- a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
 +++ b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
 @@ -192,7 +192,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
@@ -408,10 +408,10 @@ index 17bef91546fa85d401b263c3a69fbf464f290eca..64026c2090854a2bc1cd9946754cdbba
              String[] astring = new String[pattern.size() - l - k];
  
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 4e8738531ea388733c41dbb408eb43c1e3c88fad..e6004d2ecf1dca6d70ba7255f45ef008a20c370d 100644
+index a90288a86b022b4f9682befcb1478671e861ca41..cd08d21f15a5c2a4d01fb465707f9f6aef862773 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -1870,7 +1870,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1872,7 +1872,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      public org.bukkit.entity.Entity[] getChunkEntities(int chunkX, int chunkZ) {
          io.papermc.paper.world.ChunkEntitySlices slices = ((ServerLevel)this).getEntityLookup().getChunk(chunkX, chunkZ);
          if (slices == null) {
@@ -585,10 +585,10 @@ index 16d2aa4556bc9f32a2def7f9ca282aa3fa23fb87..e8029de509f476bc206b62c11199dafd
  
          @Nullable
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 88d81422b207cd853d5ee1e6ccf45a2f2cd77947..ea1d5cfc73072b5ef36e257d29120c13f95c5a4b 100644
+index fc16ec37fe3d00daa1eb626bbca9b0eac3348182..5a14a21b540b6fc22e71ab4caee72350ff90b0c7 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -1745,7 +1745,7 @@ public final class CraftServer implements Server {
+@@ -1750,7 +1750,7 @@ public final class CraftServer implements Server {
                      commands = ImmutableList.of(section.getString(key));
                  }
  
