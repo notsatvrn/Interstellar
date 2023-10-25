@@ -598,10 +598,10 @@ index fc16ec37fe3d00daa1eb626bbca9b0eac3348182..5a14a21b540b6fc22e71ab4caee72350
          }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 3ff066551b82409b966939b8c3c477279061a6c8..f7e36a7b07c0af2d2cc86820ee99f9760ed9e9dd 100644
+index 293fa0462c0e13c5a926f0bed440a2b766f0f8cf..b8e4d4836493c1b7c6a4e3b6091bf22d9f34ae12 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -1975,7 +1975,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1976,7 +1976,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public String[] getGameRules() {

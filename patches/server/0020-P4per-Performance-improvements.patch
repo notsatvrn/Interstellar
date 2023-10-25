@@ -144,7 +144,7 @@ index ce43cb0152ba07c6c21e08142d65813d47c3b63b..9781fd44e2c1151519306737ea4ccba9
                      public void onProfileLookupSucceeded(GameProfile gameprofile) {
                          minecraftServer.getProfileCache().add(gameprofile);
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java b/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
-index 4063aed1a3f0bfd7351c1ec2e9684e4991cb5285..1fe9ffddf5c58e8222a7c1841bc37d147c627d71 100644
+index aa5e17e497bbc1d45b361de73cc7a181773dbd8b..920a38aac64688c3224fea8fef3b016251370494 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
 @@ -441,7 +441,7 @@ public abstract class AbstractArrow extends Projectile {
@@ -205,10 +205,10 @@ index 38dad09c7b010c0b2997937a34ec49bed75befc3..fc16ec37fe3d00daa1eb626bbca9b0ea
  
      @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 52b48e40c3ee5f483c6cb04409459cf25abc3f0d..3ff066551b82409b966939b8c3c477279061a6c8 100644
+index 42040939ae5e1e576c59cd0e1e3bcdb51899139f..293fa0462c0e13c5a926f0bed440a2b766f0f8cf 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -1975,7 +1975,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1976,7 +1976,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public String[] getGameRules() {
@@ -269,10 +269,10 @@ index bbacf58740f3faea0d555e4012fe2b15fb46ed50..21ce234fe049bff4f631873dd0490088
      }
  }
 diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
-index 35f4d51dd84f3c3e5121598353dceda97a753bfe..7222441daf99b8a0970dfbd4c6ca00f91f197fc6 100644
+index b1395266276b521fed3e7939571b2ea5da75e919..6202a2215c9384b9b1d46eeced8b6da33737f4c6 100644
 --- a/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
 +++ b/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
-@@ -30,7 +30,7 @@ public class FactoryItemMaterialTest extends AbstractTestingBase {
+@@ -32,7 +32,7 @@ public class FactoryItemMaterialTest extends AbstractTestingBase {
  
              list.add(material);
          }
