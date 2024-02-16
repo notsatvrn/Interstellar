@@ -5,7 +5,7 @@ plugins {
     java
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1" apply false
-    id("io.papermc.paperweight.patcher") version "1.5.8"
+    id("io.papermc.paperweight.patcher") version "1.5.11"
 }
 
 allprojects {
@@ -14,7 +14,7 @@ allprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion = JavaLanguageVersion.of(17)
         }
     }
 }
@@ -24,7 +24,7 @@ val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
 subprojects {
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = Charsets.UTF_8.name()
-        options.release.set(17)
+        options.release = 17
     }
     tasks.withType<Javadoc> {
         options.encoding = Charsets.UTF_8.name()
@@ -57,45 +57,52 @@ repositories {
 }
 
 dependencies {
-    remapper("net.fabricmc:tiny-remapper:0.8.6:fat")
+    remapper("net.fabricmc:tiny-remapper:0.8.10:fat")
     decompiler("net.minecraftforge:forgeflower:2.0.627.2")
     paperclip("io.papermc:paperclip:3.0.3")
 }
 
 paperweight {
-    serverProject.set(project(":graphene-server"))
+    serverProject = project(":graphene-server")
 
-    remapRepo.set(paperMavenPublicUrl)
-    decompileRepo.set(paperMavenPublicUrl)
+    remapRepo = paperMavenPublicUrl
+    decompileRepo = paperMavenPublicUrl
 
     useStandardUpstream("purpur") {
-        url.set(github("PurpurMC", "Purpur"))
-        ref.set(providers.gradleProperty("purpurCommit"))
+        url = github("PurpurMC", "Purpur")
+        ref = providers.gradleProperty("purpurCommit")
 
         withStandardPatcher {
             baseName("Purpur")
 
-            apiPatchDir.set(layout.projectDirectory.dir("patches/api"))
-            apiOutputDir.set(layout.projectDirectory.dir("graphene-api"))
+            apiPatchDir = layout.projectDirectory.dir("patches/api")
+            apiOutputDir = layout.projectDirectory.dir("Graphene-API")
 
-            serverPatchDir.set(layout.projectDirectory.dir("patches/server"))
-            serverOutputDir.set(layout.projectDirectory.dir("graphene-server"))
+            serverPatchDir = layout.projectDirectory.dir("patches/server")
+            serverOutputDir = layout.projectDirectory.dir("Graphene-Server")
+        }
+
+        patchTasks.register("generatedApi") {
+            isBareDirectory = true
+            upstreamDirPath = "paper-api-generator/generated"
+            patchDir = layout.projectDirectory.dir("patches/generated-api")
+            outputDir = layout.projectDirectory.dir("paper-api-generator/generated")
         }
     }
 }
 
 tasks.generateDevelopmentBundle {
-    apiCoordinates.set("org.purpurmc.graphene:graphene-api")
-    mojangApiCoordinates.set("io.papermc.paper:paper-mojangapi")
-    libraryRepositories.set(
+    apiCoordinates = "me.satvrn.graphene:graphene-api"
+    mojangApiCoordinates = "io.papermc.paper:paper-mojangapi"
+    libraryRepositories = 
         listOf(
             "https://repo.maven.apache.org/maven2/",
             paperMavenPublicUrl,
             "https://repo.purpurmc.org/snapshots",
         )
-    )
 }
 
+/*
 allprojects {
     publishing {
         repositories {
@@ -106,6 +113,7 @@ allprojects {
         }
     }
 }
+*/
 
 publishing {
     publications.create<MavenPublication>("devBundle") {

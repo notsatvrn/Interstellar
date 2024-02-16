@@ -5,17 +5,17 @@ Subject: [PATCH] Akarin: Swaps the predicate order of collision
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 0e192a128c87124956fcec552362ab763bac5e55..3ff721eb13132de0fdcc498f8a190ec32cd827a2 100644
+index f6c9bff8ef4e370dcb351490294181282ad156e3..05b26fcebee74218474121c50901dae18a180f47 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2106,8 +2106,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource {
+@@ -2141,8 +2141,9 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
      public void playerTouch(Player player) {}
- 
+
      public void push(Entity entity) {
 +        if (entity.noPhysics || this.noPhysics) return; // Akarin - Test this earlier
          if (!this.isPassengerOfSameVehicle(entity)) {
 -            if (!entity.noPhysics && !this.noPhysics) {
 +            if (true || !entity.noPhysics && !this.noPhysics) { // Akarin - Moved up
-                 if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper
+                 if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
                  double d0 = entity.getX() - this.getX();
                  double d1 = entity.getZ() - this.getZ();

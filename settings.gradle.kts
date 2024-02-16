@@ -29,7 +29,8 @@ if (!file(".git").exists()) {
 
 rootProject.name = "graphene"
 
-for (name in listOf("graphene-api", "graphene-server")) {
-    include(name)
-    findProject(":$name")!!.projectDir = file(name)
+for (name in listOf("Graphene-API", "Graphene-Server", "paper-api-generator")) {
+    val projName = name.lowercase(Locale.ENGLISH)
+    include(projName)
+    findProject(":$projName")!!.projectDir = file(name)
 }

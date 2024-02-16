@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: foss-mc <69294560+foss-mc@users.noreply.github.com>
 Date: Mon, 28 Jun 2021 11:44:27 +0000
-Subject: [PATCH] Patina: hardcode 1.20.2-R0.1-SNAPSHOT
+Subject: [PATCH] Patina: hardcode 1.20.4-R0.1-SNAPSHOT
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
@@ -28,6 +28,6 @@ index 99597258e8e88cd9e2c901c4ac3ff7faeeabee2b..96b4d99898f13c0840192f28a785a34e
 -        }
 -
 -        return result;
-+        return "1.20.2-R0.1-SNAPSHOT"; // Patina
++        return "1.20.4-R0.1-SNAPSHOT"; // Patina
      }
  }

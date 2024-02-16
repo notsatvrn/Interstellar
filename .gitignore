@@ -9,6 +9,9 @@ hs_err_pid*
 *.iws
 out/
 
+# Kotlin LSP
+kls_database.db
+
 # Eclipse
 .classpath
 .project
@@ -52,7 +55,7 @@ manifest.mf
 run/
 
 build-data/
-graphene-api
-graphene-mojangapi
-graphene-server
+Graphene-API
+Graphene-Server
+paper-api-generator
 *.jar

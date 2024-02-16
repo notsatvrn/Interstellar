@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: acrylic-style <me@acrylicstyle.xyz>
+Date: Sat, 5 Jun 2021 00:24:27 +0900
+Subject: [PATCH] P4per: other performance improvements
+
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index b1dd8d66a524254a270a725f5f7a46f28e13b749..1e5807da668241c4c143102aaf1d97b18fc50f34 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -934,23 +934,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+
+     // CraftBukkit start
+-    private boolean hasStopped = false;
++    private final java.util.concurrent.atomic.AtomicBoolean hasStopped = new java.util.concurrent.atomic.AtomicBoolean(false); // P4per - use AtomicBoolean
+     private boolean hasLoggedStop = false; // Paper - Debugging
+     public volatile boolean hasFullyShutdown = false; // Paper
+-    private final Object stopLock = new Object();
++    //private final Object stopLock = new Object(); // P4per
+     public final boolean hasStopped() {
+-        synchronized (this.stopLock) {
+-            return this.hasStopped;
+-        }
++        return hasStopped.get(); // P4per
+     }
+     // CraftBukkit end
+
+     public void stopServer() {
+         // CraftBukkit start - prevent double stopping on multiple threads
+-        synchronized(this.stopLock) {
+-            if (this.hasStopped) return;
+-            this.hasStopped = true;
+-        }
++        // P4per start
++        //synchronized(stopLock) {
++            if (this.hasStopped.get()) return;
++            this.hasStopped.set(true);
++        //}
++        // P4per end
+         if (!hasLoggedStop && isDebugging()) io.papermc.paper.util.TraceUtil.dumpTraceForThread("Server stopped"); // Paper - Debugging
+         // Paper start - kill main thread, and kill it hard
+         shutdownThread = Thread.currentThread();
+@@ -1371,7 +1371,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     @Override
+     public TickTask wrapRunnable(Runnable runnable) {
+         // Paper start - anything that does try to post to main during watchdog crash, run on watchdog
+-        if (this.hasStopped && Thread.currentThread().equals(shutdownThread)) {
++        if (this.hasStopped.get() && Thread.currentThread().equals(shutdownThread)) { // P4per
+             runnable.run();
+             runnable = () -> {};
+         }
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 75b3de5c1e26815aa04dba3f09f2ef7807767154..c5c84c3640faaac6d090598586dec4849c53425c 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -1859,16 +1859,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
+             ServerPlayer entityplayer = (ServerPlayer) iterator.next();
+
+             if (entityplayer != null && entityplayer.level() == this && entityplayer.getId() != entityId) {
+-                double d0 = (double) pos.getX() - entityplayer.getX();
+-                double d1 = (double) pos.getY() - entityplayer.getY();
+-                double d2 = (double) pos.getZ() - entityplayer.getZ();
+-
+                 // CraftBukkit start
+                 if (entityhuman != null && !entityplayer.getBukkitEntity().canSee(entityhuman.getBukkitEntity())) {
+                     continue;
+                 }
+                 // CraftBukkit end
+
++                // P4per - moved from above
++                double d0 = (double) pos.getX() - entityplayer.getX();
++                double d1 = (double) pos.getY() - entityplayer.getY();
++                double d2 = (double) pos.getZ() - entityplayer.getZ();
++
+                 if (d0 * d0 + d1 * d1 + d2 * d2 < 1024.0D) {
+                     entityplayer.connection.send(new ClientboundBlockDestructionPacket(entityId, pos, progress));
+                 }
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+index bbacf58740f3faea0d555e4012fe2b15fb46ed50..21ce234fe049bff4f631873dd04900884405f53b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -173,10 +173,6 @@ public final class WeakCollection<T> implements Collection<T> {
+     }
+ 
+     private Collection<T> toCollection() {
+-        ArrayList<T> collection = new ArrayList<T>();
+-        for (T value : this) {
+-            collection.add(value);
+-        }
+-        return collection;
++        return new ArrayList<>(this); // P4per - just clone
+     }
+ }

@@ -1,36 +1,23 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Ivan Pekov <ivan@mrivanplays.com>
-Date: Tue, 7 Dec 2021 20:47:17 -0500
-Subject: [PATCH] Sugarcane: Stop wasting resources on JsonList get
+From: TheArcaneBrony <myrainbowdash949@gmail.com>
+Date: Wed, 6 Apr 2022 23:12:36 +0200
+Subject: [PATCH] Sugarcane: Optimise banlist remove jsonlist get
 
-Original code by Yatopia, licensed under MIT License
-Previously, when a banned player attempted to join the server was removing all the stale entries.
-This caused a resource waste, which was unnoticeable to users that use ban plugins which doesn't
-use the ban list. Akarin's changes for saving it async lowered the pressure, however it was
-still pretty high.
-
-Our changes are the following:
-1. Stop removing all stale entries when JsonList#get is called.
-2. Only if a player joins and his ban has expired, remove his ban which triggers a save which then
-   triggers removing of all stale entries.
-
-Updated to 1.17 by: Toffikk <slodkitofik@gmail.com>
-Updated to 1.20 by: satvrn <pastawho@gmail.com>
 
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 5c38df8170033dbfee267520991a3cc3285d219e..1fe593e26bd56a7ba2466af9f19219e2c6a00862 100644
+index 323391509c2efd49c54d7b36d7aa880c63ae5fd4..ff80ee7f05a83a34e5bc6b252b7848303f1eb3a3 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -714,13 +714,19 @@ public abstract class PlayerList {
+@@ -732,13 +732,19 @@ public abstract class PlayerList {
          if (getBans().isBanned(gameprofile) && (gameprofilebanentry = getBans().get(gameprofile)) != null) {
-             // Paper end
- 
+             // Paper end - Fix MC-158900
+
 +            if (!gameprofilebanentry.hasExpired()) { // Sugarcane - Stop wasting resources on JsonList#get
              ichatmutablecomponent = Component.translatable("multiplayer.disconnect.banned.reason", gameprofilebanentry.getReason());
              if (gameprofilebanentry.getExpires() != null) {
                  ichatmutablecomponent.append((Component) Component.translatable("multiplayer.disconnect.banned.expiration", PlayerList.BAN_DATE_FORMAT.format(gameprofilebanentry.getExpires())));
              }
- 
+
              // return chatmessage;
 +            // Sugarcane start - Stop wasting resources on JsonList#get
              event.disallow(PlayerLoginEvent.Result.KICK_BANNED, io.papermc.paper.adventure.PaperAdventure.asAdventure(ichatmutablecomponent)); // Paper - Adventure
@@ -38,17 +25,17 @@ index 5c38df8170033dbfee267520991a3cc3285d219e..1fe593e26bd56a7ba2466af9f19219e2
 +                getBans().remove(gameprofile);
 +            }
 +            // Sugarcane end
-         } else if (!this.isWhiteListed(gameprofile, event)) { // Paper
+         } else if (!this.isWhiteListed(gameprofile, event)) { // Paper - ProfileWhitelistVerifyEvent
              //ichatmutablecomponent = Component.translatable("multiplayer.disconnect.not_whitelisted"); // Paper
              //event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(org.spigotmc.SpigotConfig.whitelistMessage)); // Spigot // Paper - Adventure - moved to isWhitelisted
 diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
-index f6dfb9b9656442e2cec0f9e99c181494c073d7b8..7c8ee40d7f8ff7c1921eae5af35f44512b809a8a 100644
+index 35f973cc2c0989256fa21abaf0327c2f36dbe4c9..5bb7f9ad693d12e7bfef6813b692fb14a7679be6 100644
 --- a/src/main/java/net/minecraft/server/players/StoredUserList.java
 +++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
-@@ -74,9 +74,14 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
-         // Paper start
-         // this.g();
-         // return (V) this.d.get(this.a(k0)); // CraftBukkit - fix decompile error
+@@ -55,9 +55,14 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+     @Nullable
+     public V get(K key) {
+         // Paper start - Use ConcurrentHashMap in JsonList
 +        // Sugarcane start - only remove if it expires and has been requested (Stop wasting resources on JsonList#get)
 +        return this.map.get(this.getKeyForUser(key));
 +        /*
@@ -57,20 +44,20 @@ index f6dfb9b9656442e2cec0f9e99c181494c073d7b8..7c8ee40d7f8ff7c1921eae5af35f4451
          });
 +        */
 +        // Sugarcane end
-         // Paper end
+         // Paper end - Use ConcurrentHashMap in JsonList
      }
- 
-@@ -146,6 +151,8 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
-         Runnable runnable = () -> { // Akarin - Save json list async
+
+@@ -105,6 +110,8 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+     public void save() throws IOException {
          this.removeExpired(); // Paper - remove expired values before saving
          JsonArray jsonarray = new JsonArray();
 +        // Sugarcane start - we're nuking streams wherever possible (Stop wasting resources on JsonList#get)
 +        /*
          Stream<JsonObject> stream = this.map.values().stream().map((jsonlistentry) -> { // CraftBukkit - decompile error
              JsonObject jsonobject = new JsonObject();
- 
-@@ -155,6 +162,13 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
- 
+
+@@ -114,6 +121,13 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+
          Objects.requireNonNull(jsonarray);
          stream.forEach(jsonarray::add);
 +        */
@@ -80,6 +67,6 @@ index f6dfb9b9656442e2cec0f9e99c181494c073d7b8..7c8ee40d7f8ff7c1921eae5af35f4451
 +            jsonarray.add(obj);
 +        }
 +        // Sugarcane end
-         try {
          BufferedWriter bufferedwriter = Files.newWriter(this.file, StandardCharsets.UTF_8);
- 
+
+         try {

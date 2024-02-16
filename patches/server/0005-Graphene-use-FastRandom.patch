@@ -5,31 +5,18 @@ Subject: [PATCH] Graphene: use FastRandom
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
-index 5408cbc21fc7577a6100b5a1ca0463e899d2df8b..033d30d0947048deb748366288f77cd77f706f97 100644
+index 6e72c43b9d3834eb91c02ce68e7d114ad907812d..5e4fd023125152838c0baff4797a4bd1632d5228 100644
 --- a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 +++ b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 @@ -16,7 +16,7 @@ import java.util.UUID;
- 
+
  public class PaperLootableInventoryData {
- 
+
 -    private static final Random RANDOM = new Random();
 +    private static final Random RANDOM = new me.satvrn.random.FastRandom(); // Graphene
- 
+
      private long lastFill = -1;
      private long nextRefill = -1;
-diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-index f0bbc48e2df1da42e4bf9f7113451738b986fbbf..76196110aca0e2ff4f0b95feca547ad2de32cff5 100644
---- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-+++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-@@ -50,7 +50,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
-     static final Logger LOGGER = LogUtils.getLogger();
-     private static final int MAX_TICKS_BEFORE_LOGIN = 600;
-     private static final Component DISCONNECT_UNEXPECTED_QUERY = Component.translatable("multiplayer.disconnect.unexpected_query_response");
--    private static final RandomSource RANDOM = new org.bukkit.craftbukkit.util.RandomSourceWrapper(new java.util.Random()); // Paper - This is called across threads, make safe
-+    private static final RandomSource RANDOM = new org.bukkit.craftbukkit.util.RandomSourceWrapper(new me.satvrn.random.FastRandom()); // Paper - This is called across threads, make safe // Graphene
-     private final byte[] challenge;
-     final MinecraftServer server;
-     public final Connection connection;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 index 220e1dbf70e7d51ea69d964eb7e84f55aa5a32d7..e7bb94325a35360285815e241db59ee3133b61d5 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
