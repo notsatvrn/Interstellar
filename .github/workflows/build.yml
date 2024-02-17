@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 19 ]
       fail-fast: true
     steps:
       - name: Checkout Git Repository
@@ -42,5 +42,5 @@ jobs:
       - name: Archive Paperclip
         uses: actions/upload-artifact@v3
         with:
-          name: Graphene
-          path: build/libs/graphene-paperclip-${{ steps.mcver.outputs.mcver }}-R0.1-SNAPSHOT-reobf.jar
+          name: Interstellar
+          path: build/libs/interstellar-paperclip-${{ steps.mcver.outputs.mcver }}-R0.1-SNAPSHOT-reobf.jar
