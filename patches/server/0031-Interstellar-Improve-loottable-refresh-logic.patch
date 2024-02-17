@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: notsatvrn <satvrn@gmx.com>
 Date: Thu, 15 Feb 2024 19:21:05 -0800
-Subject: [PATCH] Graphene: Improve loottable refresh logic
+Subject: [PATCH] Interstellar: Improve loottable refresh logic
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
@@ -12,12 +12,12 @@ index 5e4fd023125152838c0baff4797a4bd1632d5228..afc27871683c742277a90476e204e3f9
      }
  
      public boolean shouldReplenish(@Nullable net.minecraft.world.entity.player.Player player) {
-+        // Graphene start - Improve loottable refresh logic (moved up)
++        // Interstellar start - Improve loottable refresh logic (moved up)
 +        // Only process refills when a player is set
 +        if (player == null) {
 +            return false;
 +        }
-+        // Graphene end
++        // Interstellar end
 +
          LootTable table = this.lootable.getLootTable();
  
@@ -42,14 +42,14 @@ index b41635dd0569ff7df909df492d3e850aef7214be..050b6498d58f5ad2956f82ad34e4068b
  
      @Override
      public void unpackLootTable(@org.jetbrains.annotations.Nullable final Player player) {
-+        if (this.lootableData.shouldReplenish(player)) return; // Graphene - Improve loottable refresh logic (move up)
++        if (this.lootableData.shouldReplenish(player)) return; // Interstellar - Improve loottable refresh logic (move up)
          // Copied from super with changes, always check the original method
          net.minecraft.world.level.Level level = this.getLevel();
-+        if (level != null) return; // Graphene - Improve loottable refresh logic (move up)
++        if (level != null) return; // Interstellar - Improve loottable refresh logic (move up)
          BlockPos blockPos = this.getBlockPos();
          ResourceLocation resourceLocation = this.getLootTable();
 -        if (this.lootableData.shouldReplenish(player) && level != null) { // Paper
-+        //if (this.lootableData.shouldReplenish(player) && level != null) { // Paper // Graphene start - Moved up
++        //if (this.lootableData.shouldReplenish(player) && level != null) { // Paper // Interstellar start - Moved up
              net.minecraft.world.level.storage.loot.LootTable lootTable = level.getServer().getLootData().getLootTable(resourceLocation);
              if (player instanceof net.minecraft.server.level.ServerPlayer) {
                  net.minecraft.advancements.CriteriaTriggers.GENERATE_LOOT.trigger((net.minecraft.server.level.ServerPlayer)player, resourceLocation);
@@ -58,14 +58,14 @@ index b41635dd0569ff7df909df492d3e850aef7214be..050b6498d58f5ad2956f82ad34e4068b
              this.lootableData.processRefill(player); // Paper
              net.minecraft.world.level.storage.loot.LootParams.Builder builder = (new net.minecraft.world.level.storage.loot.LootParams.Builder((net.minecraft.server.level.ServerLevel)level)).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, net.minecraft.world.phys.Vec3.atCenterOf(blockPos));
 -            if (player != null) {
-+            //if (player != null) { // Graphene start - Moved up
++            //if (player != null) { // Interstellar start - Moved up
                  builder.withLuck(player.getLuck()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, player);
 -            }
-+            //} // Graphene end
++            //} // Interstellar end
  
              lootTable.fill(this, builder.create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST), this.getLootTableSeed());
 -        }
-+        //} // Graphene end
++        //} // Interstellar end
  
      }
      // Paper end

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Tue, 26 Sep 2023 02:22:53 -0700
-Subject: [PATCH] Graphene: Build Changes
+Subject: [PATCH] Interstellar: Build Changes
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
@@ -13,7 +13,7 @@ index 0c92d10f334f82d196e065c0811d0c1f48887377..c6f5c7d2250eb64e8ae754f3d6a5bd54
  dependencies {
      // Purpur start
 -    implementation(project(":purpur-api"))
-+    implementation(project(":graphene-api")) // Graphene
++    implementation(project(":interstellar-api")) // Interstellar
      implementation("io.papermc.paper:paper-mojangapi:${project.version}") {
          exclude("io.papermc.paper", "paper-api")
      }
@@ -22,7 +22,7 @@ index 0c92d10f334f82d196e065c0811d0c1f48887377..c6f5c7d2250eb64e8ae754f3d6a5bd54
              "Main-Class" to "org.bukkit.craftbukkit.Main",
              "Implementation-Title" to "CraftBukkit",
 -            "Implementation-Version" to "git-Purpur-$implementationVersion", // Pufferfish // Purpur
-+            "Implementation-Version" to "git-Graphene-$implementationVersion", // Pufferfish // Purpur // Graphene
++            "Implementation-Version" to "git-Interstellar-$implementationVersion", // Pufferfish // Purpur // Interstellar
              "Implementation-Vendor" to date, // Paper
              "Specification-Title" to "Bukkit",
              "Specification-Version" to project.version,
@@ -35,7 +35,7 @@ index 8cde30544e14f8fc2dac32966ae3c21f8cf3a551..28a974ec47150ceb1a9c8414bb88ad56
              // Only start Metrics, if it's enabled in the config
              if (config.getBoolean("enabled", true)) {
 -                Metrics metrics = new Metrics("Purpur", serverUUID, logFailedRequests, Bukkit.getLogger()); // Pufferfish // Purpur
-+                Metrics metrics = new Metrics("Graphene", serverUUID, logFailedRequests, Bukkit.getLogger()); // Pufferfish // Purpur // Graphene
++                Metrics metrics = new Metrics("Interstellar", serverUUID, logFailedRequests, Bukkit.getLogger()); // Pufferfish // Purpur // Interstellar
  
                  metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
                      String minecraftVersion = Bukkit.getVersion();
@@ -44,7 +44,7 @@ index 8cde30544e14f8fc2dac32966ae3c21f8cf3a551..28a974ec47150ceb1a9c8414bb88ad56
                  metrics.addCustomChart(new Metrics.SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
                  metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() ? "bungee" : "offline"))); // Purpur
 -                metrics.addCustomChart(new Metrics.SimplePie("purpur_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown")); // Purpur
-+                metrics.addCustomChart(new Metrics.SimplePie("graphene_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown")); // Purpur // Graphene
++                metrics.addCustomChart(new Metrics.SimplePie("interstellar_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown")); // Purpur // Interstellar
  
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
@@ -57,7 +57,7 @@ index 3cb56595822799926a8141e60a42f5d1edfc6de5..793e564b5127e12b7ae3040ddf6470d7
      protected LineReader buildReader(LineReaderBuilder builder) {
          builder
 -                .appName("Purpur") // Purpur
-+                .appName("Graphene") // Purpur // Graphene
++                .appName("Interstellar") // Purpur // Interstellar
                  .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
                  .completer(new ConsoleCommandCompleter(this.server))
                  .option(LineReader.Option.COMPLETE_IN_WORD, true);
@@ -70,7 +70,7 @@ index 0a5867b01c1ebf21d9add1d4a2843d15b8e1acb7..6559e8972a9d865fce2ae2a625fecce4
  
  public final class CraftServer implements Server {
 -    private final String serverName = "Purpur"; // Paper // Pufferfish // Purpur
-+    private final String serverName = "Graphene"; // Paper // Pufferfish // Purpur // Graphene
++    private final String serverName = "Interstellar"; // Paper // Pufferfish // Purpur // Interstellar
      private final String serverVersion;
      private final String bukkitVersion = Versioning.getBukkitVersion();
      private final Logger logger = Logger.getLogger("Minecraft");
@@ -83,7 +83,7 @@ index e9fc2b4661f5275b93db5d3fdf25a8bdc3b38920..01de4bf795b63a0633f9dc281f2a2184
      }
  
 -    public static String serverModName = "Purpur";
-+    public static String serverModName = "Graphene"; // Graphene
++    public static String serverModName = "Interstellar"; // Interstellar
      private static void serverModName() {
          serverModName = getString("settings.server-mod-name", serverModName);
      }

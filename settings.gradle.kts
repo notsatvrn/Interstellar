@@ -15,9 +15,9 @@ if (!file(".git").exists()) {
     val errorText = """
         
         =====================[ ERROR ]=====================
-         The Graphene project directory is not a properly cloned Git repository.
+         The Interstellar project directory is not a properly cloned Git repository.
          
-         In order to build Graphene from source you must clone
+         In order to build Interstellar from source you must clone
          the repository using Git, not download a code zip from GitHub.
          
          See https://github.com/PurpurMC/Purpur/blob/HEAD/CONTRIBUTING.md
@@ -27,9 +27,9 @@ if (!file(".git").exists()) {
     error(errorText)
 }
 
-rootProject.name = "graphene"
+rootProject.name = "interstellar"
 
-for (name in listOf("Graphene-API", "Graphene-Server", "paper-api-generator")) {
+for (name in listOf("Interstellar-API", "Interstellar-Server", "paper-api-generator")) {
     val projName = name.lowercase(Locale.ENGLISH)
     include(projName)
     findProject(":$projName")!!.projectDir = file(name)

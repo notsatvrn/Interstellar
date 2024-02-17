@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Wed, 27 Sep 2023 18:04:57 -0700
-Subject: [PATCH] Graphene: Update PaperVersionFetcher
+Subject: [PATCH] Interstellar: Update PaperVersionFetcher
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
@@ -13,7 +13,7 @@ index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..4a5ceda9cfc1c87b82366d91c882af30
      private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
      // Purpur start
 -    private static final String DOWNLOAD_PAGE = "https://purpurmc.org/downloads";
-+    private static final String DOWNLOAD_PAGE = "https://github.com/notsatvrn/Graphene/actions"; // Graphene
++    private static final String DOWNLOAD_PAGE = "https://github.com/notsatvrn/Interstellar/actions"; // Interstellar
      private static int distance = -2; public int distance() { return distance; }
      // Purpur end
      private static @Nullable String mcVer;
@@ -23,8 +23,8 @@ index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..4a5ceda9cfc1c87b82366d91c882af30
      public Component getVersionMessage(@Nonnull String serverVersion) {
 -        String[] parts = serverVersion.substring("git-Purpur-".length()).split("[-\\s]"); // Purpur
 -        final Component updateMessage = getUpdateStatusMessage("PurpurMC/Purpur", "ver/" + getMinecraftVersion(), parts[0]); // Purpur
-+        String[] parts = serverVersion.substring("git-Graphene-".length()).split("[-\\s]"); // Purpur // Graphene
-+        final Component updateMessage = getUpdateStatusMessage("notsatvrn/Graphene", "ver/" + getMinecraftVersion(), parts[0]); // Purpur // Graphene
++        String[] parts = serverVersion.substring("git-Interstellar-".length()).split("[-\\s]"); // Purpur // Interstellar
++        final Component updateMessage = getUpdateStatusMessage("notsatvrn/Interstellar", "ver/" + getMinecraftVersion(), parts[0]); // Purpur // Interstellar
          final Component history = getHistory();
  
          return history != null ? Component.join(net.kyori.adventure.text.JoinConfiguration.separator(Component.newline()), history, updateMessage) : updateMessage; // Purpur
@@ -33,7 +33,7 @@ index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..4a5ceda9cfc1c87b82366d91c882af30
                  mcVer = result.substring(0, result.length() - 2); // strip 'R' anchor and trailing '-'
              } else {
 -                org.bukkit.Bukkit.getLogger().warning("Unable to match version to pattern! Report to Purpur!"); // Purpur
-+                org.bukkit.Bukkit.getLogger().warning("Unable to match version to pattern! Report to Graphene!"); // Purpur // Graphene
++                org.bukkit.Bukkit.getLogger().warning("Unable to match version to pattern! Report to Interstellar!"); // Purpur // Interstellar
                  org.bukkit.Bukkit.getLogger().warning("Pattern: " + VER_PATTERN.toString());
                  org.bukkit.Bukkit.getLogger().warning("Version: " + org.bukkit.Bukkit.getBukkitVersion());
              }
@@ -41,7 +41,7 @@ index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..4a5ceda9cfc1c87b82366d91c882af30
  
      private static Component getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch, @Nonnull String versionInfo) {
          //int distance; // Purpur - use field
-+        /* // Graphene start - disable jenkins/api checking
++        /* // Interstellar start - disable jenkins/api checking
          try {
              int jenkinsBuild = Integer.parseInt(versionInfo);
              distance = fetchDistanceFromSiteApi(jenkinsBuild, getMinecraftVersion());
@@ -52,7 +52,7 @@ index 462a6eed350fd660ddaf25d567bb6e97b77d0b2b..4a5ceda9cfc1c87b82366d91c882af30
 +        */
 +        versionInfo = versionInfo.replace("\"", "");
 +        distance = fetchDistanceFromGitHub(repo, branch, versionInfo);
-+        // Graphene end
++        // Interstellar end
  
          switch (distance) {
              case -1:

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Sat, 17 Feb 2024 00:47:29 +0000
-Subject: [PATCH] Graphene: Server Classes
+Subject: [PATCH] Interstellar: Server Classes
 
 
 diff --git a/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTable.java b/src/main/java/me/jellysquid/mods/lithium/state/FastImmutableTable.java

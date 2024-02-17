@@ -55,7 +55,7 @@ manifest.mf
 run/
 
 build-data/
-Graphene-API
-Graphene-Server
+Interstellar-API
+Interstellar-Server
 paper-api-generator
 *.jar

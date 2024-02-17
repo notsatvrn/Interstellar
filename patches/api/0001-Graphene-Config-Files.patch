@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: BillyGalbreath <blake.galbreath@gmail.com>
 Date: Sun, 12 Jun 2022 10:57:51 -0500
-Subject: [PATCH] Graphene: Config Files
+Subject: [PATCH] Interstellar: Config Files
 
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
@@ -12,12 +12,12 @@ index be0e4c789a02d67160287c39cf6bdf8ef2229afc..031076f1a03047d9d35743fe178f1b77
          }
          // Purpur end
  
-+        // Graphene start
++        // Interstellar start
 +        @NotNull
-+        public org.bukkit.configuration.file.YamlConfiguration getGrapheneConfig() {
++        public org.bukkit.configuration.file.YamlConfiguration getInterstellarConfig() {
 +            throw new UnsupportedOperationException("Not supported yet.");
 +        }
-+        // Graphene end
++        // Interstellar end
 +
          /**
           * Sends the component to the player

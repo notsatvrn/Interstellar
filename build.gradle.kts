@@ -63,7 +63,7 @@ dependencies {
 }
 
 paperweight {
-    serverProject = project(":graphene-server")
+    serverProject = project(":interstellar-server")
 
     remapRepo = paperMavenPublicUrl
     decompileRepo = paperMavenPublicUrl
@@ -76,10 +76,10 @@ paperweight {
             baseName("Purpur")
 
             apiPatchDir = layout.projectDirectory.dir("patches/api")
-            apiOutputDir = layout.projectDirectory.dir("Graphene-API")
+            apiOutputDir = layout.projectDirectory.dir("Interstellar-API")
 
             serverPatchDir = layout.projectDirectory.dir("patches/server")
-            serverOutputDir = layout.projectDirectory.dir("Graphene-Server")
+            serverOutputDir = layout.projectDirectory.dir("Interstellar-Server")
         }
 
         patchTasks.register("generatedApi") {
@@ -92,7 +92,7 @@ paperweight {
 }
 
 tasks.generateDevelopmentBundle {
-    apiCoordinates = "me.satvrn.graphene:graphene-api"
+    apiCoordinates = "me.satvrn.interstellar:interstellar-api"
     mojangApiCoordinates = "io.papermc.paper:paper-mojangapi"
     libraryRepositories = 
         listOf(
@@ -107,7 +107,7 @@ allprojects {
     publishing {
         repositories {
             maven("https://repo.purpurmc.org/snapshots") {
-                name = "graphene"
+                name = "interstellar"
                 credentials(PasswordCredentials::class)
             }
         }
@@ -129,7 +129,7 @@ tasks.register("printMinecraftVersion") {
     }
 }
 
-tasks.register("printGrapheneVersion") {
+tasks.register("printInterstellarVersion") {
     doLast {
         println(project.version)
     }

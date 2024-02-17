@@ -14,8 +14,8 @@ LOCAL_TZ = ZoneInfo("localtime")
 script_path = os.path.realpath(__file__)
 class_dir = str(pathlib.Path(f"{script_path}/../../classes/").resolve())
 source_dirs = {
-    "API": str(pathlib.Path(f"{script_path}/../../Graphene-API/").resolve()),
-    "Server": str(pathlib.Path(f"{script_path}/../../Graphene-Server/").resolve()),
+    "API": str(pathlib.Path(f"{script_path}/../../Interstellar-API/").resolve()),
+    "Server": str(pathlib.Path(f"{script_path}/../../Interstellar-Server/").resolve()),
 }
 patch_dirs = {
     "API": str(pathlib.Path(f"{script_path}/../../patches/api/").resolve()),
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         patch = "From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001\n"
         patch += "From: satvrn <pastawho@gmail.com>\n"
         patch += f"Date: {datetime.now(tz=LOCAL_TZ).strftime('%a, %d %b %Y %H:%M:%S %z')}\n"
-        patch += f"Subject: [PATCH] Graphene: {type} Classes\n\n\n"
+        patch += f"Subject: [PATCH] Interstellar: {type} Classes\n\n\n"
         
         for i, rp in enumerate(real_paths):
             patch_path = f"{source_dir}/src/main/java/{patch_paths[i]}"
@@ -62,6 +62,6 @@ if __name__ == "__main__":
 
         # write patch
         os.chdir(patch_dirs[type])
-        f = open(f"0002-Graphene-{type}-Classes.patch", "w")
+        f = open(f"0002-Interstellar-{type}-Classes.patch", "w")
         f.write(patch)
         f.close()
