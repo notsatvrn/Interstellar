@@ -1,0 +1,568 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Wed, 27 Sep 2023 00:21:16 -0700
+Subject: [PATCH] Lithium: reduce allocs
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+index 76c1b62e00af59848375bf9f75c5f67a02130b2e..97363cb70b8ebf1c78a9e73769ec17f5935124ce 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
++++ b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+@@ -39,7 +39,7 @@ public class PaperGameProfileRepository extends YggdrasilGameProfileRepository {
+ 
+         // Some things were not found.... Proceed to look up.
+         if (!unfoundNames.isEmpty()) {
+-            String[] namesArr = unfoundNames.toArray(new String[0]); // P4per - use non-pre-sized array
++            String[] namesArr = unfoundNames.toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // P4per - use non-pre-sized array // Lithum: reduce allocs
+             super.findProfilesByNames(namesArr, new PreProfileLookupCallback(callback));
+         }
+     }
+diff --git a/src/main/java/com/destroystokyo/paper/util/maplist/EntityList.java b/src/main/java/com/destroystokyo/paper/util/maplist/EntityList.java
+index 0133ea6feb1ab88f021f66855669f58367e7420b..12ab2108b4cd7ddbb364495338889d73dc118ac1 100644
+--- a/src/main/java/com/destroystokyo/paper/util/maplist/EntityList.java
++++ b/src/main/java/com/destroystokyo/paper/util/maplist/EntityList.java
+@@ -17,7 +17,7 @@ public final class EntityList implements Iterable<Entity> {
+         this.entityToIndex.defaultReturnValue(Integer.MIN_VALUE);
+     }
+ 
+-    protected static final Entity[] EMPTY_LIST = new Entity[0];
++    protected static final Entity[] EMPTY_LIST = me.jellysquid.mods.lithium.util.Constants.ENTITY_EMPTY; // Lithum: reduce allocs
+ 
+     protected Entity[] entities = EMPTY_LIST;
+     protected int count;
+diff --git a/src/main/java/com/destroystokyo/paper/util/maplist/IBlockDataList.java b/src/main/java/com/destroystokyo/paper/util/maplist/IBlockDataList.java
+index 277cfd9d1e8fff5d9b5e534b75c3c5162d58b0b7..c2e3edfd426b8b2b9ffd637a3adaafcab3755037 100644
+--- a/src/main/java/com/destroystokyo/paper/util/maplist/IBlockDataList.java
++++ b/src/main/java/com/destroystokyo/paper/util/maplist/IBlockDataList.java
+@@ -20,9 +20,9 @@ public final class IBlockDataList {
+         this.map.defaultReturnValue(Long.MAX_VALUE);
+     }
+ 
+-    private static final long[] EMPTY_LIST = new long[0];
++    //private static final long[] EMPTY_LIST = new long[0]; // Lithum: reduce allocs
+ 
+-    private long[] byIndex = EMPTY_LIST;
++    private long[] byIndex = me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // Lithum: reduce allocs
+     private int size;
+ 
+     public static int getLocationKey(final int x, final int y, final int z) {
+diff --git a/src/main/java/com/destroystokyo/paper/util/maplist/ReferenceList.java b/src/main/java/com/destroystokyo/paper/util/maplist/ReferenceList.java
+index 190c5f0b02a3d99054704ae1afbffb3498ddffe1..32880b500d0ada11cbe9b2a7814fed5be3561922 100644
+--- a/src/main/java/com/destroystokyo/paper/util/maplist/ReferenceList.java
++++ b/src/main/java/com/destroystokyo/paper/util/maplist/ReferenceList.java
+@@ -15,7 +15,7 @@ public final class ReferenceList<E> implements Iterable<E> {
+         this.referenceToIndex.defaultReturnValue(Integer.MIN_VALUE);
+     }
+ 
+-    protected static final Object[] EMPTY_LIST = new Object[0];
++    protected static final Object[] EMPTY_LIST = me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY; // Lithum: reduce allocs
+ 
+     protected Object[] references = EMPTY_LIST;
+     protected int count;
+diff --git a/src/main/java/com/mojang/brigadier/CommandDispatcher.java b/src/main/java/com/mojang/brigadier/CommandDispatcher.java
+index 378df6c424323915940290880b2410bae17dc60e..2fc0a3ed4511c5846b6552fe73cc374f2b209ea0 100644
+--- a/src/main/java/com/mojang/brigadier/CommandDispatcher.java
++++ b/src/main/java/com/mojang/brigadier/CommandDispatcher.java
+@@ -399,7 +399,7 @@ public class CommandDispatcher<S> {
+     public String[] getAllUsage(final CommandNode<S> node, final S source, final boolean restricted) {
+         final ArrayList<String> result = new ArrayList<>();
+         this.getAllUsage(node, source, result, "", restricted);
+-        return result.toArray(new String[0]); // P4per - use non-pre-sized array
++        return result.toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // P4per - use non-pre-sized array // Lithum: reduce allocs
+     }
+ 
+     private void getAllUsage(final CommandNode<S> node, final S source, final ArrayList<String> result, final String prefix, final boolean restricted) {
+diff --git a/src/main/java/io/papermc/paper/command/subcommands/VersionCommand.java b/src/main/java/io/papermc/paper/command/subcommands/VersionCommand.java
+index ae60bd96b5284d54676d8e7e4dd5d170b526ec1e..900a51cf5065e801507072286e2f52e0193db819 100644
+--- a/src/main/java/io/papermc/paper/command/subcommands/VersionCommand.java
++++ b/src/main/java/io/papermc/paper/command/subcommands/VersionCommand.java
+@@ -14,7 +14,7 @@ public final class VersionCommand implements PaperSubcommand {
+     public boolean execute(final CommandSender sender, final String subCommand, final String[] args) {
+         final @Nullable Command ver = MinecraftServer.getServer().server.getCommandMap().getCommand("version");
+         if (ver != null) {
+-            ver.execute(sender, "paper", new String[0]);
++            ver.execute(sender, "paper", me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // Lithum: reduce allocs
+         }
+         return true;
+     }
+diff --git a/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java b/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java
+index 7e8dc9e8f381abfdcce2746edc93122d623622d1..ffa5a30fe78e1f9b6ed8c63050ba9e5c89a3e16e 100644
+--- a/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java
++++ b/src/main/java/io/papermc/paper/world/ChunkEntitySlices.java
+@@ -82,7 +82,7 @@ public final class ChunkEntitySlices {
+             }
+         }
+ 
+-        return ret.toArray(new org.bukkit.entity.Entity[0]);
++        return ret.toArray(me.jellysquid.mods.lithium.util.Constants.BUKKIT_ENTITY_EMPTY); // Lithum: reduce allocs
+     }
+ 
+     public CompoundTag save() {
+@@ -303,7 +303,7 @@ public final class ChunkEntitySlices {
+ 
+     protected static final class BasicEntityList<E extends Entity> {
+ 
+-        protected static final Entity[] EMPTY = new Entity[0];
++        protected static final Entity[] EMPTY = me.jellysquid.mods.lithium.util.Constants.ENTITY_EMPTY; // Lithum: reduce allocs
+         protected static final int DEFAULT_CAPACITY = 4;
+ 
+         protected E[] storage;
+diff --git a/src/main/java/net/minecraft/nbt/ByteArrayTag.java b/src/main/java/net/minecraft/nbt/ByteArrayTag.java
+index 06648f9751fd8a322d0809ffebf6a544596ee1a4..c52699a6d0ee1597f4bc53d0dfb14ef171145295 100644
+--- a/src/main/java/net/minecraft/nbt/ByteArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/ByteArrayTag.java
+@@ -175,7 +175,7 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
+     }
+ 
+     public void clear() {
+-        this.data = new byte[0];
++        this.data = me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/nbt/CompoundTag.java b/src/main/java/net/minecraft/nbt/CompoundTag.java
+index eea9866aecb7189455319d83561fcef35a777d7a..7a0d6bace2eb1d8b24c3d91747234c8472aea6b5 100644
+--- a/src/main/java/net/minecraft/nbt/CompoundTag.java
++++ b/src/main/java/net/minecraft/nbt/CompoundTag.java
+@@ -420,7 +420,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, ByteArrayTag.TYPE, var3));
+         }
+ 
+-        return new byte[0];
++        return me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     public int[] getIntArray(String key) {
+@@ -432,7 +432,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, IntArrayTag.TYPE, var3));
+         }
+ 
+-        return new int[0];
++        return me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     public long[] getLongArray(String key) {
+@@ -444,7 +444,7 @@ public class CompoundTag implements Tag {
+             throw new ReportedException(this.createReport(key, LongArrayTag.TYPE, var3));
+         }
+ 
+-        return new long[0];
++        return me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     public CompoundTag getCompound(String key) {
+diff --git a/src/main/java/net/minecraft/nbt/IntArrayTag.java b/src/main/java/net/minecraft/nbt/IntArrayTag.java
+index ff13d67151c50ea11a45117e524c7524e2b1a202..d72eb93b69ddbce728c3ded333d6a2af9fe168ce 100644
+--- a/src/main/java/net/minecraft/nbt/IntArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/IntArrayTag.java
+@@ -186,7 +186,7 @@ public class IntArrayTag extends CollectionTag<IntTag> {
+     }
+ 
+     public void clear() {
+-        this.data = new int[0];
++        this.data = me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/nbt/ListTag.java b/src/main/java/net/minecraft/nbt/ListTag.java
+index 24ad8d22b5180cd7d7f793e3074e438f9192448f..17e13f5fa50dc54c16d92bbf54e5ec4e2adc3683 100644
+--- a/src/main/java/net/minecraft/nbt/ListTag.java
++++ b/src/main/java/net/minecraft/nbt/ListTag.java
+@@ -279,7 +279,7 @@ public class ListTag extends CollectionTag<Tag> {
+             }
+         }
+ 
+-        return new int[0];
++        return me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     public long[] getLongArray(int index) {
+@@ -291,7 +291,7 @@ public class ListTag extends CollectionTag<Tag> {
+             }
+         }
+ 
+-        return new long[0];
++        return me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     public double getDouble(int index) {
+diff --git a/src/main/java/net/minecraft/nbt/LongArrayTag.java b/src/main/java/net/minecraft/nbt/LongArrayTag.java
+index 3604e22f593275140d706c296355ee06ca8ec888..9e49226fdb4d4677baeedb436e57c833f3401789 100644
+--- a/src/main/java/net/minecraft/nbt/LongArrayTag.java
++++ b/src/main/java/net/minecraft/nbt/LongArrayTag.java
+@@ -190,7 +190,7 @@ public class LongArrayTag extends CollectionTag<LongTag> {
+ 
+     @Override
+     public void clear() {
+-        this.data = new long[0];
++        this.data = me.jellysquid.mods.lithium.util.Constants.LONG_EMPTY; // Lithum: reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/network/Connection.java b/src/main/java/net/minecraft/network/Connection.java
+index b41cab778f446434b788946ea9d3e02c152e570e..02728f6b4d8f184771f2bde4d2ad88e5bf729c71 100644
+--- a/src/main/java/net/minecraft/network/Connection.java
++++ b/src/main/java/net/minecraft/network/Connection.java
+@@ -321,7 +321,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+     }
+ 
+     public void setListener(PacketListener packetListener) {
+-        Validate.notNull(packetListener, "packetListener", new Object[0]);
++        Validate.notNull(packetListener, "packetListener", me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY); // Lithum: reduce allocs
+         PacketFlow enumprotocoldirection = packetListener.flow();
+ 
+         if (enumprotocoldirection != this.receiving) {
+diff --git a/src/main/java/net/minecraft/network/chat/contents/TranslatableContents.java b/src/main/java/net/minecraft/network/chat/contents/TranslatableContents.java
+index d45e39bc009281c298f3dfae113dc87f2b3b1fbd..7683f6da7d2e5aeaaf2a61bf045706ebc8b0077c 100644
+--- a/src/main/java/net/minecraft/network/chat/contents/TranslatableContents.java
++++ b/src/main/java/net/minecraft/network/chat/contents/TranslatableContents.java
+@@ -28,7 +28,7 @@ import net.minecraft.util.ExtraCodecs;
+ import net.minecraft.world.entity.Entity;
+ 
+ public class TranslatableContents implements ComponentContents {
+-    public static final Object[] NO_ARGS = new Object[0];
++    public static final Object[] NO_ARGS = me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY; // Lithum: reduce allocs
+     private static final Codec<Object> PRIMITIVE_ARG_CODEC = ExtraCodecs.validate(ExtraCodecs.JAVA, TranslatableContents::filterAllowedArguments);
+     private static final Codec<Object> ARG_CODEC = Codec.either(PRIMITIVE_ARG_CODEC, ComponentSerialization.CODEC).xmap((either) -> {
+         return either.map((object) -> {
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 0267c7f1b468aad7deccd14058a150185e888531..48c61a7dee36c416f202f80ecbb87ad15c039f91 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1490,10 +1490,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     private Optional<ServerStatus.Favicon> loadStatusIcon() {
+         Optional<Path> optional = Optional.of(this.getFile("server-icon.png").toPath()).filter((path) -> {
+-            return Files.isRegularFile(path, new LinkOption[0]);
++            return Files.isRegularFile(path, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY); // Lithum: reduce allocs
+         }).or(() -> {
+             return this.storageSource.getIconFile().filter((path) -> {
+-                return Files.isRegularFile(path, new LinkOption[0]);
++                return Files.isRegularFile(path, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY); // Lithum: reduce allocs
+             });
+         });
+ 
+diff --git a/src/main/java/net/minecraft/server/PlayerAdvancements.java b/src/main/java/net/minecraft/server/PlayerAdvancements.java
+index ba8a8575af92541cef2e116743d51cd68d1e794a..d1533260af8c1ca8e5514f23a4dac8231815681b 100644
+--- a/src/main/java/net/minecraft/server/PlayerAdvancements.java
++++ b/src/main/java/net/minecraft/server/PlayerAdvancements.java
+@@ -130,7 +130,7 @@ public class PlayerAdvancements {
+     }
+ 
+     private void load(ServerAdvancementManager advancementLoader) {
+-        if (Files.isRegularFile(this.playerSavePath, new LinkOption[0])) {
++        if (Files.isRegularFile(this.playerSavePath, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+             try {
+                 JsonReader jsonreader = new JsonReader(Files.newBufferedReader(this.playerSavePath, StandardCharsets.UTF_8));
+ 
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index b25c41c639bc98a3a1fd5b3e6a7db23efe1a7f7e..64d13761ed2fd12fb697011ccd405846e95e7588 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -1449,7 +1449,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+ 
+     public static List<Entity> getCurrentlyTickingEntities() {
+         Entity ticking = currentlyTickingEntity.get();
+-        List<Entity> ret = java.util.Arrays.asList(ticking == null ? new Entity[0] : new Entity[] { ticking });
++        List<Entity> ret = java.util.Arrays.asList(ticking == null ? me.jellysquid.mods.lithium.util.Constants.ENTITY_EMPTY : new Entity[] { ticking }); // Lithum: reduce allocs
+ 
+         return ret;
+     }
+diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+index 8b62f992ec61d0a66a3856b4928ee2d705548291..003eefc0c2cdc769c60ada1870d773d25fad29a2 100644
+--- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -138,8 +138,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+ 
+     @Override
+     public void handleHello(ServerboundHelloPacket packet) {
+-        Validate.validState(this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet", new Object[0]);
+-        if (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.performUsernameValidation && !this.iKnowThisMayNotBeTheBestIdeaButPleaseDisableUsernameValidation) Validate.validState(Player.isValidUsername(packet.name()), "Invalid characters in username", new Object[0]); // Paper - config username validation
++        Validate.validState(this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet", me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY); // Lithum: reduce allocs
++        if (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() && io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.performUsernameValidation && !this.iKnowThisMayNotBeTheBestIdeaButPleaseDisableUsernameValidation) Validate.validState(Player.isValidUsername(packet.name()), "Invalid characters in username", me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY); // Paper - config username validation // Lithum: reduce allocs
+         this.requestedUsername = packet.name();
+         GameProfile gameprofile = this.server.getSingleplayerProfile();
+ 
+@@ -223,7 +223,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+ 
+     @Override
+     public void handleKey(ServerboundKeyPacket packet) {
+-        Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet", new Object[0]);
++        Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet", me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY); // Lithum: reduce allocs
+ 
+         final String s;
+ 
+@@ -403,7 +403,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+ 
+     @Override
+     public void handleLoginAcknowledgement(ServerboundLoginAcknowledgedPacket packet) {
+-        Validate.validState(this.state == ServerLoginPacketListenerImpl.State.PROTOCOL_SWITCHING, "Unexpected login acknowledgement packet", new Object[0]);
++        Validate.validState(this.state == ServerLoginPacketListenerImpl.State.PROTOCOL_SWITCHING, "Unexpected login acknowledgement packet", me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY); // Lithum: reduce allocs
+         CommonListenerCookie commonlistenercookie = CommonListenerCookie.createInitial((GameProfile) Objects.requireNonNull(this.authenticatedProfile));
+         ServerConfigurationPacketListenerImpl serverconfigurationpacketlistenerimpl = new ServerConfigurationPacketListenerImpl(this.server, this.connection, commonlistenercookie, this.player); // CraftBukkit
+ 
+diff --git a/src/main/java/net/minecraft/server/players/OldUsersConverter.java b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+index 89ac6153984401cef6c8c0851f752f66aa0327c1..034cbf63a1a4b3e1fdb01adce7a9a5b685c45cb8 100644
+--- a/src/main/java/net/minecraft/server/players/OldUsersConverter.java
++++ b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+@@ -327,7 +327,7 @@ public class OldUsersConverter {
+             }
+ 
+             try {
+-                final String[] astring = (String[]) list.toArray(new String[0]); // P4per - use non-pre-sized array
++                final String[] astring = (String[]) list.toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // P4per - use non-pre-sized array // Lithum: reduce allocs
+                 ProfileLookupCallback profilelookupcallback = new ProfileLookupCallback() {
+                     public void onProfileLookupSucceeded(GameProfile gameprofile) {
+                         minecraftServer.getProfileCache().add(gameprofile);
+diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
+index 12d13f862f72f284c0bee75ce71ada574170981b..96aaaa1d31c58be2e471be9e3c66493b3cf7e342 100644
+--- a/src/main/java/net/minecraft/server/players/StoredUserList.java
++++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
+@@ -77,7 +77,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+     }
+ 
+     public String[] getUserList() {
+-        return (String[]) this.map.keySet().toArray(new String[0]);
++        return (String[]) this.map.keySet().toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // Lithum: reduce allocs
+     }
+ 
+     public boolean isEmpty() {
+diff --git a/src/main/java/net/minecraft/util/MemoryReserve.java b/src/main/java/net/minecraft/util/MemoryReserve.java
+index 0ee04fe6ff6a4d09754f326526ae04fe7226bab2..1f8e16c93dd053ed42e0a3a04c7e859bbdb07a84 100644
+--- a/src/main/java/net/minecraft/util/MemoryReserve.java
++++ b/src/main/java/net/minecraft/util/MemoryReserve.java
+@@ -11,6 +11,6 @@ public class MemoryReserve {
+     }
+ 
+     public static void release() {
+-        reserve = new byte[0];
++        reserve = me.jellysquid.mods.lithium.util.Constants.BYTE_EMPTY; // Lithum: reduce allocs
+     }
+ }
+diff --git a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
+index a8314521dd5d17fcf3ff1de4f6fc85804112d87c..f682dc44e8f2f229a6dcd17cd29b1b66faddd839 100644
+--- a/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
++++ b/src/main/java/net/minecraft/world/entity/boss/wither/WitherBoss.java
+@@ -192,7 +192,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
+ 
+     @Override
+     public boolean onClick(net.minecraft.world.InteractionHand hand) {
+-        return shoot(getRider(), hand == net.minecraft.world.InteractionHand.MAIN_HAND ? new int[]{1} : new int[]{2});
++        return shoot(getRider(), hand == net.minecraft.world.InteractionHand.MAIN_HAND ? me.jellysquid.mods.lithium.util.Constants.INT_ONE : me.jellysquid.mods.lithium.util.Constants.INT_TWO); // Lithum: reduce allocs
+     }
+ 
+     public boolean shoot(@Nullable Player rider, int[] heads) {
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index bc797f1872f86b59a8aae3e70823249c9b8d8922..98380b5841876eb2fb84e0dc03487a7c0895ecb0 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -1901,7 +1901,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+     public org.bukkit.entity.Entity[] getChunkEntities(int chunkX, int chunkZ) {
+         io.papermc.paper.world.ChunkEntitySlices slices = ((ServerLevel)this).getEntityLookup().getChunk(chunkX, chunkZ);
+         if (slices == null) {
+-            return new org.bukkit.entity.Entity[0];
++            return me.jellysquid.mods.lithium.util.Constants.BUKKIT_ENTITY_EMPTY; // Lithum: reduce allocs
+         }
+         return slices.getChunkEntities();
+     }
+diff --git a/src/main/java/net/minecraft/world/level/block/ComposterBlock.java b/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
+index 47b7baa41f341087bcd5dfec1d2a13b96f8357ca..ba287e89f61926dff699e82148dbdfe3d19e7865 100644
+--- a/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/ComposterBlock.java
+@@ -450,7 +450,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.DOWN ? new int[]{0} : new int[0];
++            return side == Direction.DOWN ? me.jellysquid.mods.lithium.util.Constants.INT_ZERO : me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithum: reduce allocs
+         }
+ 
+         @Override
+@@ -499,7 +499,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return side == Direction.UP ? new int[]{0} : new int[0];
++            return side == Direction.UP ? me.jellysquid.mods.lithium.util.Constants.INT_ZERO : me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithum: reduce allocs
+         }
+ 
+         @Override
+@@ -541,7 +541,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
+ 
+         @Override
+         public int[] getSlotsForFace(Direction side) {
+-            return new int[0];
++            return me.jellysquid.mods.lithium.util.Constants.INT_EMPTY; // Lithum: reduce allocs
+         }
+ 
+         @Override
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
+index 7144ae7f8bfcac00b70bfe3c05af5f8ec824e46b..2c80ba31a97f21668c23eb19b40dc117ed95bfae 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
+@@ -454,7 +454,7 @@ public class RegionFile implements AutoCloseable, org.purpurmc.purpur.region.Abs
+         initOversizedState(); // Paper
+         this.usedSectors = new RegionBitmap();
+         this.version = outputChunkStreamVersion;
+-        if (!Files.isDirectory(directory, new LinkOption[0])) {
++        if (!Files.isDirectory(directory, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+             throw new IllegalArgumentException("Expected directory, got " + directory.toAbsolutePath());
+         } else {
+             this.externalFileDir = directory;
+@@ -710,7 +710,7 @@ public class RegionFile implements AutoCloseable, org.purpurmc.purpur.region.Abs
+     private DataInputStream createExternalChunkInputStream(ChunkPos pos, byte flags) throws IOException {
+         Path path = this.getExternalChunkPath(pos);
+ 
+-        if (!Files.isRegularFile(path, new LinkOption[0])) {
++        if (!Files.isRegularFile(path, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+             RegionFile.LOGGER.error("External chunk path {} is not file", path);
+             return null;
+         } else {
+@@ -762,7 +762,7 @@ public class RegionFile implements AutoCloseable, org.purpurmc.purpur.region.Abs
+                             return false;
+                         }
+ 
+-                        if (!Files.isRegularFile(this.getExternalChunkPath(pos), new LinkOption[0])) {
++                        if (!Files.isRegularFile(this.getExternalChunkPath(pos), me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+                             return false;
+                         }
+                     } else {
+diff --git a/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java b/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java
+index 399da9d43aefbb95897df4697860d5bce5317152..4056b109c27930f45f4cca4bfd89e9d1710898f6 100644
+--- a/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java
++++ b/src/main/java/net/minecraft/world/level/storage/LevelStorageSource.java
+@@ -110,7 +110,7 @@ public class LevelStorageSource {
+     }
+ 
+     public static DirectoryValidator parseValidator(Path allowedSymlinksFile) {
+-        if (Files.exists(allowedSymlinksFile, new LinkOption[0])) {
++        if (Files.exists(allowedSymlinksFile, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+             try {
+                 BufferedReader bufferedreader = Files.newBufferedReader(allowedSymlinksFile);
+ 
+@@ -189,7 +189,7 @@ public class LevelStorageSource {
+     }
+ 
+     public LevelStorageSource.LevelCandidates findLevelCandidates() throws LevelStorageException {
+-        if (!Files.isDirectory(this.baseDir, new LinkOption[0])) {
++        if (!Files.isDirectory(this.baseDir, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+             throw new LevelStorageException(Component.translatable("selectWorld.load_folder_access"));
+         } else {
+             try {
+@@ -199,9 +199,9 @@ public class LevelStorageSource {
+ 
+                 try {
+                     List<LevelStorageSource.LevelDirectory> list = stream.filter((path) -> {
+-                        return Files.isDirectory(path, new LinkOption[0]);
++                        return Files.isDirectory(path, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY); // Lithum: reduce allocs
+                     }).map(LevelStorageSource.LevelDirectory::new).filter((convertable_b) -> {
+-                        return Files.isRegularFile(convertable_b.dataFile(), new LinkOption[0]) || Files.isRegularFile(convertable_b.oldDataFile(), new LinkOption[0]);
++                        return Files.isRegularFile(convertable_b.dataFile(), me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY) || Files.isRegularFile(convertable_b.oldDataFile(), me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY); // Lithum: reduce allocs
+                     }).toList();
+ 
+                     convertable_a = new LevelStorageSource.LevelCandidates(list);
+@@ -312,7 +312,7 @@ public class LevelStorageSource {
+     private LevelSummary readLevelSummary(LevelStorageSource.LevelDirectory save, boolean locked) {
+         Path path = save.dataFile();
+ 
+-        if (Files.exists(path, new LinkOption[0])) {
++        if (Files.exists(path, me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY)) { // Lithum: reduce allocs
+             try {
+                 if (Files.isSymbolicLink(path)) {
+                     List<ForbiddenSymlinkInfo> list = this.worldDirValidator.validateSymlink(path);
+@@ -411,7 +411,7 @@ public class LevelStorageSource {
+ 
+     public boolean levelExists(String name) {
+         try {
+-            return Files.isDirectory(this.getLevelPath(name), new LinkOption[0]);
++            return Files.isDirectory(this.getLevelPath(name), me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY); // Lithum: reduce allocs
+         } catch (InvalidPathException invalidpathexception) {
+             return false;
+         }
+@@ -752,7 +752,7 @@ public class LevelStorageSource {
+         }
+ 
+         public boolean hasWorldData() {
+-            return Files.exists(this.levelDirectory.dataFile(), new LinkOption[0]) || Files.exists(this.levelDirectory.oldDataFile(), new LinkOption[0]);
++            return Files.exists(this.levelDirectory.dataFile(), me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY) || Files.exists(this.levelDirectory.oldDataFile(), me.jellysquid.mods.lithium.util.Constants.LINKOPTION_EMPTY); // Lithum: reduce allocs
+         }
+ 
+         public void close() throws IOException {
+diff --git a/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java b/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java
+index 7309aacbdbc88e9fd781d049650dac54403f78ce..6b2e7dc91789084215022d04641881891534b1d9 100644
+--- a/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java
++++ b/src/main/java/net/minecraft/world/level/storage/PlayerDataStorage.java
+@@ -125,7 +125,7 @@ public class PlayerDataStorage {
+         String[] astring = this.playerDir.list();
+ 
+         if (astring == null) {
+-            astring = new String[0];
++            astring = me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY; // Lithum: reduce allocs
+         }
+ 
+         for (int i = 0; i < astring.length; ++i) {
+diff --git a/src/main/java/net/minecraft/world/scores/Team.java b/src/main/java/net/minecraft/world/scores/Team.java
+index 16d2aa4556bc9f32a2def7f9ca282aa3fa23fb87..a944283e03243a1c5c36845d2306d2b7dd1095d2 100644
+--- a/src/main/java/net/minecraft/world/scores/Team.java
++++ b/src/main/java/net/minecraft/world/scores/Team.java
+@@ -80,7 +80,7 @@ public abstract class Team {
+         public final int id;
+ 
+         public static String[] getAllNames() {
+-            return BY_NAME.keySet().toArray(new String[0]);
++            return BY_NAME.keySet().toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // Lithum: reduce allocs
+         }
+ 
+         @Nullable
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 58213692f80368baf3ceaed066bfac9ce8240e96..6e1595daacaa192a7485228ad2bfc167ae329bf2 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1863,7 +1863,7 @@ public final class CraftServer implements Server {
+                     commands = ImmutableList.of(section.getString(key));
+                 }
+ 
+-                result.put(key, commands.toArray(new String[0])); // P4per - use non-pre-sized array
++                result.put(key, commands.toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY)); // P4per - use non-pre-sized array // Lithum: reduce allocs
+             }
+         }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index cf094dc53cc8e4bcc82587fda3fcdcb6a35d3a4a..bfb64d0bc6de4fe40605bf4203a977edc20b1a1a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -2063,7 +2063,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public String[] getGameRules() {
+-        return CraftWorld.getGameRulesNMS().keySet().toArray(new String[0]); // P4per - use non-pre-sized array
++        return CraftWorld.getGameRulesNMS().keySet().toArray(me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // P4per - use non-pre-sized array // Lithum: reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+index 05cdc3d106ca848fde875c272f22916b36f0a13f..550d0526f2ceb6a029d34b37d8350685377b8f1f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/WeakCollection.java
+@@ -164,7 +164,7 @@ public final class WeakCollection<T> implements Collection<T> {
+ 
+     @Override
+     public Object[] toArray() {
+-        return this.toArray(new Object[0]);
++        return this.toArray(me.jellysquid.mods.lithium.util.Constants.OBJECT_EMPTY); // Lithum: reduce allocs
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/purpurmc/purpur/command/PurpurCommand.java b/src/main/java/org/purpurmc/purpur/command/PurpurCommand.java
+index 2621e54879e9ab0029a875f1d09eee67878b90d5..5ddf83f066f81fbdcfe34d45116ae7a750769dcd 100644
+--- a/src/main/java/org/purpurmc/purpur/command/PurpurCommand.java
++++ b/src/main/java/org/purpurmc/purpur/command/PurpurCommand.java
+@@ -57,7 +57,7 @@ public class PurpurCommand extends Command {
+         } else if (args[0].equalsIgnoreCase("version")) {
+             Command verCmd = org.bukkit.Bukkit.getServer().getCommandMap().getCommand("version");
+             if (verCmd != null) {
+-                return verCmd.execute(sender, commandLabel, new String[0]);
++                return verCmd.execute(sender, commandLabel, me.jellysquid.mods.lithium.util.Constants.STRING_EMPTY); // Lithum: reduce allocs
+             }
+         }
+ 

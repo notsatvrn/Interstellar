@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Tue, 26 Sep 2023 00:14:22 -0700
+Subject: [PATCH] Lithium: math.sine_lut
+
+
+diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
+index d36a135cc24347e444213bb942c051c3c646dd0b..7a6a542d4e9ba5e212915469651cf0ac0a733fb8 100644
+--- a/src/main/java/net/minecraft/util/Mth.java
++++ b/src/main/java/net/minecraft/util/Mth.java
+@@ -28,7 +28,7 @@ public class Mth {
+     public static final Vector3f Y_AXIS = new Vector3f(0.0F, 1.0F, 0.0F);
+     public static final Vector3f X_AXIS = new Vector3f(1.0F, 0.0F, 0.0F);
+     public static final Vector3f Z_AXIS = new Vector3f(0.0F, 0.0F, 1.0F);
+-    private static final float[] SIN = Util.make(new float[65536], (sineTable) -> {
++    public static final float[] SIN = Util.make(new float[65536], (sineTable) -> { // Lithium - math.sine_lut
+         for(int i = 0; i < sineTable.length; ++i) {
+             sineTable[i] = (float)Math.sin((double)i * Math.PI * 2.0D / 65536.0D);
+         }
+@@ -44,11 +44,11 @@ public class Mth {
+     private static final double[] COS_TAB = new double[257];
+ 
+     public static float sin(float value) {
+-        return SIN[(int)(value * 10430.378F) & '\uffff'];
++        return me.jellysquid.mods.lithium.util.math.CompactSineLUT.sin(value); // Lithium - math.sine_lut
+     }
+ 
+     public static float cos(float value) {
+-        return SIN[(int)(value * 10430.378F + 16384.0F) & '\uffff'];
++        return me.jellysquid.mods.lithium.util.math.CompactSineLUT.cos(value); // Lithium - math.sine_lut
+     }
+ 
+     public static float sqrt(float value) {

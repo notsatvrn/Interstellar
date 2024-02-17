@@ -21,7 +21,7 @@ index 63e187c65cb855031f286aad0d25ac4694f7a331..7309aacbdbc88e9fd781d049650dac54
 @@ -71,7 +72,7 @@ public class PlayerDataStorage {
              }
              // Spigot End
- 
+
 -            if (file.exists() && file.isFile()) {
 +            if (normalFile) { // Akarin - avoid double I/O operation
                  nbttagcompound = NbtIo.readCompressed(file.toPath(), NbtAccounter.unlimitedHeap());

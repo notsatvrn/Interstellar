@@ -11,8 +11,8 @@ package me.jellysquid.mods.lithium.util;
 public final class Constants {
     public static final byte[] BYTE_EMPTY = new byte[0];
 
-    public static final int[] INT_EMPTY = new int[0]; // lithium: ArrayConstants.java
-    public static final int[] INT_ZERO = new int[]{0}; // lithium: ArrayConstants.java
+    public static final int[] INT_EMPTY = new int[0]; // Lithium: ArrayConstants.java
+    public static final int[] INT_ZERO = new int[]{0}; // Lithium: ArrayConstants.java
     public static final int[] INT_ONE = new int[]{1};
     public static final int[] INT_TWO = new int[]{2};
 

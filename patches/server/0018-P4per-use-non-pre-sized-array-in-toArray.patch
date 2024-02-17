@@ -1,0 +1,119 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: acrylic-style <me@acrylicstyle.xyz>
+Date: Sat, 5 Jun 2021 00:24:27 +0900
+Subject: [PATCH] P4per: use non-pre-sized array in toArray
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+index b2ad0c4d92ed960190e3801fbc6a21dcc53bcb46..76c1b62e00af59848375bf9f75c5f67a02130b2e 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
++++ b/src/main/java/com/destroystokyo/paper/profile/PaperGameProfileRepository.java
+@@ -39,7 +39,7 @@ public class PaperGameProfileRepository extends YggdrasilGameProfileRepository {
+ 
+         // Some things were not found.... Proceed to look up.
+         if (!unfoundNames.isEmpty()) {
+-            String[] namesArr = unfoundNames.toArray(new String[unfoundNames.size()]);
++            String[] namesArr = unfoundNames.toArray(new String[0]); // P4per - use non-pre-sized array
+             super.findProfilesByNames(namesArr, new PreProfileLookupCallback(callback));
+         }
+     }
+diff --git a/src/main/java/com/mojang/brigadier/CommandDispatcher.java b/src/main/java/com/mojang/brigadier/CommandDispatcher.java
+index 5d0e8f4f3ad61a27452675277380e27d3d28d133..378df6c424323915940290880b2410bae17dc60e 100644
+--- a/src/main/java/com/mojang/brigadier/CommandDispatcher.java
++++ b/src/main/java/com/mojang/brigadier/CommandDispatcher.java
+@@ -399,7 +399,7 @@ public class CommandDispatcher<S> {
+     public String[] getAllUsage(final CommandNode<S> node, final S source, final boolean restricted) {
+         final ArrayList<String> result = new ArrayList<>();
+         this.getAllUsage(node, source, result, "", restricted);
+-        return result.toArray(new String[result.size()]);
++        return result.toArray(new String[0]); // P4per - use non-pre-sized array
+     }
+ 
+     private void getAllUsage(final CommandNode<S> node, final S source, final ArrayList<String> result, final String prefix, final boolean restricted) {
+diff --git a/src/main/java/net/minecraft/server/players/OldUsersConverter.java b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+index 45d4638d568ea2aee805aa1b0542533019e5870d..89ac6153984401cef6c8c0851f752f66aa0327c1 100644
+--- a/src/main/java/net/minecraft/server/players/OldUsersConverter.java
++++ b/src/main/java/net/minecraft/server/players/OldUsersConverter.java
+@@ -327,7 +327,7 @@ public class OldUsersConverter {
+             }
+ 
+             try {
+-                final String[] astring = (String[]) list.toArray(new String[list.size()]);
++                final String[] astring = (String[]) list.toArray(new String[0]); // P4per - use non-pre-sized array
+                 ProfileLookupCallback profilelookupcallback = new ProfileLookupCallback() {
+                     public void onProfileLookupSucceeded(GameProfile gameprofile) {
+                         minecraftServer.getProfileCache().add(gameprofile);
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 6559e8972a9d865fce2ae2a625fecce481e3d9f2..58213692f80368baf3ceaed066bfac9ce8240e96 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1863,7 +1863,7 @@ public final class CraftServer implements Server {
+                     commands = ImmutableList.of(section.getString(key));
+                 }
+ 
+-                result.put(key, commands.toArray(new String[commands.size()]));
++                result.put(key, commands.toArray(new String[0])); // P4per - use non-pre-sized array
+             }
+         }
+ 
+@@ -2388,7 +2388,7 @@ public final class CraftServer implements Server {
+ 
+         players.addAll(this.getOnlinePlayers());
+ 
+-        return players.toArray(new OfflinePlayer[players.size()]);
++        return players.toArray(new OfflinePlayer[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 0a3cecf9a8f7a49da3d8ae6d3261ae3a929ecc62..cf094dc53cc8e4bcc82587fda3fcdcb6a35d3a4a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -2063,7 +2063,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+ 
+     @Override
+     public String[] getGameRules() {
+-        return CraftWorld.getGameRulesNMS().keySet().toArray(new String[CraftWorld.getGameRulesNMS().size()]);
++        return CraftWorld.getGameRulesNMS().keySet().toArray(new String[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java b/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
+index 753200057e74b8e2d5274894b982e6ee946a559e..f1ab25460035cbb9694f8c3a1af1a9fb54a37527 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftChatMessage.java
+@@ -163,7 +163,7 @@ public final class CraftChatMessage {
+                 this.appendNewComponent(message.length());
+             }
+ 
+-            this.output = this.list.toArray(new Component[this.list.size()]);
++            this.output = this.list.toArray(new Component[0]); // P4per - use non-pre-sized array
+         }
+ 
+         private void appendNewComponent(int index) {
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
+index b1395266276b521fed3e7939571b2ea5da75e919..6202a2215c9384b9b1d46eeced8b6da33737f4c6 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/FactoryItemMaterialTest.java
+@@ -32,7 +32,7 @@ public class FactoryItemMaterialTest extends AbstractTestingBase {
+ 
+             list.add(material);
+         }
+-        materials = list.toArray(new Material[list.size()]);
++        materials = list.toArray(new Material[0]); // P4per - use non-pre-sized array
+     }
+ 
+     static String name(Enum<?> from, Enum<?> to) {
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java
+index 1a2cec0f3229c4f9fd0c381e08de651822c24d19..e2defe795f53064fe34676cf952d92f2c9d69f78 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/ItemStackTest.java
+@@ -323,7 +323,7 @@ public class ItemStackTest extends AbstractTestingBase {
+             possibleMaterials.put(meta.getClass(), material);
+ 
+         }
+-        COMPOUND_MATERIALS = possibleMaterials.values().toArray(new Material[possibleMaterials.size()]);
++        COMPOUND_MATERIALS = possibleMaterials.values().toArray(new Material[0]); // P4per - use non-pre-sized array
+     }
+ 
+     @ParameterizedTest(name = "[{index}]:{" + ItemStackTest.NAME_PARAMETER + "}")

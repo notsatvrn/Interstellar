@@ -9,13 +9,13 @@ events to be published by the server without impacting the overall
 performance too much.
 
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..760535e1d6335cf07b6222525610a11318d2596f 100644
+index 7c25b205af73bd7674f84d3fb02ff826e09ea783..9e359b32ddaa92aaa3da1ffcf659f61488b2f2ce 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-@@ -36,11 +36,17 @@ class PaperEventManager {
+@@ -40,11 +40,17 @@ class PaperEventManager {
+         RegisteredListener[] listeners = handlers.getRegisteredListeners();
+         if (listeners.length == 0) return; // Patina - skip event if no listeners
  
-     // SimplePluginManager
-     public void callEvent(@NotNull Event event) {
 -        if (event.isAsynchronous() && this.server.isPrimaryThread()) {
 +        // KTP start - Optimise spigot event bus
 +        if (event.asynchronous() != net.kyori.adventure.util.TriState.NOT_SET) {
@@ -30,5 +30,5 @@ index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..760535e1d6335cf07b6222525610a113
 +        // KTP stop - Optimise spigot event bus
 +        }
  
-         HandlerList handlers = event.getHandlers();
-         RegisteredListener[] listeners = handlers.getRegisteredListeners();
+         // Patina - moved up
+ 

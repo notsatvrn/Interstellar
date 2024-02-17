@@ -1,18 +1,18 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Wed, 27 Sep 2023 22:08:34 -0700
-Subject: [PATCH] Graphene (lithium): ai.raid
+Subject: [PATCH] Lithium: ai.raid
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/raid/Raid.java b/src/main/java/net/minecraft/world/entity/raid/Raid.java
-index eaa2943b667967f93f28d9d794d702fdaeb670ec..f73418ec762a8d930eee5350515e9cf25761f74b 100644
+index eaa2943b667967f93f28d9d794d702fdaeb670ec..c5df387a39ad342c20cb7890b4464655a387c7bf 100644
 --- a/src/main/java/net/minecraft/world/entity/raid/Raid.java
 +++ b/src/main/java/net/minecraft/world/entity/raid/Raid.java
 @@ -62,6 +62,24 @@ import net.minecraft.world.phys.Vec3;
  
  public class Raid {
  
-+    // Graphene start - lithum: ai.raid
++    // Lithium start - ai.raid
 +    private boolean isBarDirty;
 +    private static final ItemStack CACHED_OMINOUS_BANNER;
 +
@@ -28,7 +28,7 @@ index eaa2943b667967f93f28d9d794d702fdaeb670ec..f73418ec762a8d930eee5350515e9cf2
 +
 +        CACHED_OMINOUS_BANNER = itemstack;
 +    }
-+    // Graphene end
++    // Lithium end
 +
      private static final int SECTION_RADIUS_FOR_FINDING_NEW_VILLAGE_CENTER = 2;
      private static final int ATTEMPT_RAID_FARTHEST = 0;
@@ -37,12 +37,12 @@ index eaa2943b667967f93f28d9d794d702fdaeb670ec..f73418ec762a8d930eee5350515e9cf2
      }
  
      public void tick() {
-+        // Graphene start - lithum: ai.raid
++        // Lithium start - ai.raid
 +        if (this.isBarDirty) {
 +            this.raidEvent.setProgress(Mth.clamp(this.getHealthOfLivingRaiders() / this.totalHealth, 0.0F, 1.0F));
 +            this.isBarDirty = false;
 +        }
-+        // Graphene end
++        // Lithium end
 +
          if (!this.isStopped()) {
              if (this.status == Raid.RaidStatus.ONGOING) {
@@ -52,7 +52,7 @@ index eaa2943b667967f93f28d9d794d702fdaeb670ec..f73418ec762a8d930eee5350515e9cf2
  
      public void updateBossbar() {
 -        this.raidEvent.setProgress(Mth.clamp(this.getHealthOfLivingRaiders() / this.totalHealth, 0.0F, 1.0F));
-+        this.isBarDirty = true; // Graphene - lithum: ai.raid
++        this.isBarDirty = true; // Lithium - ai.raid
      }
  
      public float getHealthOfLivingRaiders() {
@@ -69,7 +69,7 @@ index eaa2943b667967f93f28d9d794d702fdaeb670ec..f73418ec762a8d930eee5350515e9cf2
 -        itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
 -        itemstack.setHoverName(Component.translatable("block.minecraft.ominous_banner").withStyle(ChatFormatting.GOLD));
 -        return itemstack;
-+        return CACHED_OMINOUS_BANNER; // Graphene - lithum: ai.raid
++        return CACHED_OMINOUS_BANNER; // Lithium - ai.raid
      }
  
      @Nullable

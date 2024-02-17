@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: satvrn <pastawho@gmail.com>
+Date: Tue, 26 Sep 2023 03:22:41 -0700
+Subject: [PATCH] Akarin: Save Json list asynchronously
+
+
+diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
+index 35f973cc2c0989256fa21abaf0327c2f36dbe4c9..12d13f862f72f284c0bee75ce71ada574170981b 100644
+--- a/src/main/java/net/minecraft/server/players/StoredUserList.java
++++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
+@@ -103,6 +103,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+     }
+ 
+     public void save() throws IOException {
++        Runnable runnable = () -> { // Akarin - Save json list async
+         this.removeExpired(); // Paper - remove expired values before saving
+         JsonArray jsonarray = new JsonArray();
+         Stream<JsonObject> stream = this.map.values().stream().map((jsonlistentry) -> { // CraftBukkit - decompile error
+@@ -114,6 +115,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+ 
+         Objects.requireNonNull(jsonarray);
+         stream.forEach(jsonarray::add);
++        try {
+         BufferedWriter bufferedwriter = Files.newWriter(this.file, StandardCharsets.UTF_8);
+ 
+         try {
+@@ -133,7 +135,11 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+         if (bufferedwriter != null) {
+             bufferedwriter.close();
+         }
+-
++        } catch (IOException e) { // Akarin - Save json list async
++            StoredUserList.LOGGER.warn("Failed to save " + this.file, e); // Akarin - Save json list async
++        }
++        }; // Akarin - Save json list async
++        io.papermc.paper.util.MCUtil.scheduleAsyncTask(runnable); // Akarin - Save json list async
+     }
+ 
+     public void load() throws IOException {

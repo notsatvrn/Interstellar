@@ -1,4 +1,4 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 083ec41cf50f05851b4d74fb4d4c86068c1fd46e Mon Sep 17 00:00:00 2001
 From: notsatvrn <satvrn@gmx.com>
 Date: Thu, 15 Feb 2024 19:21:05 -0800
 Subject: [PATCH] Graphene: Improve loottable refresh logic
@@ -35,7 +35,7 @@ index 5e4fd023125152838c0baff4797a4bd1632d5228..afc27871683c742277a90476e204e3f9
          if (this.nextRefill == -1) {
              return false;
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-index b41635dd0569ff7df909df492d3e850aef7214be..050b6498d58f5ad2956f82ad34e4068b3078d8f7 100644
+index b41635dd0569ff7df909df492d3e850aef7214be..c1c434a52e1dea09fa3033aca440d2905b5b020a 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 @@ -68,11 +68,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
@@ -69,3 +69,6 @@ index b41635dd0569ff7df909df492d3e850aef7214be..050b6498d58f5ad2956f82ad34e4068b
  
      }
      // Paper end
+-- 
+2.43.2
+

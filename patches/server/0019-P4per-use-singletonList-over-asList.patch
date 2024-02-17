@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: acrylic-style <me@acrylicstyle.xyz>
+Date: Sat, 5 Jun 2021 00:24:27 +0900
+Subject: [PATCH] P4per: use singletonList over asList
+
+
+diff --git a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+index e94224ed280247ee69dfdff8dc960f2b8729be33..e0350646987e9ab22c2b795a6cda6e4fcc14547e 100644
+--- a/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
++++ b/src/main/java/io/papermc/paper/command/PaperPluginsCommand.java
+@@ -75,7 +75,7 @@ public class PaperPluginsCommand extends BukkitCommand {
+         this.description = "Gets a list of plugins running on the server";
+         this.usageMessage = "/plugins";
+         this.setPermission("bukkit.command.plugins");
+-        this.setAliases(Arrays.asList("pl"));
++        this.setAliases(Collections.singletonList("pl")); // P4per - use singletonList
+     }
+ 
+     private static <T> List<Component> formatProviders(TreeMap<String, PluginProvider<T>> plugins, @NotNull CommandSender sender) { // Purpur
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java b/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
+index fd1d6c4c3f78b610282318e98ba3742f8bf6e20e..68936ac2fb09c907d789f27084f0ef9037264ae6 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/AbstractArrow.java
+@@ -449,7 +449,7 @@ public abstract class AbstractArrow extends Projectile {
+                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
+                         CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(entityplayer, (Collection) this.piercedAndKilledEntities);
+                     } else if (!entity.isAlive() && this.shotFromCrossbow()) {
+-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(entityplayer, (Collection) Arrays.asList(entity));
++                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(entityplayer, java.util.Collections.singletonList(entity)); // P4per - use singletonList
+                     }
+                 }
+             }
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
+index b5b1831631e233a96b6fd55972a8862b0f420da8..a0e9e2bbea8add02049d5bc1ffc6dcb607f59879 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
+@@ -161,7 +161,7 @@ public class BrushableBlockEntity extends BlockEntity {
+                 entityitem.setDeltaMovement(Vec3.ZERO);
+                 // CraftBukkit start
+                 org.bukkit.block.Block bblock = CraftBlock.at(this.level, this.worldPosition);
+-                CraftEventFactory.handleBlockDropItemEvent(bblock, bblock.getState(), (ServerPlayer) player, Arrays.asList(entityitem));
++                CraftEventFactory.handleBlockDropItemEvent(bblock, bblock.getState(), (ServerPlayer) player, java.util.Collections.singletonList(entityitem)); // P4per - use singletonList
+                 // CraftBukkit end
+                 this.item = ItemStack.EMPTY;
+             }
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java
+index f454eb684d94ccf3d7726407eed1977c7b6403e0..a43f0081c9004c2c7dad29863d143413b5404c3a 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/LecternBlockEntity.java
+@@ -51,7 +51,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
+ 
+         @Override
+         public List<ItemStack> getContents() {
+-            return Arrays.asList(LecternBlockEntity.this.book);
++            return java.util.Collections.singletonList(LecternBlockEntity.this.book); // P4per - use singletonList
+         }
+ 
+         @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+index 6c2e91b986099027d83aba85f14ae69cbc358348..cffd56c711fb3e1c8df61d9c54d99f5cd91a84e3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftHumanEntity.java
+@@ -674,7 +674,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public boolean discoverRecipe(NamespacedKey recipe) {
+-        return this.discoverRecipes(Arrays.asList(recipe)) != 0;
++        return this.discoverRecipes(java.util.Collections.singletonList(recipe)) != 0; // P4per - use singletonList
+     }
+ 
+     @Override
+@@ -684,7 +684,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
+ 
+     @Override
+     public boolean undiscoverRecipe(NamespacedKey recipe) {
+-        return this.undiscoverRecipes(Arrays.asList(recipe)) != 0;
++        return this.undiscoverRecipes(java.util.Collections.singletonList(recipe)) != 0; // P4per - use singletonList
+     }
+ 
+     @Override

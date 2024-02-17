@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: satvrn <pastawho@gmail.com>
 Date: Wed, 27 Sep 2023 02:18:41 -0700
-Subject: [PATCH] Graphene (lithium): cached_hashcode
+Subject: [PATCH] Lithium: cached_hashcode
 
 
 diff --git a/src/main/java/net/minecraft/world/level/block/Block.java b/src/main/java/net/minecraft/world/level/block/Block.java
@@ -12,19 +12,19 @@ index 65504432a13df45e895cf6ca885627014444563a..0cae5b647863d5765c5ad7d8e04907be
          private final BlockState first;
          private final BlockState second;
          private final Direction direction;
-+        private int hash; // Graphene - lithum: cached_hashcode
++        private int hash; // Lithium - cached_hashcode
  
          public BlockStatePairKey(BlockState self, BlockState other, Direction facing) {
              this.first = self;
              this.second = other;
              this.direction = facing;
 +
-+            // Graphene start - lithum: cached_hashcode
++            // Lithium start - cached_hashcode
 +            int i = this.first.hashCode();
 +            i = 31 * i + this.second.hashCode();
 +            i = 31 * i + this.direction.hashCode();
 +            this.hash = i;
-+            // Graphene end
++            // Lithium end
          }
  
          public boolean equals(Object object) {
@@ -37,7 +37,7 @@ index 65504432a13df45e895cf6ca885627014444563a..0cae5b647863d5765c5ad7d8e04907be
 -            i = 31 * i + this.second.hashCode();
 -            i = 31 * i + this.direction.hashCode();
 -            return i;
-+            return this.hash; // Graphene - lithum: cached_hashcode
++            return this.hash; // Lithium - cached_hashcode
          }
      }
  }
