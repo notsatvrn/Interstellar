@@ -5,7 +5,7 @@ Subject: [PATCH] Interstellar: Use FastRandom
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
-index 6e72c43b9d3834eb91c02ce68e7d114ad907812d..5e4fd023125152838c0baff4797a4bd1632d5228 100644
+index 6e72c43b9d3834eb91c02ce68e7d114ad907812d..b0a42fc9da000f2cd4104e31eb846cdce5b08837 100644
 --- a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 +++ b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 @@ -16,7 +16,7 @@ import java.util.UUID;
@@ -18,7 +18,7 @@ index 6e72c43b9d3834eb91c02ce68e7d114ad907812d..5e4fd023125152838c0baff4797a4bd1
      private long lastFill = -1;
      private long nextRefill = -1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 1b49ecbf8fdbe8b734f8ca5191dc9ed70aa66af7..6c53ef10a7af3c5ec756ccc1194927b4cdc6ba3c 100644
+index 1b49ecbf8fdbe8b734f8ca5191dc9ed70aa66af7..0729aa499fa503c024701af55229b61397038711 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -801,7 +801,7 @@ public class LevelChunk extends ChunkAccess {
@@ -31,7 +31,7 @@ index 1b49ecbf8fdbe8b734f8ca5191dc9ed70aa66af7..6c53ef10a7af3c5ec756ccc1194927b4
                  long xRand = random.nextLong() / 2L * 2L + 1L;
                  long zRand = random.nextLong() / 2L * 2L + 1L;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
-index 2c80ba31a97f21668c23eb19b40dc117ed95bfae..81a585c375278f199059f7227f5307489d6be2f3 100644
+index 2c80ba31a97f21668c23eb19b40dc117ed95bfae..3362b0ad3ac5309579d07ad9c1815a1dbfdfcbcc 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFile.java
 @@ -28,6 +28,7 @@ import org.slf4j.Logger;

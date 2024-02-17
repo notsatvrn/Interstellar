@@ -21,6 +21,7 @@ Interstellar would not be possible without the help of following projects.
 - [Akarin](https://github.com/Akarin-project/Akarin)
 - [KTP](https://github.com/lynxplay/ktp)
 - [P4per](https://github.com/acrylic-style/P4per)
+- [SparklyPaper](https://github.com/SparklyPower/SparklyPaper)
 - [LinearPurpur](https://github.com/StupidCraft/LinearPurpur)
 
 ### Mods

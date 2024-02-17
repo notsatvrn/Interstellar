@@ -226,10 +226,10 @@ index d45e39bc009281c298f3dfae113dc87f2b3b1fbd..7683f6da7d2e5aeaaf2a61bf045706eb
      private static final Codec<Object> ARG_CODEC = Codec.either(PRIMITIVE_ARG_CODEC, ComponentSerialization.CODEC).xmap((either) -> {
          return either.map((object) -> {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 0267c7f1b468aad7deccd14058a150185e888531..48c61a7dee36c416f202f80ecbb87ad15c039f91 100644
+index 422b3628d3373eaa3639e44720336b67b565d632..79ce09d03e9e81068467b915d84e69b9ed7a4138 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1490,10 +1490,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1491,10 +1491,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
      private Optional<ServerStatus.Favicon> loadStatusIcon() {
          Optional<Path> optional = Optional.of(this.getFile("server-icon.png").toPath()).filter((path) -> {
@@ -269,7 +269,7 @@ index b25c41c639bc98a3a1fd5b3e6a7db23efe1a7f7e..64d13761ed2fd12fb697011ccd405846
          return ret;
      }
 diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-index 8b62f992ec61d0a66a3856b4928ee2d705548291..003eefc0c2cdc769c60ada1870d773d25fad29a2 100644
+index e8afdab5fa03f60b0d122dc89c6f0654f14beb97..d847cccd9636ad57743ab7c4fb81c28ce98f0d13 100644
 --- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
 @@ -138,8 +138,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
@@ -515,7 +515,7 @@ index 16d2aa4556bc9f32a2def7f9ca282aa3fa23fb87..a944283e03243a1c5c36845d2306d2b7
  
          @Nullable
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 58213692f80368baf3ceaed066bfac9ce8240e96..6e1595daacaa192a7485228ad2bfc167ae329bf2 100644
+index c659b38d7174896915f549cf24bda8d652ffdfe8..6ea3262ddffa2fe2ac7b9d84a8015ac61d52eef0 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1863,7 +1863,7 @@ public final class CraftServer implements Server {

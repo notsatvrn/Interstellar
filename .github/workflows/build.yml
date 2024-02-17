@@ -6,20 +6,13 @@ jobs:
     # Only run on PRs if the source branch is on someone else's repo
     if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ 19 ]
-      fail-fast: true
     steps:
-      - name: Checkout Git Repository
-        uses: actions/checkout@v4
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+      - uses: gradle/wrapper-validation-action@v2
+      - uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
-          distribution: 'adopt'
+          distribution: adopt
+          java-version: 21
       - name: Pull Gradle Cache
         uses: actions/cache@v3
         id: gradle-cache
@@ -28,8 +21,8 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}-java-${{ matrix.java }}
       - name: Configure Git
         run: |
-          git config --global user.email "no-reply@github.com"
-          git config --global user.name "Github Actions"
+          git config --global user.email "action@github.com"
+          git config --global user.name "Github Action"
       - name: Patch
         run: |
           ./gradlew applyPatches --stacktrace --no-daemon
@@ -40,7 +33,7 @@ jobs:
         run: |
           ./gradlew createReobfPaperclipJar --stacktrace --no-daemon
       - name: Archive Paperclip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Interstellar
           path: build/libs/interstellar-paperclip-${{ steps.mcver.outputs.mcver }}-R0.1-SNAPSHOT-reobf.jar

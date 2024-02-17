@@ -5,7 +5,7 @@ Subject: [PATCH] Interstellar: Config Files
 
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index be0e4c789a02d67160287c39cf6bdf8ef2229afc..031076f1a03047d9d35743fe178f1b77706accaa 100644
+index be0e4c789a02d67160287c39cf6bdf8ef2229afc..977998ee998ae068364bb978e6660c00d7157d35 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
 @@ -2226,6 +2226,13 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi

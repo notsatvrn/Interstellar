@@ -9,7 +9,7 @@ hs_err_pid*
 *.iws
 out/
 
-# Kotlin LSP
+# Kotlin Language Server
 kls_database.db
 
 # Eclipse

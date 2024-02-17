@@ -5,7 +5,7 @@ Subject: [PATCH] Krypton: network.pipeline
 
 
 diff --git a/src/main/java/net/minecraft/network/Varint21FrameDecoder.java b/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
-index 137b9a088c82ce6813bf8a80468675bb4992ce53..1821acece7ad27c7b920a6d8cb727ae2f8679fa9 100644
+index 137b9a088c82ce6813bf8a80468675bb4992ce53..a81804e02b456548764fadd81e9e4928d3a1e719 100644
 --- a/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
 +++ b/src/main/java/net/minecraft/network/Varint21FrameDecoder.java
 @@ -8,11 +8,18 @@ import io.netty.handler.codec.CorruptedFrameException;

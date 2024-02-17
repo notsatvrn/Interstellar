@@ -4,6 +4,32 @@ Date: Thu, 1 Jul 2021 12:17:44 +0000
 Subject: [PATCH] Patina: don't create new random instance
 
 
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 6301a63074dfa8e8cf38778840764330effd379c..80a3e4526223226e2acbdfecca4dc823e8c85b77 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -231,7 +231,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private ServerStatus status;
+     @Nullable
+     private ServerStatus.Favicon statusIcon;
+-    private final RandomSource random;
++    public final RandomSource random; // Patina - don't create new random instance
+     public final DataFixer fixerUpper;
+     private String localIp;
+     private int port;
+diff --git a/src/main/java/net/minecraft/server/commands/SpreadPlayersCommand.java b/src/main/java/net/minecraft/server/commands/SpreadPlayersCommand.java
+index b47a8a082170bcb630c4354be7c77a4cac71d105..a08548c5facc11d829f6c640d4264633ada8dbee 100644
+--- a/src/main/java/net/minecraft/server/commands/SpreadPlayersCommand.java
++++ b/src/main/java/net/minecraft/server/commands/SpreadPlayersCommand.java
+@@ -66,7 +66,7 @@ public class SpreadPlayersCommand {
+         if (maxY < j) {
+             throw SpreadPlayersCommand.ERROR_INVALID_MAX_HEIGHT.create(maxY, j);
+         } else {
+-            RandomSource randomsource = RandomSource.create();
++            RandomSource randomsource = worldserver.random; // Patina - don't create new random instance
+             double d0 = (double) (center.x - maxRange);
+             double d1 = (double) (center.y - maxRange);
+             double d2 = (double) (center.x + maxRange);
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 index 36b7686fdfeaab13cb1be9610ddc76fc70f6f6e5..2041b0e6d548d8048d28e0b4f99d9014bda74943 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
@@ -26,6 +52,19 @@ index 36b7686fdfeaab13cb1be9610ddc76fc70f6f6e5..2041b0e6d548d8048d28e0b4f99d9014
  
              for (int l1 = 0; l1 < i1; ++l1) {
                  int i2 = (k1 + j1 * l1) % i1;
+diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+index 8b62f992ec61d0a66a3856b4928ee2d705548291..e8afdab5fa03f60b0d122dc89c6f0654f14beb97 100644
+--- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -71,7 +71,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+         this.serverId = "";
+         this.server = server;
+         this.connection = connection;
+-        this.challenge = Ints.toByteArray(RandomSource.create().nextInt());
++        this.challenge = Ints.toByteArray(server.random.nextInt()); // Patina - don't create new random instance
+     }
+ 
+     @Override
 diff --git a/src/main/java/net/minecraft/server/rcon/thread/QueryThreadGs4.java b/src/main/java/net/minecraft/server/rcon/thread/QueryThreadGs4.java
 index 1ef089dbf83de35d875c00efdf468c397be56978..4083c519c14b733d6df186ecc668e89a4efdeac7 100644
 --- a/src/main/java/net/minecraft/server/rcon/thread/QueryThreadGs4.java
@@ -39,3 +78,99 @@ index 1ef089dbf83de35d875c00efdf468c397be56978..4083c519c14b733d6df186ecc668e89a
              this.challengeBytes = String.format(Locale.ROOT, "\t%s%d\u0000", this.ident, this.challenge).getBytes(StandardCharsets.UTF_8);
          }
  
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index f6c9bff8ef4e370dcb351490294181282ad156e3..514e084d607959ef7923f64210940ff53bc6c47e 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -597,7 +597,7 @@ public abstract class Entity implements Nameable, EntityAccess, CommandSource, S
+         this.bb = Entity.INITIAL_AABB;
+         this.stuckSpeedMultiplier = Vec3.ZERO;
+         this.nextStep = 1.0F;
+-        this.random = world == null || world.purpurConfig.entitySharedRandom ? SHARED_RANDOM : RandomSource.create(); // Paper - Share random for entities to make them more random // Purpur
++        this.random = world == null || world.purpurConfig.entitySharedRandom ? SHARED_RANDOM : world.random; // Paper - Share random for entities to make them more random // Purpur // Patina - don't create new random instance
+         this.remainingFireTicks = -this.getFireImmuneTicks();
+         this.fluidHeight = new Object2DoubleArrayMap(2);
+         this.fluidOnEyes = new HashSet();
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java b/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java
+index 90a5f6bd729148f2adc745273536e48d704fcd1e..03c4573b0dc74702ff4727e29d7d11b567e3248c 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/FishingHook.java
+@@ -86,7 +86,7 @@ public class FishingHook extends Projectile {
+ 
+     private FishingHook(EntityType<? extends FishingHook> type, Level world, int luckOfTheSeaLevel, int lureLevel) {
+         super(type, world);
+-        this.syncronizedRandom = RandomSource.create();
++        this.syncronizedRandom = world.random; // Patina - don't create new random instance
+         this.openWater = true;
+         this.currentState = FishingHook.FishHookState.FLYING;
+         this.noCulling = true;
+diff --git a/src/main/java/net/minecraft/world/entity/raid/Raid.java b/src/main/java/net/minecraft/world/entity/raid/Raid.java
+index eaa2943b667967f93f28d9d794d702fdaeb670ec..1b23b3b403004dc30ea6eedc622da49c45f13d60 100644
+--- a/src/main/java/net/minecraft/world/entity/raid/Raid.java
++++ b/src/main/java/net/minecraft/world/entity/raid/Raid.java
+@@ -109,7 +109,7 @@ public class Raid {
+ 
+     public Raid(int id, ServerLevel world, BlockPos pos) {
+         this.raidEvent = new ServerBossEvent(Raid.RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+-        this.random = RandomSource.create();
++        this.random = world.random; // Patina - don't create new random instance
+         this.waveSpawnPos = Optional.empty();
+         this.id = id;
+         this.level = world;
+@@ -123,7 +123,7 @@ public class Raid {
+ 
+     public Raid(ServerLevel world, CompoundTag nbt) {
+         this.raidEvent = new ServerBossEvent(Raid.RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+-        this.random = RandomSource.create();
++        this.random = world.random; // Patina - don't create new random instance
+         this.waveSpawnPos = Optional.empty();
+         this.level = world;
+         this.id = nbt.getInt("Id");
+diff --git a/src/main/java/net/minecraft/world/level/Explosion.java b/src/main/java/net/minecraft/world/level/Explosion.java
+index 059e545fd04b7919fb0cc86797b636e3cda61027..49e22986900f69d7e9620fc30a728017384de4ca 100644
+--- a/src/main/java/net/minecraft/world/level/Explosion.java
++++ b/src/main/java/net/minecraft/world/level/Explosion.java
+@@ -92,7 +92,7 @@ public class Explosion {
+     }
+ 
+     public Explosion(Level world, @Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator behavior, double x, double y, double z, float power, boolean createFire, Explosion.BlockInteraction destructionType, ParticleOptions particle, ParticleOptions emitterParticle, SoundEvent soundEvent) {
+-        this.random = RandomSource.create();
++        this.random = world.random; // Patina - don't create new random instance
+         this.toBlow = new ObjectArrayList();
+         this.hitPlayers = Maps.newHashMap();
+         this.level = world;
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/TheEndGatewayBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/TheEndGatewayBlockEntity.java
+index c3d25a26883f7cbe7106c2f3415af0b18f534ee2..fc6cb24b99b7044b77fd0af906277b9f5dd144ff 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/TheEndGatewayBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/TheEndGatewayBlockEntity.java
+@@ -368,7 +368,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
+     }
+ 
+     private static void spawnGatewayPortal(ServerLevel world, BlockPos pos, EndGatewayConfiguration config) {
+-        Feature.END_GATEWAY.place(config, world, world.getChunkSource().getGenerator(), RandomSource.create(), pos);
++        Feature.END_GATEWAY.place(config, world, world.getChunkSource().getGenerator(), world.random, pos); // Patina - don't create new random instance
+     }
+ 
+     @Override
+diff --git a/src/main/java/net/minecraft/world/level/dimension/end/EndDragonFight.java b/src/main/java/net/minecraft/world/level/dimension/end/EndDragonFight.java
+index 7e9c502a7bcda445333adc250a3106f33d38c128..c4f264e8eeb6ae7dec2a761fa1c6ad565e44969e 100644
+--- a/src/main/java/net/minecraft/world/level/dimension/end/EndDragonFight.java
++++ b/src/main/java/net/minecraft/world/level/dimension/end/EndDragonFight.java
+@@ -472,7 +472,7 @@ public class EndDragonFight {
+         this.level.registryAccess().registry(Registries.CONFIGURED_FEATURE).flatMap((iregistry) -> {
+             return iregistry.getHolder(EndFeatures.END_GATEWAY_DELAYED);
+         }).ifPresent((holder_c) -> {
+-            ((ConfiguredFeature) holder_c.value()).place(this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), pos);
++            ((ConfiguredFeature) holder_c.value()).place(this.level, this.level.getChunkSource().getGenerator(), this.level.random, pos);
+         });
+     }
+ 
+@@ -490,7 +490,7 @@ public class EndDragonFight {
+             this.portalLocation = this.portalLocation.atY(this.level.getMinBuildHeight() + 1);
+         }
+         // Paper end - Prevent "softlocked" exit portal generation
+-        if (worldgenendtrophy.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), this.portalLocation)) {
++        if (worldgenendtrophy.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), this.level.random, this.portalLocation)) {
+             int i = Mth.positiveCeilDiv(4, 16);
+ 
+             this.level.getChunkSource().chunkMap.waitForLightBeforeSending(new ChunkPos(this.portalLocation), i);

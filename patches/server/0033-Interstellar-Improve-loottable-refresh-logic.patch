@@ -5,7 +5,7 @@ Subject: [PATCH] Interstellar: Improve loottable refresh logic
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
-index 5e4fd023125152838c0baff4797a4bd1632d5228..afc27871683c742277a90476e204e3f9ea309a89 100644
+index b0a42fc9da000f2cd4104e31eb846cdce5b08837..932dc77bd365f5ed2a770a7886036187404891a9 100644
 --- a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 +++ b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 @@ -43,6 +43,13 @@ public class PaperLootableInventoryData {
@@ -35,7 +35,7 @@ index 5e4fd023125152838c0baff4797a4bd1632d5228..afc27871683c742277a90476e204e3f9
          if (this.nextRefill == -1) {
              return false;
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-index b41635dd0569ff7df909df492d3e850aef7214be..050b6498d58f5ad2956f82ad34e4068b3078d8f7 100644
+index b41635dd0569ff7df909df492d3e850aef7214be..11e770d36f69a3b358f75d70011850c2a25d6bb0 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 @@ -68,11 +68,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
