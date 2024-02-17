@@ -1,6 +1,10 @@
 # Graphene [![Build Graphene](https://github.com/notsatvrn/Graphene/actions/workflows/build.yml/badge.svg)](https://github.com/notsatvrn/Graphene/actions/workflows/build.yml)
 A light, stable, and flexible Minecraft server software based on [Purpur](https://purpurmc.org).
 
+## ⚠️ Graphene is NOT production ready. ⚠️
+
+If you use Graphene, *expect to encounter issues*, and please report them.
+
 ## Credits
 
 Graphene would not be possible without the help of following projects.
