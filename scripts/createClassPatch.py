@@ -7,9 +7,7 @@ import pathlib
 import shutil
 import os
 from zoneinfo import ZoneInfo
-from datetime import datetime
-
-LOCAL_TZ = ZoneInfo("localtime")
+from datetime import datetime, UTC
 
 script_path = os.path.realpath(__file__)
 class_dir = str(pathlib.Path(f"{script_path}/../../classes/").resolve())
@@ -43,7 +41,7 @@ if __name__ == "__main__":
 
         patch = "From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001\n"
         patch += "From: satvrn <pastawho@gmail.com>\n"
-        patch += f"Date: {datetime.now(tz=LOCAL_TZ).strftime('%a, %d %b %Y %H:%M:%S %z')}\n"
+        patch += f"Date: {datetime.now(tz = UTC).strftime('%a, %d %b %Y %H:%M:%S %z')}\n"
         patch += f"Subject: [PATCH] Interstellar: {type} Classes\n\n\n"
         
         for i, rp in enumerate(real_paths):

@@ -1,18 +1,19 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: notsatvrn <satvrn@gmx.com>
 Date: Thu, 15 Feb 2024 19:21:05 -0800
-Subject: [PATCH] Interstellar: Improve loottable refresh logic
+Subject: [PATCH] Interstellar: Improve loot table refresh logic
 
+based on Akarin's "Don't trigger Lootable Refresh for non player interaction"
 
 diff --git a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
-index b0a42fc9da000f2cd4104e31eb846cdce5b08837..932dc77bd365f5ed2a770a7886036187404891a9 100644
+index b0a42fc9da000f2cd4104e31eb846cdce5b08837..5ee863349dbc5560d9a0d3534af41900d4d4b87e 100644
 --- a/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 +++ b/src/main/java/com/destroystokyo/paper/loottable/PaperLootableInventoryData.java
 @@ -43,6 +43,13 @@ public class PaperLootableInventoryData {
      }
  
      public boolean shouldReplenish(@Nullable net.minecraft.world.entity.player.Player player) {
-+        // Interstellar start - Improve loottable refresh logic (moved up)
++        // Interstellar start - Moved up (Improve loot table refresh logic)
 +        // Only process refills when a player is set
 +        if (player == null) {
 +            return false;
@@ -35,17 +36,17 @@ index b0a42fc9da000f2cd4104e31eb846cdce5b08837..932dc77bd365f5ed2a770a7886036187
          if (this.nextRefill == -1) {
              return false;
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-index b41635dd0569ff7df909df492d3e850aef7214be..11e770d36f69a3b358f75d70011850c2a25d6bb0 100644
+index b41635dd0569ff7df909df492d3e850aef7214be..61ef551cb4686b7e4c9a405c33f89ddacc242c79 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 @@ -68,11 +68,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
  
      @Override
      public void unpackLootTable(@org.jetbrains.annotations.Nullable final Player player) {
-+        if (this.lootableData.shouldReplenish(player)) return; // Interstellar - Improve loottable refresh logic (move up)
++        if (this.lootableData.shouldReplenish(player)) return; // Interstellar - Improve loot table refresh logic (moved up)
          // Copied from super with changes, always check the original method
          net.minecraft.world.level.Level level = this.getLevel();
-+        if (level != null) return; // Interstellar - Improve loottable refresh logic (move up)
++        if (level != null) return; // Interstellar - Improve loot table refresh logic (moved up)
          BlockPos blockPos = this.getBlockPos();
          ResourceLocation resourceLocation = this.getLootTable();
 -        if (this.lootableData.shouldReplenish(player) && level != null) { // Paper

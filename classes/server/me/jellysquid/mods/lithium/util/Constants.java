@@ -23,4 +23,5 @@ public final class Constants {
     public static final org.bukkit.entity.Entity[] BUKKIT_ENTITY_EMPTY = new org.bukkit.entity.Entity[0];
     public static final net.minecraft.world.entity.Entity[] ENTITY_EMPTY = new net.minecraft.world.entity.Entity[0];
     public static final java.nio.file.LinkOption[] LINKOPTION_EMPTY = new java.nio.file.LinkOption[0];
+    public static final net.minecraft.world.level.chunk.ChunkAccess[] CHUNKACCESS_EMPTY = new net.minecraft.world.level.chunk.ChunkAccess[0];
 }

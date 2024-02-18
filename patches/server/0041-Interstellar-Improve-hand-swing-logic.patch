@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: notsatvrn <satvrn@gmx.com>
+Date: Sat, 17 Feb 2024 22:09:29 -0800
+Subject: [PATCH] Interstellar: Improve hand swing logic
+
+based on Lithium's entity.fast_hand_swing
+
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 70d17e451c9e86373a8e0215a332bf939f65ae53..564a8cc82bf721b1b39995d13df26eab7c3ecacf 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -2616,6 +2616,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
+     }
+ 
+     protected void updateSwingTime() {
++        // Lithium start - entity.fast_hand_swing
++        /*
+         int i = this.getCurrentSwingDuration();
+ 
+         if (this.swinging) {
+@@ -2629,6 +2631,21 @@ public abstract class LivingEntity extends Entity implements Attackable {
+         }
+ 
+         this.attackAnim = (float) this.swingTime / (float) i;
++        */
++
++        if (this.swinging) {
++            int i = this.getCurrentSwingDuration();
++            if (++this.swingTime >= i) {
++                this.swinging = false;
++            } else {
++                this.attackAnim = (float) this.swingTime / (float) i;
++                return;
++            }
++        } else if (this.swingTime == 0) return;
++
++        this.swingTime = 0;
++        this.attackAnim = 0;
++        // Lithium end
+     }
+ 
+     @Nullable
