@@ -18,10 +18,10 @@ index 6e72c43b9d3834eb91c02ce68e7d114ad907812d..b0a42fc9da000f2cd4104e31eb846cdc
      private long lastFill = -1;
      private long nextRefill = -1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-index 1b49ecbf8fdbe8b734f8ca5191dc9ed70aa66af7..0729aa499fa503c024701af55229b61397038711 100644
+index 74098df67a52b2481c3e13775e2e6f5d13060c11..14cc6bca89b6a0ebc99240e1122a4d5445ec5926 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -801,7 +801,7 @@ public class LevelChunk extends ChunkAccess {
+@@ -808,7 +808,7 @@ public class LevelChunk extends ChunkAccess {
              if (this.needsDecoration) {
                  //try (co.aikar.timings.Timing ignored = this.level.timings.chunkLoadPopulate.startTiming()) { // Paper // Purpur
                  this.needsDecoration = false;

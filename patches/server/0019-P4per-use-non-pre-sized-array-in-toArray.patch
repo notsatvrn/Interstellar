@@ -44,7 +44,7 @@ index 45d4638d568ea2aee805aa1b0542533019e5870d..89ac6153984401cef6c8c0851f752f66
                      public void onProfileLookupSucceeded(GameProfile gameprofile) {
                          minecraftServer.getProfileCache().add(gameprofile);
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 6559e8972a9d865fce2ae2a625fecce481e3d9f2..58213692f80368baf3ceaed066bfac9ce8240e96 100644
+index a7bf8ef9c47faff3c39f30bb85a335ff3043a972..c659b38d7174896915f549cf24bda8d652ffdfe8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1863,7 +1863,7 @@ public final class CraftServer implements Server {

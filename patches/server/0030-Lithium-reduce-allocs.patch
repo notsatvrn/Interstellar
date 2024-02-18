@@ -226,7 +226,7 @@ index d45e39bc009281c298f3dfae113dc87f2b3b1fbd..7683f6da7d2e5aeaaf2a61bf045706eb
      private static final Codec<Object> ARG_CODEC = Codec.either(PRIMITIVE_ARG_CODEC, ComponentSerialization.CODEC).xmap((either) -> {
          return either.map((object) -> {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 422b3628d3373eaa3639e44720336b67b565d632..79ce09d03e9e81068467b915d84e69b9ed7a4138 100644
+index e2061b092d604146f6c205bea315754bce1b55b1..6ff365b23c09c145f23178a9f349be1878223e54 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1491,10 +1491,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -256,10 +256,10 @@ index ba8a8575af92541cef2e116743d51cd68d1e794a..d1533260af8c1ca8e5514f23a4dac823
                  JsonReader jsonreader = new JsonReader(Files.newBufferedReader(this.playerSavePath, StandardCharsets.UTF_8));
  
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index b25c41c639bc98a3a1fd5b3e6a7db23efe1a7f7e..64d13761ed2fd12fb697011ccd405846e95e7588 100644
+index c356eaae70db3d6e477c7f719c5703ed19dce319..248575cd5a8c24a1aa5c425ecaa93cf769d96d4b 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
-@@ -1449,7 +1449,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -1455,7 +1455,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
  
      public static List<Entity> getCurrentlyTickingEntities() {
          Entity ticking = currentlyTickingEntity.get();
@@ -315,10 +315,10 @@ index 89ac6153984401cef6c8c0851f752f66aa0327c1..034cbf63a1a4b3e1fdb01adce7a9a5b6
                      public void onProfileLookupSucceeded(GameProfile gameprofile) {
                          minecraftServer.getProfileCache().add(gameprofile);
 diff --git a/src/main/java/net/minecraft/server/players/StoredUserList.java b/src/main/java/net/minecraft/server/players/StoredUserList.java
-index 12d13f862f72f284c0bee75ce71ada574170981b..96aaaa1d31c58be2e471be9e3c66493b3cf7e342 100644
+index 3735da7eadc4885f1de6ffa111f5ea4d5d7c9933..167de8597521bb1137aeeb5214949faf6f1b170d 100644
 --- a/src/main/java/net/minecraft/server/players/StoredUserList.java
 +++ b/src/main/java/net/minecraft/server/players/StoredUserList.java
-@@ -77,7 +77,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
+@@ -82,7 +82,7 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
      }
  
      public String[] getUserList() {
@@ -353,10 +353,10 @@ index a8314521dd5d17fcf3ff1de4f6fc85804112d87c..f682dc44e8f2f229a6dcd17cd29b1b66
  
      public boolean shoot(@Nullable Player rider, int[] heads) {
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index bc797f1872f86b59a8aae3e70823249c9b8d8922..98380b5841876eb2fb84e0dc03487a7c0895ecb0 100644
+index 7ab11a26959e280d994202c7d6949ade7162488c..b9d116258bd24dc5b79b7057b44b4747b3f1c19c 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
-@@ -1901,7 +1901,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+@@ -1917,7 +1917,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
      public org.bukkit.entity.Entity[] getChunkEntities(int chunkX, int chunkZ) {
          io.papermc.paper.world.ChunkEntitySlices slices = ((ServerLevel)this).getEntityLookup().getChunk(chunkX, chunkZ);
          if (slices == null) {

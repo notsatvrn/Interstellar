@@ -13,16 +13,16 @@ Interstellar would not be possible without the help of following projects.
 
 ### Patches
 
+- [LinearPurpur](https://github.com/StupidCraft/LinearPurpur)
+- [Patina](https://github.com/PatinaMC/Patina)
+- [KTP](https://github.com/lynxplay/ktp)
 - [Gale](https://github.com/GaleMC/Gale)
 - [Kaiiju](https://github.com/KaiijuMC/Kaiiju)
-- [Sugarcane](https://github.com/SugarcaneMC/Sugarcane)
 - [EmpireCraft](https://github.com/starlis/empirecraft)
-- [Patina](https://github.com/PatinaMC/Patina)
 - [Akarin](https://github.com/Akarin-project/Akarin)
-- [KTP](https://github.com/lynxplay/ktp)
+- [Sugarcane](https://github.com/SugarcaneMC/Sugarcane)
 - [P4per](https://github.com/acrylic-style/P4per)
 - [SparklyPaper](https://github.com/SparklyPower/SparklyPaper)
-- [LinearPurpur](https://github.com/StupidCraft/LinearPurpur)
 
 ### Mods
 
