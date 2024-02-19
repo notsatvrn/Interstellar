@@ -13,7 +13,7 @@ index 70d17e451c9e86373a8e0215a332bf939f65ae53..564a8cc82bf721b1b39995d13df26eab
      }
  
      protected void updateSwingTime() {
-+        // Lithium start - entity.fast_hand_swing
++        // Interstellar start - Improve hand swing logic
 +        /*
          int i = this.getCurrentSwingDuration();
  
@@ -36,7 +36,7 @@ index 70d17e451c9e86373a8e0215a332bf939f65ae53..564a8cc82bf721b1b39995d13df26eab
 +
 +        this.swingTime = 0;
 +        this.attackAnim = 0;
-+        // Lithium end
++        // Interstellar end
      }
  
      @Nullable
